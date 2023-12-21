@@ -15,16 +15,27 @@ class Login extends StatefulWidget {
 
   @override
   _LoginState createState() => _LoginState();
+
+  static Future<void> signOut() async {
+    await supabase.auth.signOut();
+  }
 }
 
 class _LoginState extends State<Login> {
   bool _isLoading = false;
   bool _redirecting = false;
 
+  // Depending on which button user clicks one of these will change to true
+  bool _passwordLogin = false;
+  bool _magicLinkLogin = false;
+  bool _OAuthLogin = false;
+
   late final TextEditingController _emailController = TextEditingController();
+  late final TextEditingController _passwordController =
+      TextEditingController();
   late final StreamSubscription<AuthState> _authStateSubscription;
 
-  Future<void> _signIn() async {
+  Future<void> _signInWithMagicLink() async {
     try {
       setState(() {
         _isLoading = true;
@@ -62,6 +73,56 @@ class _LoginState extends State<Login> {
     }
   }
 
+  Future<void> _signInWithPassword() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      await supabase.auth.signInWithPassword(
+          password: _passwordController.text.trim(),
+          email: _emailController.text.trim());
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Signed in!")),
+        );
+        _emailController.clear();
+        _passwordController.clear();
+      }
+    } on AuthException catch (error) {
+      SnackBar(
+        content: Text(error.message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    } catch (error) {
+      SnackBar(
+        content: const Text('Unexpected error occurred'),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _emailSignUp() async {
+    final AuthResponse res = await supabase.auth.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim());
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Please sign up your confirmation in your email.")),
+      );
+      _emailController.clear();
+    }
+  }
+
   @override
   void initState() {
     _authStateSubscription = supabase.auth.onAuthStateChange.listen((data) {
@@ -78,6 +139,7 @@ class _LoginState extends State<Login> {
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
     _authStateSubscription.cancel();
     super.dispose();
   }
@@ -90,16 +152,32 @@ class _LoginState extends State<Login> {
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
           const Text(
-              'Sign in password free using your email and the button below.'),
+              'To use our passwordless log in, put in your email and press the Send Magic Link button.'),
+          const SizedBox(
+            height: 10,
+          ),
+          const Text(
+              "Alternatively, you can sign up with your email of choice or log in with your Google/Apple account."),
           const SizedBox(height: 18),
           TextFormField(
             controller: _emailController,
             decoration: const InputDecoration(labelText: 'Email'),
           ),
+          const SizedBox(height: 18),
+          TextFormField(
+            controller: _passwordController,
+            decoration: const InputDecoration(labelText: 'Password'),
+          ),
+          const SizedBox(height: 18), // to add space
+          SignUpButton(Text(_isLoading ? 'Loading' : 'Sign In'),
+              _isLoading ? null : _signInWithPassword),
+          const SizedBox(height: 18), // to add space
+          SignUpButton(Text(_isLoading ? 'Loading' : 'Sign Up'),
+              _isLoading ? null : _emailSignUp),
           const SizedBox(height: 18), // to add space
           MagicLinkButton(
             Text(_isLoading ? 'Loading' : 'Send Magic Link'),
-            _isLoading ? null : _signIn,
+            _isLoading ? null : _signInWithMagicLink,
           ),
         ],
       ),
@@ -122,6 +200,34 @@ class MagicLinkButton extends StatelessWidget {
       onPressed: onTap != null
           ? () {
               onTap!();
+            }
+          : null,
+      child: child,
+      style: ElevatedButton.styleFrom(
+          foregroundColor: (textColour ?? Colors.white),
+          backgroundColor:
+              (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
+          elevation: 1,
+          textStyle: TextStyle(/*TODO make custom text styles*/)),
+    );
+  }
+}
+
+class SignUpButton extends StatelessWidget {
+  final Widget child;
+  final GestureTapCallback? onTap;
+  final Color? textColour;
+  final Color? backgroundColour;
+
+  const SignUpButton(this.child, this.onTap,
+      {Key? key, this.textColour, this.backgroundColour});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap != null
+          ? () {
+              onTap!(); // ! operator basically says its guaranteed to not be null
             }
           : null,
       child: child,
