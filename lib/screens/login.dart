@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:expensee/components/elevated_buttons/authentication_buttons/sign_in_with_google_button.dart';
+import 'package:expensee/components/elevated_buttons/authentication_buttons/sign_in_with_password_button.dart';
+import 'package:expensee/components/elevated_buttons/magic_link_button.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
-
-// TODO - set up log in via Gmail & FB
+import 'package:expensee/components/elevated_buttons/custom_callback_button.dart';
 
 class Login extends StatefulWidget {
   static const String routeName = "/login";
@@ -24,6 +27,10 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool _isLoading = false;
   bool _redirecting = false;
+  final _appBarTitle = const Text("Log In");
+
+  final authCallback =
+      '${dotenv.env['SUPABASE_PROJECT_SCHEMA']}://login-callback/';
 
   late final TextEditingController _emailController = TextEditingController();
   late final TextEditingController _passwordController =
@@ -37,17 +44,10 @@ class _LoginState extends State<Login> {
       });
       await supabase.auth.signInWithOtp(
         email: _emailController.text.trim(),
-        emailRedirectTo: kIsWeb
-            ? null
-            : '${dotenv.env['SUPABASE_PROJECT_SCHEMA']}://login-callback/',
+        emailRedirectTo: kIsWeb ? null : authCallback,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  "We've sent you a passwordless login link to your email!")),
-        );
-        _emailController.clear();
+        displaySignInSuccess();
       }
     } on AuthException catch (error) {
       SnackBar(
@@ -56,9 +56,8 @@ class _LoginState extends State<Login> {
       );
     } catch (error) {
       SnackBar(
-        content: const Text('Unexpected error occurred'),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      );
+          content: unexpectedErrorText,
+          backgroundColor: Theme.of(context).colorScheme.error);
     } finally {
       if (mounted) {
         setState(() {
@@ -79,11 +78,7 @@ class _LoginState extends State<Login> {
           email: _emailController.text.trim());
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Signed in!")),
-        );
-        _emailController.clear();
-        _passwordController.clear();
+        displaySignInSuccess();
       }
     } on AuthException catch (error) {
       SnackBar(
@@ -92,7 +87,7 @@ class _LoginState extends State<Login> {
       );
     } catch (error) {
       SnackBar(
-        content: const Text('Unexpected error occurred'),
+        content: unexpectedErrorText,
         backgroundColor: Theme.of(context).colorScheme.error,
       );
     } finally {
@@ -106,19 +101,57 @@ class _LoginState extends State<Login> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      await supabase.auth.signInWithOAuth(Provider.google,
-          redirectTo: dotenv.env["SUPABASE_AUTH_CALLBACK"]);
-    } catch (e) {
-      print("todo");
+      await supabase.auth
+          .signInWithOAuth(Provider.google, redirectTo: authCallback);
+
+      if (mounted) {
+        displaySignInSuccess();
+      }
+    } on AuthException catch (error) {
+      SnackBar(
+        content: Text(error.message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    } catch (error) {
+      SnackBar(
+        content: unexpectedErrorText,
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
+// TO DO - implement this in Supabase back end - need to make Apple dev profile
+// TO DO - refactor both OAuth sign in methods into one method, taking provider as param
   Future<void> _signInWithApple() async {
     try {
-      await supabase.auth.signInWithOAuth(Provider.apple,
-          redirectTo: dotenv.env["SUPABASE_AUTH_CALLBACK"]);
-    } catch (e) {
-      print("todo");
+      await supabase.auth
+          .signInWithOAuth(Provider.apple, redirectTo: authCallback);
+
+      if (mounted) {
+        displaySignInSuccess();
+      }
+    } on AuthException catch (error) {
+      SnackBar(
+        content: Text(error.message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    } catch (error) {
+      SnackBar(
+        content: unexpectedErrorText,
+        backgroundColor: Theme.of(context).colorScheme.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -129,8 +162,7 @@ class _LoginState extends State<Login> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Please sign up your confirmation in your email.")),
+        const SnackBar(content: confirmationEmailPopUpText),
       );
       _emailController.clear();
     }
@@ -157,107 +189,53 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
+  void displaySignInSuccess() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(signInSuccessText)),
+    );
+    _emailController.clear();
+    _passwordController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Log In')),
+      appBar: AppBar(title: _appBarTitle),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
-          const Text(
-              'To use our passwordless log in, put in your email and press the Send Magic Link button.'),
+          const Text(signInExplanationText),
           const SizedBox(
             height: 10,
           ),
-          const Text(
-              "Alternatively, you can sign up with your email of choice or log in with your Google/Apple account."),
-          const SizedBox(height: 18),
           TextFormField(
             controller: _emailController,
-            decoration: const InputDecoration(labelText: 'Email'),
+            decoration: emailControllerDecoration,
           ),
           const SizedBox(height: 18),
           TextFormField(
             controller: _passwordController,
-            decoration: const InputDecoration(labelText: 'Password'),
+            decoration: passwordControllerDecoration,
           ),
           const SizedBox(height: 18), // to add space
-          ProvideCallbackButton(Text(_isLoading ? 'Loading' : 'Sign In'),
+          SignInWithPasswordButton(
+              Text(_isLoading ? loadingText : signInWithPasswordButtonText),
               _isLoading ? null : _signInWithPassword),
           const SizedBox(height: 18), // to add space
-          ProvideCallbackButton(
-              Text(_isLoading ? 'Loading' : 'Sign in with Google'),
+          SignInWithGoogleButton(
+              Text(_isLoading ? loadingText : signInWithGoogleButtonText),
               _isLoading ? null : _signInWithGoogle),
           const SizedBox(height: 18), // to add space
-          ProvideCallbackButton(
-              Text(_isLoading ? 'Loading' : 'Sign in with Apple'),
-              _isLoading ? null : _signInWithApple),
-          const SizedBox(height: 18), // to add space
-          ProvideCallbackButton(Text(_isLoading ? 'Loading' : 'Sign Up'),
-              _isLoading ? null : _emailSignUp),
-          const SizedBox(height: 18), // to add space
           MagicLinkButton(
-            Text(_isLoading ? 'Loading' : 'Send Magic Link'),
+            Text(_isLoading ? loadingText : signInWithMagicLinkButtonText),
             _isLoading ? null : _signInWithMagicLink,
           ),
+          const SizedBox(height: 18), // to add space
+          CustomCallbackButton(
+              Text(_isLoading ? loadingText : signUpButtonText),
+              _isLoading ? null : _emailSignUp),
         ],
       ),
-    );
-  }
-}
-
-class MagicLinkButton extends StatelessWidget {
-  final Widget child;
-  final GestureTapCallback? onTap;
-  final Color? textColour;
-  final Color? backgroundColour;
-
-  const MagicLinkButton(this.child, this.onTap,
-      {Key? key, this.textColour, this.backgroundColour});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onTap != null
-          ? () {
-              onTap!();
-            }
-          : null,
-      child: child,
-      style: ElevatedButton.styleFrom(
-          foregroundColor: (textColour ?? Colors.white),
-          backgroundColor:
-              (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
-          elevation: 1,
-          textStyle: TextStyle(/*TODO make custom text styles*/)),
-    );
-  }
-}
-
-class ProvideCallbackButton extends StatelessWidget {
-  final Widget child;
-  final GestureTapCallback? onTap;
-  final Color? textColour;
-  final Color? backgroundColour;
-
-  const ProvideCallbackButton(this.child, this.onTap,
-      {Key? key, this.textColour, this.backgroundColour});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onTap != null
-          ? () {
-              onTap!(); // ! operator basically says its guaranteed to not be null
-            }
-          : null,
-      child: child,
-      style: ElevatedButton.styleFrom(
-          foregroundColor: (textColour ?? Colors.white),
-          backgroundColor:
-              (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
-          elevation: 1,
-          textStyle: TextStyle(/*TODO make custom text styles*/)),
     );
   }
 }
