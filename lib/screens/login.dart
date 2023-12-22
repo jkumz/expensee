@@ -25,11 +25,6 @@ class _LoginState extends State<Login> {
   bool _isLoading = false;
   bool _redirecting = false;
 
-  // Depending on which button user clicks one of these will change to true
-  bool _passwordLogin = false;
-  bool _magicLinkLogin = false;
-  bool _OAuthLogin = false;
-
   late final TextEditingController _emailController = TextEditingController();
   late final TextEditingController _passwordController =
       TextEditingController();
@@ -109,8 +104,26 @@ class _LoginState extends State<Login> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    try {
+      await supabase.auth.signInWithOAuth(Provider.google,
+          redirectTo: dotenv.env["SUPABASE_AUTH_CALLBACK"]);
+    } catch (e) {
+      print("todo");
+    }
+  }
+
+  Future<void> _signInWithApple() async {
+    try {
+      await supabase.auth.signInWithOAuth(Provider.apple,
+          redirectTo: dotenv.env["SUPABASE_AUTH_CALLBACK"]);
+    } catch (e) {
+      print("todo");
+    }
+  }
+
   Future<void> _emailSignUp() async {
-    final AuthResponse res = await supabase.auth.signUp(
+    await supabase.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim());
 
@@ -169,10 +182,18 @@ class _LoginState extends State<Login> {
             decoration: const InputDecoration(labelText: 'Password'),
           ),
           const SizedBox(height: 18), // to add space
-          SignUpButton(Text(_isLoading ? 'Loading' : 'Sign In'),
+          ProvideCallbackButton(Text(_isLoading ? 'Loading' : 'Sign In'),
               _isLoading ? null : _signInWithPassword),
           const SizedBox(height: 18), // to add space
-          SignUpButton(Text(_isLoading ? 'Loading' : 'Sign Up'),
+          ProvideCallbackButton(
+              Text(_isLoading ? 'Loading' : 'Sign in with Google'),
+              _isLoading ? null : _signInWithGoogle),
+          const SizedBox(height: 18), // to add space
+          ProvideCallbackButton(
+              Text(_isLoading ? 'Loading' : 'Sign in with Apple'),
+              _isLoading ? null : _signInWithApple),
+          const SizedBox(height: 18), // to add space
+          ProvideCallbackButton(Text(_isLoading ? 'Loading' : 'Sign Up'),
               _isLoading ? null : _emailSignUp),
           const SizedBox(height: 18), // to add space
           MagicLinkButton(
@@ -213,13 +234,13 @@ class MagicLinkButton extends StatelessWidget {
   }
 }
 
-class SignUpButton extends StatelessWidget {
+class ProvideCallbackButton extends StatelessWidget {
   final Widget child;
   final GestureTapCallback? onTap;
   final Color? textColour;
   final Color? backgroundColour;
 
-  const SignUpButton(this.child, this.onTap,
+  const ProvideCallbackButton(this.child, this.onTap,
       {Key? key, this.textColour, this.backgroundColour});
 
   @override
