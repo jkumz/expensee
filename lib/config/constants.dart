@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+// ROUTES
+const loginRoute = "/login";
+const homePageRoute = "/home";
+
 // LOG IN PAGE CONSTANTS
 
 // LOG IN PAGE - Button text

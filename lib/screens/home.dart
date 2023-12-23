@@ -1,3 +1,6 @@
+import 'package:expensee/components/appbars/home_app_bar.dart';
+import 'package:expensee/components/elevated_buttons/home_buttons/view_expense.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
@@ -28,9 +31,32 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Home page')),
+        appBar: HomeAppBar(
+          actions: [
+            SignOutButton(const Text("Sign out"), () async {
+              Login.signOut();
+              Navigator.of(context).pushReplacementNamed(loginRoute);
+            })
+          ],
+        ),
         body: Stack(
-          children: [SignOutButton(const Text("Sign out"), Login.signOut)],
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  Text(
+                    "Welcome {email from supabase}",
+                    style: TextStyle(/**TODO - Create this style */),
+                  ),
+                  SizedBox(height: 12, width: 18),
+                  ViewExpenseButton(Text("View Your Expense Boards"), () {}),
+                  SizedBox(height: 12, width: 18),
+                  ViewExpenseButton(Text("View Group Expense Boards"), () {})
+                ],
+              ),
+            )
+          ],
         ));
   }
 }

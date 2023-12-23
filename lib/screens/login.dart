@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:expensee/components/elevated_buttons/authentication_buttons/sign_in_with_google_button.dart';
 import 'package:expensee/components/elevated_buttons/authentication_buttons/sign_in_with_password_button.dart';
-import 'package:expensee/components/elevated_buttons/magic_link_button.dart';
+import 'package:expensee/components/elevated_buttons/authentication_buttons/magic_link_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
