@@ -1,6 +1,8 @@
 import 'package:expensee/components/appbars/home_app_bar.dart';
 import 'package:expensee/components/elevated_buttons/home_buttons/view_expense.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/screens/expense_boards/group_expense_boards_view.dart';
+import 'package:expensee/screens/expense_boards/solo_expense_boards_view.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
@@ -50,9 +52,15 @@ class _HomeState extends State<Home> {
                     style: TextStyle(/**TODO - Create this style */),
                   ),
                   SizedBox(height: 12, width: 18),
-                  ViewExpenseButton(Text("View Your Expense Boards"), () {}),
+                  ViewExpenseButton(Text("View Your Expense Boards"), () {
+                    Navigator.of(context)
+                        .pushReplacementNamed(ViewExpenseBoardsSolo.routeName);
+                  }),
                   SizedBox(height: 12, width: 18),
-                  ViewExpenseButton(Text("View Group Expense Boards"), () {})
+                  ViewExpenseButton(Text("View Group Expense Boards"), () {
+                    Navigator.of(context).pushReplacementNamed(
+                        ViewExpenseBoardsGroups.routeName);
+                  })
                 ],
               ),
             )

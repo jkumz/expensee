@@ -1,5 +1,7 @@
+import 'package:expensee/screens/expense_boards/group_expense_boards_view.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:expensee/screens/login.dart';
+import 'package:expensee/screens/expense_boards/solo_expense_boards_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:expensee/screens/splash.dart';
@@ -19,7 +21,11 @@ class ExpenseeApp extends StatelessWidget {
       routes: {
         Splash.routeName: (context) => const Splash(),
         Home.routeName: (context) => const Home(),
-        Login.routeName: (context) => const Login()
+        Login.routeName: (context) => const Login(),
+        ViewExpenseBoardsSolo.routeName: (context) =>
+            const ViewExpenseBoardsSolo(),
+        ViewExpenseBoardsGroups.routeName: (context) =>
+            const ViewExpenseBoardsGroups()
       },
     );
   }
