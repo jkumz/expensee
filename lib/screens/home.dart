@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
                     style: TextStyle(/**TODO - Create this style */),
                   ),
                   SizedBox(height: 12, width: 18),
-                  ViewExpenseButton(Text("View Your Expense Boards"), () {
+                  ViewExpenseButton(Text("View your Expense Board"), () {
                     Navigator.of(context)
                         .pushReplacementNamed(ViewExpenseBoardsSolo.routeName);
                   }),

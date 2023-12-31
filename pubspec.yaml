@@ -37,10 +37,15 @@ dependencies:
   cupertino_icons: ^1.0.2
   supabase_flutter: ^1.10.25
   flutter_dotenv: ^5.1.0
+  intl: ^0.19.0
+  json_annotation: ^4.8.1
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  json_serializable: ^6.7.1
+  build_runner: ^2.4.7
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
