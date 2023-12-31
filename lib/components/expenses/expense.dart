@@ -1,5 +1,5 @@
 import 'package:expensee/config/constants.dart';
-import 'package:expensee/models/ExpenseModel.dart';
+import 'package:expensee/models/expense_model.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseItem extends StatefulWidget {
@@ -18,7 +18,7 @@ class _ExpenseItemState extends State<ExpenseItem> {
       padding: const EdgeInsets.all(expenseItemPadding),
       child: Row(
         children: [
-          Expanded(flex: expenseItemFlex, child: Text(widget.expense.data)),
+          Expanded(flex: expenseItemFlex, child: Text(widget.expense.date)),
           Expanded(flex: expenseItemFlex, child: Text(widget.expense.category)),
           Expanded(
               flex: expenseItemFlex,

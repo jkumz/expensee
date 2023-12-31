@@ -1,5 +1,3 @@
-import "dart:js_interop";
-
 import "package:flutter/material.dart";
 
 //TODO - add proper error handling + validation
@@ -10,23 +8,23 @@ import "package:flutter/material.dart";
 
 //A model class for the expense data
 class Expense {
-  String data;
+  String date;
   String category;
   double amount;
   double balance;
   String? description;
 
   Expense(
-      {required this.data,
+      {required this.date,
       required this.category,
       required this.amount,
       required this.balance,
       String? description})
       : this.description = description ?? "No description";
 
-  void setData(String data) {
+  void setData(String date) {
     try {
-      this.data = data;
+      this.date = date;
     } catch (unknownError) {
       print(unknownError.toString());
     }

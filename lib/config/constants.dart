@@ -29,3 +29,8 @@ const unexpectedErrorText = Text("Unexpected error occured...");
 // LOG IN PAGE - Explanatory text
 const signInExplanationText =
     'To use our passwordless log in, put in your email and press the Send Magic Link button.\n\nAlternatively, you can sign up with your email of choice or log in with your Google/Apple account.';
+
+// EXPENSE WIDGET CONSTANTS
+
+const expenseItemPadding = 8.0;
+const expenseItemFlex = 2;

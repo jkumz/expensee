@@ -1,5 +1,6 @@
 import 'package:expensee/components/appbars/view_boards_app_bar.dart';
 import 'package:expensee/components/elevated_buttons/custom_callback_button.dart';
+import 'package:expensee/components/lists/expense_list.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:flutter/material.dart';
 
@@ -21,10 +22,7 @@ class _ViewExpenseBoardsSoloState extends State<ViewExpenseBoardsSolo> {
           //TODO - Add expense board button
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-        children: getAllSoloExpenseBoards(),
-      ),
+      body: getAllSoloExpenseBoards(),
       bottomNavigationBar: BottomAppBar(
         shape: CircularNotchedRectangle(),
         notchMargin: 3.0,
@@ -42,7 +40,7 @@ class _ViewExpenseBoardsSoloState extends State<ViewExpenseBoardsSolo> {
   }
 
 // TODO - Connect to API, pull and process!
-  List<Widget> getAllSoloExpenseBoards() {
-    return new List.empty();
+  getAllSoloExpenseBoards() {
+    return ExpenseList();
   }
 }
