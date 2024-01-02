@@ -17,7 +17,7 @@ class SupabaseService {
     final response =
         await supabase.from('expense_boards').select().eq('owner_id', userId);
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       // Handle error
       print('Error fetching expense boards: ${response.error!.message}');
       return [];
@@ -28,13 +28,18 @@ class SupabaseService {
 
   // Create a new expense board
   Future<bool> createExpenseBoard(Map<String, dynamic> expenseBoardData) async {
+    final _userId = supabase.auth.currentUser!.id;
+    expenseBoardData['owner_id'] = _userId;
+
     final response =
         await supabase.from('expense_boards').insert([expenseBoardData]);
 
-    if (response.error != null) {
-      // Handle error
-      print('Error creating expense board: ${response.error!.message}');
-      return false;
+    if (response != null) {
+      if (response.error != null) {
+        // Handle error
+        print('Error creating expense board: ${response.error!.message}');
+        return false;
+      }
     }
     return true;
   }
@@ -61,7 +66,7 @@ class SupabaseService {
         .update(updatedData)
         .match({'id': boardId});
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       print("Error updating expense boardL ${response.error!.message}");
       return false;
     }
@@ -73,7 +78,7 @@ class SupabaseService {
       String boardId, Map<String, dynamic> memberData) async {
     final response = await supabase.from('group_members').insert([memberData]);
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       // Handle error
       print('Error adding member: ${response.error!.message}');
       return false;
@@ -88,7 +93,7 @@ class SupabaseService {
         .delete()
         .match({'board_id': boardId, 'user_id': userId});
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       print('Error deleting group member: ${response.error!.message}');
       return false;
     }
@@ -101,7 +106,7 @@ class SupabaseService {
     final response =
         await supabase.from("group_members").update({'role': newRole});
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       print(
           "Error updating group (id: $boardId) member's role with id $userId");
       return false;
@@ -114,7 +119,7 @@ class SupabaseService {
     final response =
         await supabase.from('expenses').select().eq('board_id', boardId);
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       // Handle error
       print('Error fetching expenses: ${response.error!.message}');
       return [];
@@ -131,7 +136,7 @@ class SupabaseService {
         .update(expenseData)
         .match({'id': expenseId});
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       print("Error updating expense board with id $expenseId");
       return false;
     }
@@ -142,7 +147,7 @@ class SupabaseService {
   Future<bool> addExpense(Map<String, dynamic> expenseData) async {
     final response = await supabase.from('expenses').insert([expenseData]);
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       // Handle error
       print('Error adding expense: ${response.error!.message}');
       return false;
@@ -155,7 +160,7 @@ class SupabaseService {
     final response =
         await supabase.from('expenses').delete().match({'id': expenseId});
 
-    if (response.error != null) {
+    if (response.error != null && response != null) {
       print("Failed to delete expense with id $expenseId");
       return false;
     }

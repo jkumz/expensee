@@ -1,5 +1,5 @@
 import 'package:expensee/config/constants.dart';
-import 'package:expensee/models/expense_model.dart';
+import 'package:expensee/models/expense/expense_model.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseItem extends StatefulWidget {

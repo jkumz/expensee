@@ -1,3 +1,5 @@
+import 'package:expensee/components/forms/create_expense_board_form.dart';
+import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/group_expense_boards_view.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:expensee/screens/login.dart';
@@ -25,7 +27,8 @@ class ExpenseeApp extends StatelessWidget {
         ViewExpenseBoardsSolo.routeName: (context) =>
             const ViewExpenseBoardsSolo(),
         ViewExpenseBoardsGroups.routeName: (context) =>
-            const ViewExpenseBoardsGroups()
+            const ViewExpenseBoardsGroups(),
+        BoardCreationScreen.routeName: (context) => const BoardCreationScreen()
       },
     );
   }

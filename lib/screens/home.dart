@@ -1,6 +1,9 @@
 import 'package:expensee/components/appbars/home_app_bar.dart';
-import 'package:expensee/components/elevated_buttons/home_buttons/view_expense.dart';
+import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
+import 'package:expensee/components/buttons/home_buttons/create_board_button.dart';
+import 'package:expensee/components/buttons/home_buttons/view_expense.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/group_expense_boards_view.dart';
 import 'package:expensee/screens/expense_boards/solo_expense_boards_view.dart';
 import 'package:flutter/material.dart';
@@ -35,12 +38,10 @@ class _HomeState extends State<Home> {
     return Scaffold(
         appBar: HomeAppBar(
           actions: [
-            SignOutButton(const Text("Sign out"), () async {
-              Login.signOut();
-              Navigator.of(context).pushReplacementNamed(loginRoute);
-            })
+            // TODO
           ],
         ),
+        bottomNavigationBar: DefaultBottomAppBar(),
         body: Stack(
           children: [
             Align(
@@ -54,12 +55,18 @@ class _HomeState extends State<Home> {
                   SizedBox(height: 12, width: 18),
                   ViewExpenseButton(Text("View your Expense Board"), () {
                     Navigator.of(context)
-                        .pushReplacementNamed(ViewExpenseBoardsSolo.routeName);
+                        .pushNamed(ViewExpenseBoardsSolo.routeName);
                   }),
                   SizedBox(height: 12, width: 18),
                   ViewExpenseButton(Text("View Group Expense Boards"), () {
-                    Navigator.of(context).pushReplacementNamed(
-                        ViewExpenseBoardsGroups.routeName);
+                    Navigator.of(context)
+                        .pushNamed(ViewExpenseBoardsGroups.routeName);
+                  }),
+                  SizedBox(height: 12, width: 18),
+                  CreateExpenseBoardButton(Text("Create a new Expense Board"),
+                      () {
+                    Navigator.of(context)
+                        .pushNamed(BoardCreationScreen.routeName);
                   })
                 ],
               ),

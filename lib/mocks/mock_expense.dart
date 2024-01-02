@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:expensee/components/expenses/expense.dart';
-import 'package:expensee/models/expense_model.dart';
+import 'package:expensee/models/expense/expense_model.dart';
 
 mixin MockExpense implements ExpenseItem {
   static final List<ExpenseItem> expenses = [

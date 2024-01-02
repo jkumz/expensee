@@ -1,15 +1,16 @@
 import 'dart:async';
 
-import 'package:expensee/components/elevated_buttons/authentication_buttons/sign_in_with_google_button.dart';
-import 'package:expensee/components/elevated_buttons/authentication_buttons/sign_in_with_password_button.dart';
-import 'package:expensee/components/elevated_buttons/authentication_buttons/magic_link_button.dart';
+import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
+import 'package:expensee/components/buttons/authentication_buttons/magic_link_button.dart';
+import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_google_button.dart';
+import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_password_button.dart';
+import 'package:expensee/components/buttons/custom_callback_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
-import 'package:expensee/components/elevated_buttons/custom_callback_button.dart';
 
 class Login extends StatefulWidget {
   static const String routeName = "/login";

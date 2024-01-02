@@ -1,6 +1,6 @@
-import 'package:expensee/models/date_time_converter.dart';
-import 'package:expensee/models/expense_date.dart';
-import 'package:expensee/models/expense_dates_converter.dart';
+import 'package:expensee/models/expense/date_time_converter.dart';
+import 'package:expensee/models/expense/expense_date.dart';
+import 'package:expensee/models/expense/expense_dates_converter.dart';
 import "package:flutter/material.dart";
 import 'package:json_annotation/json_annotation.dart';
 
