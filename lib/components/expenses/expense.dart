@@ -18,7 +18,10 @@ class _ExpenseItemState extends State<ExpenseItem> {
       padding: const EdgeInsets.all(expenseItemPadding),
       child: Row(
         children: [
-          Expanded(flex: expenseItemFlex, child: Text(widget.expense.date)),
+          Expanded(
+              flex: expenseItemFlex,
+              child:
+                  Text(widget.expense.date.toString())), //TODO - fix formatting
           Expanded(flex: expenseItemFlex, child: Text(widget.expense.category)),
           Expanded(
               flex: expenseItemFlex,

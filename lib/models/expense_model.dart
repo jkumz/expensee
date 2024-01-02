@@ -64,8 +64,9 @@ class Expense {
 
   void setData(String date) {
     try {
-      this.date =
+      DateTime tempDate =
           DateTime.parse(date) ?? DateTime.parse("00-00-0000 00:00:00Z");
+      this.date = DateTime(tempDate.year, tempDate.month, tempDate.day);
     } catch (unknownError) {
       print(unknownError.toString());
     }

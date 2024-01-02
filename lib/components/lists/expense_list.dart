@@ -62,7 +62,7 @@ class _ExpenseListState extends State<ExpenseList> {
       child: ListTile(
         title: Text(expenseItem.expense.category),
         subtitle: Text(expenseItem.expense.description ?? ""),
-        leading: Text(expenseItem.expense.date),
+        leading: Text(expenseItem.expense.date.toString()),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
