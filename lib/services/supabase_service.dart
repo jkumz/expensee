@@ -1,6 +1,8 @@
 // Service layer class to handle CRUD API
 // May need split into multiple service layer classes if too big - readability
 
+import 'package:expensee/models/expense/expense_model.dart';
+import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
@@ -13,7 +15,7 @@ class SupabaseService {
   // Using our global Supabase client singleton instance from main.dart
 
   // Fetch expense boards for a user
-  Future<List<Map<String, dynamic>>> getExpenseBoards(String userId) async {
+  Future<List<ExpenseBoard>> getExpenseBoards(String userId) async {
     final response =
         await supabase.from('expense_boards').select().eq('owner_id', userId);
 
@@ -23,7 +25,8 @@ class SupabaseService {
       return [];
     }
 
-    return List<Map<String, dynamic>>.from(response.data);
+    return response.data
+        .map<ExpenseBoard>((json) => ExpenseBoard.fromJson(json));
   }
 
   // Create a new expense board
@@ -115,7 +118,7 @@ class SupabaseService {
   }
 
   // Get expenses for a board
-  Future<List<Map<String, dynamic>>> getExpensesForBoard(String boardId) async {
+  Future<List<Expense>> getExpensesForBoard(String boardId) async {
     final response =
         await supabase.from('expenses').select().eq('board_id', boardId);
 
@@ -125,7 +128,7 @@ class SupabaseService {
       return [];
     }
 
-    return List<Map<String, dynamic>>.from(response.data);
+    return response.data.map<Expense>((json) => Expense.fromJson(json));
   }
 
   // Update an expense
