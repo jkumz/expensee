@@ -1,11 +1,11 @@
+import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/home_app_bar.dart';
 import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/home_buttons/create_board_button.dart';
 import 'package:expensee/components/buttons/home_buttons/view_expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
-import 'package:expensee/screens/expense_boards/group_expense_boards_view.dart';
-import 'package:expensee/screens/expense_boards/solo_expense_boards_view.dart';
+import 'package:expensee/screens/expense_boards/expense_boards_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
@@ -49,18 +49,20 @@ class _HomeState extends State<Home> {
               child: Column(
                 children: [
                   Text(
-                    "Welcome {email from supabase}",
+                    "Welcome ${supabase.auth.currentUser!.email}",
                     style: TextStyle(/**TODO - Create this style */),
                   ),
                   SizedBox(height: 12, width: 18),
                   ViewExpenseButton(Text("View your Expense Board"), () {
-                    Navigator.of(context)
-                        .pushNamed(ViewExpenseBoardsSolo.routeName);
+                    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
+                        arguments:
+                            ViewExpenseBoardArguments(isGroupBoard: false));
                   }),
                   SizedBox(height: 12, width: 18),
                   ViewExpenseButton(Text("View Group Expense Boards"), () {
-                    Navigator.of(context)
-                        .pushNamed(ViewExpenseBoardsGroups.routeName);
+                    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
+                        arguments:
+                            ViewExpenseBoardArguments(isGroupBoard: true));
                   }),
                   SizedBox(height: 12, width: 18),
                   CreateExpenseBoardButton(Text("Create a new Expense Board"),

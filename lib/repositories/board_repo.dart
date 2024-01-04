@@ -9,8 +9,9 @@ class BoardRepository implements BoardRepositoryInterface {
   final _service = SupabaseService();
 
   @override
-  Future<List<ExpenseBoard>> refreshExpenseBoards() async {
-    List<ExpenseBoard> _boardsInJson = await _service.getExpenseBoards(_userId);
+  Future<List<ExpenseBoard>> refreshExpenseBoards(bool isGroup) async {
+    List<ExpenseBoard> _boardsInJson =
+        await _service.getExpenseBoards(_userId, isGroup);
 
     return _boardsInJson;
   }

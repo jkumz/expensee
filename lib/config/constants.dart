@@ -34,3 +34,6 @@ const signInExplanationText =
 
 const expenseItemPadding = 8.0;
 const expenseItemFlex = 2;
+
+const boardCreationSuccessMessage = "Expense board created";
+const boardCreationFailureMessage = "Failed to create board";

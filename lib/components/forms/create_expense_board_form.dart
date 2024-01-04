@@ -1,6 +1,8 @@
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/services/supabase_service.dart';
 import "package:flutter/material.dart";
 import 'package:supabase_flutter/supabase_flutter.dart';
+import "package:expensee/components/snackbars/conditional_snackbar.dart";
 
 class CreateExpenseBoardForm extends StatefulWidget {
   @override
@@ -14,7 +16,7 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
   String _boardName = "";
   bool _isGroup = false;
 
-// handle form submission
+  // handle form submission
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // save current state of the form
@@ -23,18 +25,17 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
       bool created = await SupabaseService()
           .createExpenseBoard({'name': _boardName, 'is_group': _isGroup});
 
-      if (created) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text("Created expense board with name $_boardName")));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            "Error - failed to create expense board with name $_boardName",
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ));
-      }
+      // Build context may have been removed from widget tree by the time async method
+      // finishes. We check if its mounted before trying to use it to prevent a crash.
+      if (!mounted) return;
+
+      ConditionalSnackbar.show(context,
+          isSuccess: created,
+          message: boardCreationSuccessMessage,
+          errMsg: boardCreationFailureMessage);
     }
+
+    Navigator.pop(context);
   }
 
   @override

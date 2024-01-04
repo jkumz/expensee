@@ -15,18 +15,29 @@ class SupabaseService {
   // Using our global Supabase client singleton instance from main.dart
 
   // Fetch expense boards for a user
-  Future<List<ExpenseBoard>> getExpenseBoards(String userId) async {
-    final response =
-        await supabase.from('expense_boards').select().eq('owner_id', userId);
+  Future<List<ExpenseBoard>> getExpenseBoards(
+      String userId, bool isGroup) async {
+    try {
+      final result = await supabase
+          .from('expense_boards')
+          .select()
+          .eq('owner_id', userId)
+          .eq('is_group', isGroup);
 
-    if (response.error != null && response != null) {
-      // Handle error
-      print('Error fetching expense boards: ${response.error!.message}');
+      // Here, 'result' should be a List<dynamic> containing the data
+      final data =
+          result as List<dynamic>; // Cast the result to a List<dynamic>
+
+      // Map the dynamic list to a list of ExpenseBoard instances
+      return data.map<ExpenseBoard>((json) {
+        return ExpenseBoard.fromJson(json as Map<String, dynamic>);
+      }).toList();
+    } catch (error) {
+      // If there's an error, log it and return an empty list
+      print('Error fetching expense boards - Group: $isGroup');
+      print('Error: $error');
       return [];
     }
-
-    return response.data
-        .map<ExpenseBoard>((json) => ExpenseBoard.fromJson(json));
   }
 
   // Create a new expense board
@@ -49,12 +60,10 @@ class SupabaseService {
 
 // Delete an expense board
   Future<bool> deleteExpenseBoard(String boardId) async {
-    final resp = await supabase
-        .from('expense_boards')
-        .delete()
-        .match({'board_id': boardId});
+    final resp =
+        await supabase.from('expense_boards').delete().match({'id': boardId});
 
-    if (resp.error != null) {
+    if (resp != null) {
       print("Error deletinv expense board with ID $boardId");
       return false;
     }
@@ -94,7 +103,7 @@ class SupabaseService {
     final response = await supabase
         .from('group_members')
         .delete()
-        .match({'board_id': boardId, 'user_id': userId});
+        .match({'id': boardId, 'user_id': userId});
 
     if (response.error != null && response != null) {
       print('Error deleting group member: ${response.error!.message}');
@@ -119,8 +128,7 @@ class SupabaseService {
 
   // Get expenses for a board
   Future<List<Expense>> getExpensesForBoard(String boardId) async {
-    final response =
-        await supabase.from('expenses').select().eq('board_id', boardId);
+    final response = await supabase.from('expenses').select().eq('id', boardId);
 
     if (response.error != null && response != null) {
       // Handle error
