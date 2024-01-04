@@ -3,6 +3,7 @@ import 'package:expensee/components/appbars/home_app_bar.dart';
 import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/home_buttons/create_board_button.dart';
 import 'package:expensee/components/buttons/home_buttons/view_expense.dart';
+import 'package:expensee/components/buttons/home_buttons/view_solo_board_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_boards_screen.dart';
@@ -33,6 +34,16 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  void _navigateToSoloBoards() {
+    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
+        arguments: ViewExpenseBoardArguments(isGroupBoard: false));
+  }
+
+  void _navigateToGroupBoards() {
+    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
+        arguments: ViewExpenseBoardArguments(isGroupBoard: false));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,23 +64,16 @@ class _HomeState extends State<Home> {
                     style: TextStyle(/**TODO - Create this style */),
                   ),
                   SizedBox(height: 12, width: 18),
-                  ViewExpenseButton(Text("View your Expense Board"), () {
-                    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
-                        arguments:
-                            ViewExpenseBoardArguments(isGroupBoard: false));
-                  }),
+                  ViewExpenseBoardsButton(
+                      text: ViewSoloExpenseBoardsBtnText,
+                      imagePath: "assets/images/user.png",
+                      onPressed: _navigateToSoloBoards),
                   SizedBox(height: 12, width: 18),
-                  ViewExpenseButton(Text("View Group Expense Boards"), () {
-                    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
-                        arguments:
-                            ViewExpenseBoardArguments(isGroupBoard: true));
-                  }),
+                  ViewExpenseBoardsButton(
+                      text: ViewGroupExpenseBoardsBtnText,
+                      imagePath: "assets/images/people.png",
+                      onPressed: _navigateToGroupBoards),
                   SizedBox(height: 12, width: 18),
-                  CreateExpenseBoardButton(Text("Create a new Expense Board"),
-                      () {
-                    Navigator.of(context)
-                        .pushNamed(BoardCreationScreen.routeName);
-                  })
                 ],
               ),
             )

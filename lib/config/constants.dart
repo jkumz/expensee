@@ -37,3 +37,6 @@ const expenseItemFlex = 2;
 
 const boardCreationSuccessMessage = "Expense board created";
 const boardCreationFailureMessage = "Failed to create board";
+
+const ViewSoloExpenseBoardsBtnText = "View your Expense Boards";
+const ViewGroupExpenseBoardsBtnText = "View Group Expense Boards";
