@@ -3,7 +3,7 @@ import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/repositories/interfaces/expense_repo_interface.dart';
 import 'package:expensee/services/supabase_service.dart';
 
-class ExpenseRepositories implements ExpenseRepositoryInterface {
+class ExpenseRepository implements ExpenseRepositoryInterface {
   final _service = SupabaseService();
 
   @override

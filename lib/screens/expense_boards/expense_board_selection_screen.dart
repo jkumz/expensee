@@ -1,24 +1,26 @@
+import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/view_boards_app_bar.dart';
 import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/custom_callback_button.dart';
-import 'package:expensee/components/lists/expense_list.dart';
 import 'package:expensee/repositories/board_repo.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
+import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:flutter/material.dart';
 import "package:expensee/models/expense_board/expense_board.dart";
 
-class ViewExpenseBoards extends StatefulWidget {
+class SelectExpenseBoardsScreen extends StatefulWidget {
   static const routeName = "/expense-boards";
   final bool isGroupBoardScreen;
 
-  const ViewExpenseBoards({super.key, required this.isGroupBoardScreen});
+  const SelectExpenseBoardsScreen(
+      {super.key, required this.isGroupBoardScreen});
 
   @override
-  State<StatefulWidget> createState() => _ViewExpenseBoardState();
+  State<StatefulWidget> createState() => _SelectExpenseBoardsScreenState();
 }
 
-class _ViewExpenseBoardState extends State<ViewExpenseBoards> {
+class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   late List<ExpenseBoard> boards = [];
   bool isLoading = true;
   final _repo = BoardRepository();
@@ -78,6 +80,12 @@ class _ViewExpenseBoardState extends State<ViewExpenseBoards> {
     return deleted;
   }
 
+  void _navigateToExpenseBoard(String boardId) {
+    Navigator.pushNamed(context, ExpenseBoardScreen.routeName,
+        arguments: ExpenseBoardScreenArguments(
+            id: boardId, isGroup: widget.isGroupBoardScreen));
+  }
+
   buildBoardListView(List<ExpenseBoard> boards) {
     return Column(children: [
       boards.isEmpty
@@ -116,7 +124,7 @@ class _ViewExpenseBoardState extends State<ViewExpenseBoards> {
                         textAlign: TextAlign.center,
                       ),
                       onTap: () {
-                        // Navigate to the the right board
+                        _navigateToExpenseBoard("${boards[index].id}");
                       },
                     ),
                   );
@@ -129,13 +137,13 @@ class _ViewExpenseBoardState extends State<ViewExpenseBoards> {
         child: IconButton(
           icon: Image.asset("assets/images/add.png",
               fit: BoxFit.contain, width: 50, height: 50),
-          onPressed: () => _navigateAndRefresh(),
+          onPressed: () => _navigateToCreationAndRefresh(),
         ),
       )
     ]);
   }
 
-  Future<void> _navigateAndRefresh() async {
+  Future<void> _navigateToCreationAndRefresh() async {
     // Navigate and wait for result
     await Navigator.of(context).pushNamed(BoardCreationScreen.routeName);
 

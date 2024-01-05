@@ -2,6 +2,7 @@ import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:flutter/material.dart';
 
+// Widget used to display an Expense object in human readable format
 class ExpenseItem extends StatefulWidget {
   final Expense expense;
 

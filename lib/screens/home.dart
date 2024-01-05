@@ -2,11 +2,10 @@ import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/home_app_bar.dart';
 import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/home_buttons/create_board_button.dart';
-import 'package:expensee/components/buttons/home_buttons/view_expense.dart';
-import 'package:expensee/components/buttons/home_buttons/view_solo_board_button.dart';
+import 'package:expensee/components/buttons/home_buttons/view_boards_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
-import 'package:expensee/screens/expense_boards/expense_boards_screen.dart';
+import 'package:expensee/screens/expense_boards/expense_board_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
@@ -35,13 +34,13 @@ class _HomeState extends State<Home> {
   }
 
   void _navigateToSoloBoards() {
-    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
+    Navigator.of(context).pushNamed(SelectExpenseBoardsScreen.routeName,
         arguments: ViewExpenseBoardArguments(isGroupBoard: false));
   }
 
   void _navigateToGroupBoards() {
-    Navigator.of(context).pushNamed(ViewExpenseBoards.routeName,
-        arguments: ViewExpenseBoardArguments(isGroupBoard: false));
+    Navigator.of(context).pushNamed(SelectExpenseBoardsScreen.routeName,
+        arguments: ViewExpenseBoardArguments(isGroupBoard: true));
   }
 
   @override
@@ -66,12 +65,12 @@ class _HomeState extends State<Home> {
                   SizedBox(height: 12, width: 18),
                   ViewExpenseBoardsButton(
                       text: ViewSoloExpenseBoardsBtnText,
-                      imagePath: "assets/images/user.png",
+                      imagePath: singleBoardImagePath,
                       onPressed: _navigateToSoloBoards),
                   SizedBox(height: 12, width: 18),
                   ViewExpenseBoardsButton(
                       text: ViewGroupExpenseBoardsBtnText,
-                      imagePath: "assets/images/people.png",
+                      imagePath: groupBoardImagePath,
                       onPressed: _navigateToGroupBoards),
                   SizedBox(height: 12, width: 18),
                 ],
