@@ -78,7 +78,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
           Padding(
               padding: const EdgeInsets.all(12.0),
               child: IconButton(
-                icon: Image.asset(addUserToBoardImagePath,
+                icon: Image.asset(addBoardImagePath,
                     fit: BoxFit.contain, width: 50, height: 50),
                 onPressed: () => _navigateToCreationAndRefresh(),
               ))

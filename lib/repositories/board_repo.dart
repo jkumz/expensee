@@ -17,10 +17,15 @@ class BoardRepository implements BoardRepositoryInterface {
   }
 
   @override
-  Future<bool> addExpenseBoard(Map<String, dynamic> json) async {
-    final _added = await _service.createExpenseBoard(json);
-
-    return _added;
+  Future<ExpenseBoard> addExpenseBoard(Map<String, dynamic> json) async {
+    try {
+      var board = await _service.createExpenseBoard(json);
+      return board; // Assuming createExpenseBoard returns an ExpenseBoard object.
+    } catch (e) {
+      // Handle any errors here
+      print('Error adding expense board: $e');
+      throw Exception('Failed to add expense board');
+    }
   }
 
   @override
@@ -31,9 +36,9 @@ class BoardRepository implements BoardRepositoryInterface {
   }
 
   @override
-  Future<bool> updateExpenseBoard(
+  Future<ExpenseBoard?> updateExpenseBoard(
       String boardId, Map<String, dynamic> json) async {
-    bool updated = await _service.updateExpenseBoard(boardId, json);
+    var updated = await _service.updateExpenseBoard(boardId, json);
 
     return updated;
   }

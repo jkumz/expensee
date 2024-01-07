@@ -1,8 +1,11 @@
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/repositories/board_repo.dart';
 import 'package:expensee/services/supabase_service.dart';
 import "package:flutter/material.dart";
 import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:expensee/components/snackbars/conditional_snackbar.dart";
+import 'package:provider/provider.dart' as Provider;
 
 class CreateExpenseBoardForm extends StatefulWidget {
   @override
@@ -21,9 +24,12 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // save current state of the form
 
+      var boardProvider =
+          Provider.Provider.of<BoardProvider>(context, listen: false);
+
       // Use service layer to create an expense board
-      bool created = await SupabaseService()
-          .createExpenseBoard({'name': _boardName, 'is_group': _isGroup});
+      bool created = await boardProvider
+          .createBoard({'name': _boardName, 'is_group': _isGroup});
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
@@ -33,9 +39,11 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
           isSuccess: created,
           message: boardCreationSuccessMessage,
           errMsg: boardCreationFailureMessage);
-    }
 
-    Navigator.pop(context);
+      if (created) {
+        Navigator.pop(context);
+      }
+    }
   }
 
   @override

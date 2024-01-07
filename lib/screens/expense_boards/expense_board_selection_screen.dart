@@ -2,12 +2,15 @@ import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/view_boards_app_bar.dart';
 import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/custom_callback_button.dart';
+import 'package:expensee/config/constants.dart';
+import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/repositories/board_repo.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:flutter/material.dart';
 import "package:expensee/models/expense_board/expense_board.dart";
+import 'package:provider/provider.dart';
 
 class SelectExpenseBoardsScreen extends StatefulWidget {
   static const routeName = "/expense-boards";
@@ -22,36 +25,37 @@ class SelectExpenseBoardsScreen extends StatefulWidget {
 
 class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   late List<ExpenseBoard> boards = [];
-  bool isLoading = true;
   final _repo = BoardRepository();
 
   @override
   void initState() {
     super.initState();
-    getAllExpenseBoards(widget.isGroupBoardScreen).then((fetchedBoards) {
-      print(fetchedBoards);
-      setState(() {
-        boards = fetchedBoards;
-        isLoading = false;
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Refresh boards when this screen is displayed
+      Provider.of<BoardProvider>(context, listen: false)
+          .refreshBoards(widget.isGroupBoardScreen);
     });
   }
 
 // Helper method for updating state upon navigating back via a pop
   void _fetchBoards() async {
-    var fetchedBoards =
-        await _repo.refreshExpenseBoards(widget.isGroupBoardScreen);
-
+    var temp = await Provider.of<BoardProvider>(context, listen: false)
+        .refreshBoards(widget.isGroupBoardScreen);
     setState(() {
-      boards = fetchedBoards;
+      if (temp != null) boards = temp;
     });
   }
 
 // Update state upon popping back to this screen with correct boards
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     // Refresh boards when this screen is displayed
+  //     Provider.of<BoardProvider>(context, listen: false)
+  //         .refreshBoards(widget.isGroupBoardScreen);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -61,86 +65,87 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
             //TODO - Add expense board button
           ],
         ),
-        body: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : buildBoardListView(boards),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Consumer<BoardProvider>(
+              builder: (context, boardProvider, _) {
+                if (boardProvider.isLoading) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                boards = boardProvider.boards;
+                return _buildBoardListView(boards, context, boardProvider);
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: IconButton(
+                icon: Image.asset(addBoardImagePath,
+                    fit: BoxFit.contain, width: 50, height: 50),
+                onPressed: () => _navigateToCreationAndRefresh(),
+              ),
+            )
+          ],
+        ),
         bottomNavigationBar: DefaultBottomAppBar());
   }
 
-// TODO - Connect to API, pull and process!
-  Future<List<ExpenseBoard>> getAllExpenseBoards(bool isGroup) async {
-    final _list = await _repo.refreshExpenseBoards(isGroup);
-
-    return _list;
+  Future<bool> _deleteBoard(String boardId, BuildContext context) async {
+    try {
+      // Delete
+      final deleted = await Provider.of<BoardProvider>(context, listen: false)
+          .deletedBoard(boardId);
+      return deleted;
+    } catch (error) {}
+    return false;
   }
 
-  Future<bool> deleteBoardWithId(String boardId) async {
-    final deleted = await _repo.removeExpenseBoard(boardId);
-
-    return deleted;
+  void _navigateToExpenseBoard(BuildContext context, String boardId) {
+    Navigator.pushNamed(
+      context,
+      ExpenseBoardScreen.routeName,
+      arguments: ExpenseBoardScreenArguments(
+          id: boardId, isGroup: widget.isGroupBoardScreen),
+    ).then((value) => Provider.of<BoardProvider>(context, listen: false)
+        .refreshBoards(widget.isGroupBoardScreen));
   }
 
-  void _navigateToExpenseBoard(String boardId) {
-    Navigator.pushNamed(context, ExpenseBoardScreen.routeName,
-        arguments: ExpenseBoardScreenArguments(
-            id: boardId, isGroup: widget.isGroupBoardScreen));
+  Widget _buildBoardItem(ExpenseBoard board, BuildContext context) {
+    return Dismissible(
+      key: Key(board.id.toString()),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        if (direction == DismissDirection.endToStart) {
+          _deleteBoard(board.id.toString(), context);
+        }
+      },
+      background: Container(color: Colors.white),
+      child: ListTile(
+        title: Center(child: Text(board.name)),
+        onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
+      ),
+    );
   }
 
-  buildBoardListView(List<ExpenseBoard> boards) {
-    return Column(children: [
-      boards.isEmpty
-          ? Center(
-              child: Text("No expense boards"),
-            )
-          : Expanded(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  final board = boards[index];
-                  return Dismissible(
-                    key: Key(board.id.toString()),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                        color: const Color.fromARGB(255, 255, 255, 255)),
-                    secondaryBackground:
-                        Container(color: Color.fromARGB(255, 255, 255, 255)),
-                    onDismissed: (direction) => {
-                      if (direction == DismissDirection.endToStart)
-                        {
-                          deleteBoardWithId(board.id.toString()),
-                          setState(() => boards.removeAt(index))
-                        }
-                    },
-                    confirmDismiss: (direction) {
-                      if (direction == DismissDirection.startToEnd) {
-                        // Disable right swipe
-                        return Future.value(false);
-                      }
-                      // Enable left swipe
-                      return Future.value(true);
-                    },
-                    child: ListTile(
-                      title: Text(
-                        "Board Name: ${boards[index].name}",
-                        textAlign: TextAlign.center,
-                      ),
-                      onTap: () {
-                        _navigateToExpenseBoard("${boards[index].id}");
-                      },
-                    ),
-                  );
-                },
-                itemCount: boards.length,
-              ),
+  Widget _buildBoardListView(List<ExpenseBoard> boards, BuildContext context,
+      BoardProvider boardProvider) {
+    return boards.isEmpty
+        ? const Center(
+            child: Column(
+            children: [
+              Text(noBoards),
+            ],
+          ))
+        : Expanded(
+            child: ListView.builder(
+              itemCount: boards.length,
+              itemBuilder: (context, index) {
+                final board = boards[index];
+                return _buildBoardItem(board, context);
+              },
             ),
-      Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: IconButton(
-          icon: Image.asset("assets/images/add.png",
-              fit: BoxFit.contain, width: 50, height: 50),
-          onPressed: () => _navigateToCreationAndRefresh(),
-        ),
-      )
-    ]);
+          );
   }
 
   Future<void> _navigateToCreationAndRefresh() async {

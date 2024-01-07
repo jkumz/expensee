@@ -1,4 +1,5 @@
 import 'package:expensee/components/forms/create_expense_board_form.dart';
+import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
@@ -8,6 +9,7 @@ import 'package:expensee/screens/expense_boards/expense_board_selection_screen.d
 import 'package:flutter/material.dart';
 
 import 'package:expensee/screens/splash.dart';
+import 'package:provider/provider.dart';
 
 class ExpenseeApp extends StatelessWidget {
   const ExpenseeApp({super.key});
@@ -33,9 +35,11 @@ class ExpenseeApp extends StatelessWidget {
             // Extract arguments passed in settings
             final args = settings.arguments as ViewExpenseBoardArguments;
             return MaterialPageRoute(
-              builder: (_) => SelectExpenseBoardsScreen(
-                  isGroupBoardScreen: args.isGroupBoard),
-            );
+                builder: (context) => ChangeNotifierProvider(
+                      create: (context) => BoardProvider(),
+                      child: SelectExpenseBoardsScreen(
+                          isGroupBoardScreen: args.isGroupBoard),
+                    ));
           case BoardCreationScreen.routeName:
             return MaterialPageRoute(
                 builder: (_) => const BoardCreationScreen());

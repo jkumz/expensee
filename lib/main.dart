@@ -1,5 +1,7 @@
 import 'package:expensee/app.dart';
+import 'package:expensee/providers/board_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
 
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const ExpenseeApp();
+    return ChangeNotifierProvider<BoardProvider>(
+        child: const ExpenseeApp(), create: (_) => BoardProvider());
   }
 }

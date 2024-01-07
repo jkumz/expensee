@@ -41,7 +41,8 @@ class SupabaseService {
   }
 
   // Create a new expense board
-  Future<bool> createExpenseBoard(Map<String, dynamic> expenseBoardData) async {
+  Future<ExpenseBoard> createExpenseBoard(
+      Map<String, dynamic> expenseBoardData) async {
     final _userId = supabase.auth.currentUser!.id;
     expenseBoardData['owner_id'] = _userId;
 
@@ -52,10 +53,9 @@ class SupabaseService {
       if (response.error != null) {
         // Handle error
         print('Error creating expense board');
-        return false;
       }
     }
-    return true;
+    return ExpenseBoard.fromJson(expenseBoardData);
   }
 
 // Delete an expense board
@@ -70,19 +70,18 @@ class SupabaseService {
     return true;
   }
 
-  // Update an expense board
-  Future<bool> updateExpenseBoard(
+  // Update an expense board - / TODO - test this!
+  Future<ExpenseBoard?> updateExpenseBoard(
       String boardId, Map<String, dynamic> updatedData) async {
     final response = await supabase
         .from("expense_boards")
         .update(updatedData)
         .match({'id': boardId});
 
-    if (response.error != null && response != null) {
+    if (response.data != null) {
       print("Error updating expense board with id $boardId");
-      return false;
     }
-    return true;
+    return ExpenseBoard.fromJson(updatedData);
   }
 
   // Add a new user to a group expense board

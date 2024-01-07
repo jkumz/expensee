@@ -33,11 +33,15 @@ const signInExplanationText =
 // ASSET PATHS
 const singleBoardImagePath = "assets/images/user.png";
 const groupBoardImagePath = "assets/images/people.png";
-const addUserToBoardImagePath = "assets/images/add-user.png";
+const addBoardImagePath = "assets/images/add-user.png";
 const boardSettingsImagePath = "assets/images/settings.png";
 const removeUserFromBoardImagePath = "assets/images/minus.png";
 const manageUsersImagePath = "assets/images/manage-roles.png";
 const renameBoardImagePath = "assets/images/rename.png";
+
+// EXPENSE BOARD SELECTION CONSATNS
+
+const noBoards = "No boards to display";
 
 // EXPENSE WIDGET CONSTANTS
 
