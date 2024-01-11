@@ -1,13 +1,11 @@
-import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/view_boards_app_bar.dart';
 import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
-import 'package:expensee/components/buttons/custom_callback_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/repositories/board_repo.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
-import 'package:expensee/screens/home.dart';
 import 'package:flutter/material.dart';
 import "package:expensee/models/expense_board/expense_board.dart";
 import 'package:provider/provider.dart';
@@ -37,7 +35,7 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
     });
   }
 
-// Helper method for updating state upon navigating back via a pop
+// Helper method for updating state
   void _fetchBoards() async {
     var temp = await Provider.of<BoardProvider>(context, listen: false)
         .refreshBoards(widget.isGroupBoardScreen);
@@ -45,17 +43,6 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
       if (temp != null) boards = temp;
     });
   }
-
-// Update state upon popping back to this screen with correct boards
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     // Refresh boards when this screen is displayed
-  //     Provider.of<BoardProvider>(context, listen: false)
-  //         .refreshBoards(widget.isGroupBoardScreen);
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -102,13 +89,20 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   }
 
   void _navigateToExpenseBoard(BuildContext context, String boardId) {
-    Navigator.pushNamed(
-      context,
-      ExpenseBoardScreen.routeName,
-      arguments: ExpenseBoardScreenArguments(
-          id: boardId, isGroup: widget.isGroupBoardScreen),
-    ).then((value) => Provider.of<BoardProvider>(context, listen: false)
-        .refreshBoards(widget.isGroupBoardScreen));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider(
+                      create: (_) => BoardProvider(),
+                    ),
+                    ChangeNotifierProvider(
+                      create: (_) => ExpenseProvider(boardId),
+                    )
+                  ],
+                  child: ExpenseBoardScreen(boardId: boardId),
+                )));
   }
 
   Widget _buildBoardItem(ExpenseBoard board, BuildContext context) {

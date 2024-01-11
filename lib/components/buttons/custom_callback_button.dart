@@ -7,7 +7,7 @@ class CustomCallbackButton extends StatelessWidget {
   final Color? backgroundColour;
 
   const CustomCallbackButton(this.child, this.onTap,
-      {Key? key, this.textColour, this.backgroundColour});
+      {super.key, this.textColour, this.backgroundColour});
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +17,13 @@ class CustomCallbackButton extends StatelessWidget {
               onTap!(); // ! operator basically says its guaranteed to not be null
             }
           : null,
-      child: child,
       style: ElevatedButton.styleFrom(
           foregroundColor: (textColour ?? Colors.white),
           backgroundColor:
               (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
           elevation: 1,
-          textStyle: TextStyle(/*TODO make custom text styles*/)),
+          textStyle: const TextStyle(/*TODO make custom text styles*/)),
+      child: child,
     );
   }
 }

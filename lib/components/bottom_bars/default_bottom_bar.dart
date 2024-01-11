@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 // We need to make this stateful so that we can dynamically check navigation stack
 class DefaultBottomAppBar extends StatefulWidget {
+  const DefaultBottomAppBar({super.key});
+
   @override
   createState() => _DefaultBottomAppBarState();
 }
@@ -13,7 +15,7 @@ class _DefaultBottomAppBarState extends State<DefaultBottomAppBar> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      shape: CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(),
       notchMargin: 4,
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -23,11 +25,11 @@ class _DefaultBottomAppBarState extends State<DefaultBottomAppBar> {
           if (Navigator.canPop(context))
             IconButton(
                 onPressed: () => {Navigator.pop(context), _updateState()},
-                icon: Icon(Icons.arrow_back)),
+                icon: const Icon(Icons.arrow_back)),
           // Home button
           IconButton(
               onPressed: () => Navigator.pushNamed(context, Home.routeName),
-              icon: Icon(Icons.home)),
+              icon: const Icon(Icons.home)),
           // Sign out button
           IconButton(
               onPressed: () => {
@@ -35,7 +37,7 @@ class _DefaultBottomAppBarState extends State<DefaultBottomAppBar> {
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },
-              icon: Icon(Icons.logout_rounded))
+              icon: const Icon(Icons.logout_rounded))
         ],
       ),
     );

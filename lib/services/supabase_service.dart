@@ -3,8 +3,6 @@
 
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
 
 //TODO - proper error handling + logging
@@ -43,8 +41,8 @@ class SupabaseService {
   // Create a new expense board
   Future<ExpenseBoard> createExpenseBoard(
       Map<String, dynamic> expenseBoardData) async {
-    final _userId = supabase.auth.currentUser!.id;
-    expenseBoardData['owner_id'] = _userId;
+    final userId = supabase.auth.currentUser!.id;
+    expenseBoardData['owner_id'] = userId;
 
     final response =
         await supabase.from('expense_boards').insert([expenseBoardData]);
@@ -82,6 +80,17 @@ class SupabaseService {
       print("Error updating expense board with id $boardId");
     }
     return ExpenseBoard.fromJson(updatedData);
+  }
+
+  Future<ExpenseBoard?> getBoard(String boardId) async {
+    var board =
+        await supabase.from("expense_boards").select().match({"id": boardId});
+
+    if (board == null) {
+      print("No board with matching id: $boardId");
+    }
+    board = ExpenseBoard.fromJson(board[0]);
+    return board;
   }
 
   // Add a new user to a group expense board
@@ -127,55 +136,100 @@ class SupabaseService {
     return true;
   }
 
+  Future<bool> isBoardGroup(String boardId) async {
+    final jsonList =
+        await supabase.from("expense_boards").select().eq("id", boardId);
+    return jsonList[0]["is_group"];
+  }
+
   // Get expenses for a board
   Future<List<Expense>> getExpensesForBoard(String boardId) async {
-    final response = await supabase.from('expenses').select().eq('id', boardId);
+    List<dynamic> response =
+        await supabase.from('expenses').select().eq('board_id', boardId);
 
-    if (response != null) {
+    if (response == null) {
       // Handle error
       print('Error fetching expenses');
       return [];
     }
+    List<Expense> expenses = [];
+    for (var expenseJson in response) {
+      var e = Expense.fromJson(expenseJson);
+      e.setId(expenseJson["id"]);
+      expenses.add(e);
+    }
 
-    return response.data.map<Expense>((json) => Expense.fromJson(json));
+    return expenses;
+  }
+
+  Future<Expense> getExpense(String expenseId) async {
+    final expenseExists =
+        await supabase.from('expenses').select().eq('id', expenseId);
+
+    if (expenseExists != null) {
+      print("Found expense with id $expenseId");
+      final expenseJson =
+          await supabase.from('expenses').select().eq('id', expenseId);
+
+      return Expense.fromJson(expenseJson);
+    }
+
+    print("Expense with id $expenseId doesn't exist");
+    return Expense.blank();
   }
 
   // Update an expense
-  Future<bool> updateExpense(
+  Future<Expense> updateExpense(
       String expenseId, Map<String, dynamic> expenseData) async {
-    final response = await supabase
+    var currentExpense = await getExpense(expenseId);
+    Expense expense = Expense.fromJson(
+        await supabase.from('expenses').select().eq('id', expenseId));
+
+    await supabase
         .from("expenses")
         .update(expenseData)
         .match({'id': expenseId});
 
-    if (response != null) {
+    Expense updatedExpense = Expense.fromJson(
+        await supabase.from('expenses').select().eq('id', expenseId));
+
+    if (Expense.equals(expense, updatedExpense)) {
       print("Error updating expense board with id $expenseId");
-      return false;
     }
-    return true;
+
+    return updatedExpense;
   }
 
 // Add expenses to a board
-  Future<bool> addExpense(Map<String, dynamic> expenseData) async {
-    final response = await supabase.from('expenses').insert([expenseData]);
+  Future<Expense> addExpense(Map<String, dynamic> expenseData) async {
+    var added = await supabase.from('expenses').insert([expenseData]).select();
 
-    if (response != null) {
+    if (added == null) {
       // Handle error
-      print('Error adding expense');
-      return false;
+      print('Error adding expense from provided data: $expenseData');
+      return Expense.blank();
     }
-    return true;
+    var insertedExpenseData = added as List<dynamic>;
+    var id = insertedExpenseData.first['id'];
+    var e = Expense.fromJson(expenseData);
+    e.setId(id);
+    return e;
   }
 
   // Remove expense
-  Future<bool> removeExpense(String expenseId) async {
+  Future<Expense?> removeExpense(int expenseId) async {
+    List<dynamic> expenseData =
+        await supabase.from('expenses').select().eq('id', expenseId);
+    Expense expense = Expense.fromJson(expenseData.first);
     final response =
         await supabase.from('expenses').delete().match({'id': expenseId});
 
-    if (response.error != null && response != null) {
+    if (response != null) {
       print("Failed to delete expense with id $expenseId");
-      return false;
+      return null;
     }
-    return true;
+
+    print("Deleted expense with id $expenseId");
+    return expense;
   }
 }

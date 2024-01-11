@@ -1,5 +1,4 @@
 import 'package:expensee/app.dart';
-import 'package:expensee/components/buttons/board_settings/add_user_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/home.dart';
@@ -9,7 +8,7 @@ import 'package:flutter/material.dart';
 class ExpenseBoardNavBar extends StatefulWidget {
   final String boardId;
 
-  const ExpenseBoardNavBar({Key? key, required this.boardId});
+  const ExpenseBoardNavBar({super.key, required this.boardId});
 
   @override
   createState() => _ExpenseBoardNavBarState();
@@ -19,7 +18,7 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      shape: CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(),
       notchMargin: 4,
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -29,11 +28,11 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
           if (Navigator.canPop(context))
             IconButton(
                 onPressed: () => {Navigator.pop(context), _updateState()},
-                icon: Icon(Icons.arrow_back)),
+                icon: const Icon(Icons.arrow_back)),
           // Home button
           IconButton(
               onPressed: () => Navigator.pushNamed(context, Home.routeName),
-              icon: Icon(Icons.home)),
+              icon: const Icon(Icons.home)),
           // Sign out button
           IconButton(
               onPressed: () => {
@@ -41,7 +40,7 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },
-              icon: Icon(Icons.logout_rounded)),
+              icon: const Icon(Icons.logout_rounded)),
           IconButton(
               icon: Image.asset(
                 boardSettingsImagePath,

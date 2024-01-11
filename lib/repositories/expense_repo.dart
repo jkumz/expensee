@@ -7,30 +7,44 @@ class ExpenseRepository implements ExpenseRepositoryInterface {
   final _service = SupabaseService();
 
   @override
-  Future<List<Expense>> refreshExpenses(boardId) async {
-    List<Expense> _expenses = await _service.getExpensesForBoard(boardId);
+  Future<Expense> refreshExpense(expenseId) async {
+    Expense expenseRefreshed = await _service.getExpense(expenseId);
 
-    return _expenses;
+    return expenseRefreshed;
   }
 
   @override
-  Future<bool> addExpense(Map<String, dynamic> json) {
-    final _added = _service.addExpense(json);
+  Future<Expense> addExpense(Map<String, dynamic> json) async {
+    final expenseToAdd = await _service.addExpense(json);
 
-    return _added;
+    return expenseToAdd;
   }
 
   @override
-  Future<bool> removeExpense(String expenseId) {
-    final _removed = _service.removeExpense(expenseId);
+  Future<Expense?> removeExpense(int expenseId) async {
+    final removedExpense = await _service.removeExpense(expenseId);
 
-    return _removed;
+    return removedExpense;
   }
 
   @override
-  Future<bool> updateExpense(String expenseId, Map<String, dynamic> json) {
-    final _updated = _service.updateExpense(expenseId, json);
+  Future<Expense> updateExpense(
+      String expenseId, Map<String, dynamic> json) async {
+    final updated = await _service.updateExpense(expenseId, json);
 
-    return _updated;
+    return updated;
+  }
+
+  @override
+  Future<List<Expense>> refreshExpensesForBoard(String boardId) async {
+    final expensesRefreshed = await _service.getExpensesForBoard(boardId);
+
+    return expensesRefreshed;
+  }
+
+  @override
+  Future<bool> isPartOfGroup(String boardId) async {
+    bool isGroup = await _service.isBoardGroup(boardId);
+    return isGroup;
   }
 }

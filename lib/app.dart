@@ -1,4 +1,3 @@
-import 'package:expensee/components/forms/create_expense_board_form.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
@@ -51,7 +50,7 @@ class ExpenseeApp extends StatelessWidget {
             final args = settings.arguments as BoardSettingsScreenArguments;
             return MaterialPageRoute(
                 builder: (_) => BoardSettingsScreen(
-                    id: int.parse("${args.id}"), role: args.role));
+                    id: int.parse(args.id), role: args.role));
 
           default:
             return MaterialPageRoute(builder: (_) => const Splash());

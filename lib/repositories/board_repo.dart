@@ -1,4 +1,5 @@
 import 'package:expensee/main.dart';
+import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/repositories/interfaces/board_repo_interface.dart';
 import 'package:expensee/services/supabase_service.dart';
@@ -41,5 +42,25 @@ class BoardRepository implements BoardRepositoryInterface {
     var updated = await _service.updateExpenseBoard(boardId, json);
 
     return updated;
+  }
+
+  Future<ExpenseBoard?> getBoard(String boardId) async {
+    var board = await _service.getBoard(boardId);
+
+    return board;
+  }
+
+  Future<Expense?> getExpense(String expenseId) async {
+    var expense = await _service.getExpense(expenseId);
+    if (expense == null) {
+      print("Error getting fetching expense with id $expenseId");
+    }
+    return expense;
+  }
+
+  Future<List<Expense>> getExpenses(String boardId) async {
+    List<Expense> expenses = await _service.getExpensesForBoard(boardId);
+
+    return expenses;
   }
 }

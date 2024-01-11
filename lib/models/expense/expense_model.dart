@@ -1,7 +1,6 @@
 import 'package:expensee/models/expense/date_time_converter.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_dates_converter.dart';
-import "package:flutter/material.dart";
 import 'package:json_annotation/json_annotation.dart';
 
 //TODO - add proper error handling + validation
@@ -36,6 +35,10 @@ class Expense {
   @JsonKey(name: "description", required: false)
   String? description;
 
+  void setId(int id) {
+    this.id = id;
+  }
+
   Expense(
       {required this.date,
       required this.category,
@@ -61,6 +64,13 @@ class Expense {
       _$ExpenseFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExpenseToJson(this);
+
+  static bool equals(Expense previous, Expense updated) {
+    if (previous.toJson() != updated.toJson()) {
+      return false;
+    }
+    return true;
+  }
 
   void setData(String date) {
     try {

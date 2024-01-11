@@ -1,3 +1,4 @@
+import 'package:expensee/models/expense/expense_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part "expense_board.g.dart";
@@ -15,6 +16,12 @@ class ExpenseBoard {
 
   @JsonKey(name: "is_group", required: true)
   final bool isGroup;
+
+  List<Expense> _expenses = [];
+  List<Expense> get expenses => _expenses;
+  set expenses(List<Expense> expenses) {
+    _expenses = expenses;
+  }
 
   ExpenseBoard(
       {this.id,

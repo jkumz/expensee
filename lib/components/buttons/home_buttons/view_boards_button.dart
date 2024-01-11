@@ -5,8 +5,11 @@ class ViewExpenseBoardsButton extends StatelessWidget {
   final String imagePath;
   final VoidCallback onPressed;
 
-  ViewExpenseBoardsButton(
-      {required this.text, required this.imagePath, required this.onPressed});
+  const ViewExpenseBoardsButton(
+      {super.key,
+      required this.text,
+      required this.imagePath,
+      required this.onPressed});
 
 // TODO - text styling
   @override

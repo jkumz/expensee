@@ -1,13 +1,15 @@
+import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 
 // TODO - More rendering / options for group expenses
-class EditableExpenseItem extends StatefulWidget {
+class EditableExpenseItem extends BaseExpenseItem {
   final Expense expense;
 
-  const EditableExpenseItem({Key? key, required this.expense});
+  const EditableExpenseItem({super.key, required this.expense})
+      : super(expense: expense);
 
   @override
   createState() => _EditableExpenseItemState();
@@ -31,6 +33,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
 
   @override
   void dispose() {
+    super.dispose();
     _categoryController.dispose();
     _descriptionController.dispose();
     _amountController.dispose();
@@ -46,29 +49,36 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
           children: [
             TextField(
               controller: _categoryController,
-              decoration:
-                  InputDecoration(labelText: editableExpenseCategoryLabelText),
+              readOnly: false,
+              decoration: const InputDecoration(
+                  labelText: editableExpenseCategoryLabelText),
               onSubmitted: (value) {
                 updateCategory(value);
               },
             ),
             TextField(
               controller: _descriptionController,
-              decoration:
-                  InputDecoration(labelText: editableDescriptionLabelText),
+              readOnly: false,
+              decoration: const InputDecoration(
+                  labelText: editableDescriptionLabelText),
               onSubmitted: (value) {
+                print("test");
                 updateDescription(value);
               },
+              onTap: () => print("test tap"),
             ),
             TextField(
               controller: _amountController,
-              decoration: InputDecoration(labelText: editableAmountLabelText),
+              decoration:
+                  const InputDecoration(labelText: editableAmountLabelText),
+              readOnly: false,
               onSubmitted: (value) async {
                 final amount = double.tryParse(value);
                 if (amount == null) {
                   // TODO - handle no input - show toast
                 } else {
-                  if (await updateAmount(amount)) {
+                  var updated = await updateAmount(amount);
+                  if (updated.amount == amount) {
                     setState(() {
                       widget.expense.amount = amount;
                     });
@@ -83,7 +93,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
   }
 
 // Method for updating category based on user input
-  Future<bool> updateCategory(String category) async {
+  Future<Expense> updateCategory(String category) async {
     var json = widget.expense.toJson();
     json["category"] = category;
 
@@ -91,7 +101,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
   }
 
 // Method for updating description based on user input
-  Future<bool> updateDescription(String description) async {
+  Future<Expense> updateDescription(String description) async {
     var json = widget.expense.toJson();
     json["description"] = description;
 
@@ -99,7 +109,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
   }
 
 // Method for updating amount based on user input
-  Future<bool> updateAmount(double amount) async {
+  Future<Expense> updateAmount(double amount) async {
     var json = widget.expense.toJson();
     json["amount"] = amount;
     return await repo.updateExpense("${widget.expense.id}", json);
