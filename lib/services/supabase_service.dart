@@ -168,10 +168,14 @@ class SupabaseService {
 
     if (expenseExists != null) {
       print("Found expense with id $expenseId");
-      final expenseJson =
+      List<dynamic> expenseJson =
           await supabase.from('expenses').select().eq('id', expenseId);
 
-      return Expense.fromJson(expenseJson);
+      Map<String, dynamic> json = expenseJson.first;
+      var expense = Expense.fromJson(json);
+      expense.id = json['id'];
+
+      return expense;
     }
 
     print("Expense with id $expenseId doesn't exist");
@@ -182,16 +186,21 @@ class SupabaseService {
   Future<Expense> updateExpense(
       String expenseId, Map<String, dynamic> expenseData) async {
     var currentExpense = await getExpense(expenseId);
-    Expense expense = Expense.fromJson(
-        await supabase.from('expenses').select().eq('id', expenseId));
+    List<dynamic> expenseJson =
+        await supabase.from("expenses").select().eq('id', currentExpense.id);
+    Map<String, dynamic> json = expenseJson.first;
+    Expense expense = Expense.fromJson(json);
+    expense.id = json['id'];
 
     await supabase
         .from("expenses")
         .update(expenseData)
         .match({'id': expenseId});
 
-    Expense updatedExpense = Expense.fromJson(
-        await supabase.from('expenses').select().eq('id', expenseId));
+    List<dynamic> updatedExpenseJson =
+        await supabase.from('expenses').select().eq('id', expenseId);
+    Map<String, dynamic> updatedJson = updatedExpenseJson.first;
+    Expense updatedExpense = Expense.fromJson(updatedJson);
 
     if (Expense.equals(expense, updatedExpense)) {
       print("Error updating expense board with id $expenseId");
