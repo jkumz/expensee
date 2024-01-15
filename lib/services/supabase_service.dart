@@ -182,24 +182,47 @@ class SupabaseService {
     return Expense.blank();
   }
 
-  // Update an expense
+  // Update an expense - pull list of JSON, convert item to map
+  // Repeat after update and compare. If the same then update failed
+  // TODO - dynamic balance adjustment
   Future<Expense> updateExpense(
       String expenseId, Map<String, dynamic> expenseData) async {
     var currentExpense = await getExpense(expenseId);
-    List<dynamic> expenseJson =
-        await supabase.from("expenses").select().eq('id', currentExpense.id);
-    Map<String, dynamic> json = expenseJson.first;
-    Expense expense = Expense.fromJson(json);
-    expense.id = json['id'];
+    Map<String, dynamic> expenseJson = (await supabase
+            .from("expenses")
+            .select()
+            .eq('id', currentExpense.id) as List<dynamic>)
+        .firstOrNull;
+
+    // Pull expense before update
+    Map<String, dynamic> jsonBeforeUpdate = (await supabase
+            .from("expenses")
+            .select()
+            .eq("id", expenseId) as List<dynamic>)
+        .first;
+
+    Expense expense = Expense.fromJson(expenseJson);
+    expense.id = expenseJson['id'];
+
+    // Go thru each k-v pair in jsonBeforeUpdate and compare it to expenseData
+    // If value in new json is null or blank, assign it to previous value
+
+    expenseData.forEach((key, value) {
+      if (value == null || value == "") {
+        expenseData[key] = jsonBeforeUpdate[key];
+      }
+    });
 
     await supabase
         .from("expenses")
         .update(expenseData)
         .match({'id': expenseId});
 
-    List<dynamic> updatedExpenseJson =
-        await supabase.from('expenses').select().eq('id', expenseId);
-    Map<String, dynamic> updatedJson = updatedExpenseJson.first;
+    Map<String, dynamic> updatedJson = (await supabase
+            .from('expenses')
+            .select()
+            .eq('id', expenseId) as List<dynamic>)
+        .firstOrNull;
     Expense updatedExpense = Expense.fromJson(updatedJson);
 
     if (Expense.equals(expense, updatedExpense)) {
