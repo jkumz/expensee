@@ -6,22 +6,24 @@ import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 
 // TODO - More rendering / options for group expenses
-class ExpenseCreationForm extends BaseExpenseItem {
+class CreateExpenseForm extends BaseExpenseItem {
+  @override
   final Expense expense;
 
-  const ExpenseCreationForm({super.key, required this.expense})
+  const CreateExpenseForm({super.key, required this.expense})
       : super(expense: expense);
 
   @override
-  createState() => _ExpenseCreationFormState();
+  createState() => _CreateExpenseFormState();
 }
 
-class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
+class _CreateExpenseFormState extends State<CreateExpenseForm> {
   late TextEditingController _categoryController;
   late TextEditingController _descriptionController;
   late TextEditingController _amountController;
   late TextEditingController _dateController;
   final repo = ExpenseRepository();
+  bool isSubmitted = false;
 
   @override
   void initState() {
@@ -32,7 +34,7 @@ class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
     _amountController =
         TextEditingController(text: widget.expense.amount.toStringAsFixed(2));
     _dateController =
-        TextEditingController(text: widget.expense.date.toString());
+        TextEditingController(text: expenseDateToString(widget.expense.date));
   }
 
   @override
@@ -41,6 +43,7 @@ class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
     _categoryController.dispose();
     _descriptionController.dispose();
     _amountController.dispose();
+    _dateController.dispose();
   }
 
   @override
@@ -58,6 +61,9 @@ class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
                   labelText: editableExpenseCategoryLabelText),
               onSubmitted: (value) {
                 _updateCategory(value);
+                setState(() {
+                  isSubmitted = true;
+                });
               },
             ),
             TextField(
@@ -68,6 +74,9 @@ class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
               onSubmitted: (value) {
                 print("test");
                 _updateDescription(value);
+                setState(() {
+                  isSubmitted = true;
+                });
               },
               onTap: () => print("test tap"),
             ),
@@ -85,6 +94,7 @@ class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
                   if (updated.amount == amount) {
                     setState(() {
                       widget.expense.amount = amount;
+                      isSubmitted = true;
                     });
                   }
                 }
@@ -105,6 +115,7 @@ class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
                   if (updated.date == updatedDate) {
                     setState(() {
                       widget.expense.date = updatedDate;
+                      isSubmitted = true;
                     });
                   }
                 }

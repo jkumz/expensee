@@ -74,3 +74,5 @@ const addUserText = "Add User";
 const removeUserText = "Remove User";
 const manageUserRolesText = "Manage User Roles";
 const renameBoardText = "Rename Board";
+const boldedExpenseTextStyle =
+    TextStyle(fontSize: 16, fontWeight: FontWeight.bold);

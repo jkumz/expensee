@@ -16,7 +16,7 @@ class _BoardCreationScreenState extends State<BoardCreationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: CreateExpenseBoardForm(),
-      bottomNavigationBar: DefaultBottomAppBar(),
+      bottomNavigationBar: const DefaultBottomAppBar(),
     );
   }
 }
