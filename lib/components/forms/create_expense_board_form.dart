@@ -1,9 +1,6 @@
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
-import 'package:expensee/repositories/board_repo.dart';
-import 'package:expensee/services/supabase_service.dart';
 import "package:flutter/material.dart";
-import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:expensee/components/snackbars/conditional_snackbar.dart";
 import 'package:provider/provider.dart' as Provider;
 

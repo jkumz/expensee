@@ -143,7 +143,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       children: [
         Dismissible(
           key: Key(expenseItem.expense.id.toString()),
-          child: EditableExpenseItem(expense: expenseItem.expense),
+          child: ExpenseCreationForm(expense: expenseItem.expense),
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
             if (direction == DismissDirection.endToStart) {
@@ -165,10 +165,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       _refreshExpenses();
       return true;
     }
-    // } catch (error) {
-    //   // TODO - error handling
-    //   print("Error - failed to delete from board");
-    // }
     return false;
   }
 
@@ -185,7 +181,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       if (board.expenses.isNotEmpty) {
         setState(() {
           expenses = board.expenses
-              .map((rawExpense) => EditableExpenseItem(expense: rawExpense))
+              .map((rawExpense) => ExpenseCreationForm(expense: rawExpense))
               .toList();
         });
       }

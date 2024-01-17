@@ -1,24 +1,26 @@
 import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 
 // TODO - More rendering / options for group expenses
-class EditableExpenseItem extends BaseExpenseItem {
+class ExpenseCreationForm extends BaseExpenseItem {
   final Expense expense;
 
-  const EditableExpenseItem({super.key, required this.expense})
+  const ExpenseCreationForm({super.key, required this.expense})
       : super(expense: expense);
 
   @override
-  createState() => _EditableExpenseItemState();
+  createState() => _ExpenseCreationFormState();
 }
 
-class _EditableExpenseItemState extends State<EditableExpenseItem> {
+class _ExpenseCreationFormState extends State<ExpenseCreationForm> {
   late TextEditingController _categoryController;
   late TextEditingController _descriptionController;
   late TextEditingController _amountController;
+  late TextEditingController _dateController;
   final repo = ExpenseRepository();
 
   @override
@@ -29,6 +31,8 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
         TextEditingController(text: widget.expense.description);
     _amountController =
         TextEditingController(text: widget.expense.amount.toStringAsFixed(2));
+    _dateController =
+        TextEditingController(text: widget.expense.date.toString());
   }
 
   @override
@@ -41,10 +45,10 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    return Form(
+      //margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
             TextField(
@@ -53,7 +57,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
               decoration: const InputDecoration(
                   labelText: editableExpenseCategoryLabelText),
               onSubmitted: (value) {
-                updateCategory(value);
+                _updateCategory(value);
               },
             ),
             TextField(
@@ -63,7 +67,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
                   labelText: editableDescriptionLabelText),
               onSubmitted: (value) {
                 print("test");
-                updateDescription(value);
+                _updateDescription(value);
               },
               onTap: () => print("test tap"),
             ),
@@ -77,7 +81,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
                 if (amount == null) {
                   // TODO - handle no input - show toast
                 } else {
-                  var updated = await updateAmount(amount);
+                  var updated = await _updateAmount(amount);
                   if (updated.amount == amount) {
                     setState(() {
                       widget.expense.amount = amount;
@@ -86,6 +90,26 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
                 }
               },
             ),
+            TextField(
+              controller: _dateController,
+              decoration:
+                  const InputDecoration(labelText: editableDateLabelText),
+              readOnly: false,
+              onTap: () => {_selectDate(context)},
+              onSubmitted: (date) async {
+                final updatedDate = DateTime.tryParse(date);
+                if (updatedDate == null) {
+                  // TODO - handle null date
+                } else {
+                  var updated = await _updateDate(updatedDate);
+                  if (updated.date == updatedDate) {
+                    setState(() {
+                      widget.expense.date = updatedDate;
+                    });
+                  }
+                }
+              },
+            )
           ],
         ),
       ),
@@ -93,7 +117,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
   }
 
 // Method for updating category based on user input
-  Future<Expense> updateCategory(String category) async {
+  Future<Expense> _updateCategory(String category) async {
     var json = widget.expense.toJson();
     json["category"] = category;
 
@@ -101,7 +125,7 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
   }
 
 // Method for updating description based on user input
-  Future<Expense> updateDescription(String description) async {
+  Future<Expense> _updateDescription(String description) async {
     var json = widget.expense.toJson();
     json["description"] = description;
 
@@ -109,9 +133,31 @@ class _EditableExpenseItemState extends State<EditableExpenseItem> {
   }
 
 // Method for updating amount based on user input
-  Future<Expense> updateAmount(double amount) async {
+  Future<Expense> _updateAmount(double amount) async {
     var json = widget.expense.toJson();
     json["amount"] = amount;
+    return await repo.updateExpense("${widget.expense.id}", json);
+  }
+
+  // Pick a date
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+        context: context,
+        firstDate: DateTime(2008),
+        lastDate: DateTime.now(),
+        initialDate: widget.expense.date ?? DateTime.now());
+
+    // if new date, update it in the UI
+    if (pickedDate != null && pickedDate != widget.expense.date) {
+      setState(() {
+        _dateController.text = expenseDateToString(pickedDate);
+      });
+    }
+  }
+
+  Future<Expense> _updateDate(DateTime date) async {
+    var json = widget.expense.toJson();
+    json["date"] = date;
     return await repo.updateExpense("${widget.expense.id}", json);
   }
 }

@@ -53,6 +53,7 @@ const expenseItemFlex = 2;
 const editableExpenseCategoryLabelText = "Category";
 const editableDescriptionLabelText = "Description";
 const editableAmountLabelText = "Amount";
+const editableDateLabelText = "Date";
 
 // EXPENSE BOARD WIDGET CONSTANTS
 

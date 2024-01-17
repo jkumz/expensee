@@ -1,6 +1,7 @@
 // Service layer class to handle CRUD API
 // May need split into multiple service layer classes if too big - readability
 
+import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
@@ -208,7 +209,9 @@ class SupabaseService {
     // If value in new json is null or blank, assign it to previous value
 
     expenseData.forEach((key, value) {
-      if (value == null || value == "") {
+      if (value is DateTime) {
+        expenseData[key] = expenseDateToString(value);
+      } else if (value == null || value == "") {
         expenseData[key] = jsonBeforeUpdate[key];
       }
     });
