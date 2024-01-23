@@ -2,15 +2,24 @@ import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
+import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 // TODO - More rendering / options for group expenses
 class CreateExpenseForm extends BaseExpenseItem {
   @override
   final Expense expense;
+  final bool exists;
+  final VoidCallback onClose;
 
-  const CreateExpenseForm({super.key, required this.expense})
+  const CreateExpenseForm(
+      {super.key,
+      required this.expense,
+      required this.exists,
+      required this.onClose})
       : super(expense: expense);
 
   @override
@@ -24,6 +33,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   late TextEditingController _dateController;
   final repo = ExpenseRepository();
   bool isSubmitted = false;
+  bool _isFormValid = true;
 
   @override
   void initState() {
@@ -35,6 +45,40 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         TextEditingController(text: widget.expense.amount.toStringAsFixed(2));
     _dateController =
         TextEditingController(text: expenseDateToString(widget.expense.date));
+
+    // Add validation to controllers
+    _amountController.addListener(() => _validateForm());
+    _dateController.addListener(() => _validateForm());
+  }
+
+  void _validateForm() {
+    // Regex - Check it's start of line, then match digit between 1 to 7 times
+    // (up to a millions), then match the decimal, then match exactly 2 digits.
+    bool isAmountValid =
+        RegExp(r'^\d{1,7}\.\d{2}$').hasMatch(_amountController.text);
+
+    // Regex - Check start of line, then match exactly 4 digits for year, then
+    // match exactly 2 digits for MM, then 2 for DD. Match '-' inbetween.
+    bool isDateValid =
+        RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(_dateController.text);
+
+    if (!isAmountValid) {
+      _showValidationMessage("Amount must be to 2 decimal places...");
+    }
+    if (!isDateValid) {
+      _showValidationMessage("Date must be in YYYY-MM-DD format");
+    }
+
+    setState(() {
+      _isFormValid = isAmountValid && isDateValid;
+    });
+  }
+
+  void _showValidationMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      duration: Duration(seconds: 1),
+    ));
   }
 
   @override
@@ -59,46 +103,24 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
               readOnly: false,
               decoration: const InputDecoration(
                   labelText: editableExpenseCategoryLabelText),
-              onSubmitted: (value) {
-                _updateCategory(value);
-                setState(() {
-                  isSubmitted = true;
-                });
-              },
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(categoryLength)
+              ],
             ),
             TextField(
               controller: _descriptionController,
               readOnly: false,
               decoration: const InputDecoration(
                   labelText: editableDescriptionLabelText),
-              onSubmitted: (value) {
-                print("test");
-                _updateDescription(value);
-                setState(() {
-                  isSubmitted = true;
-                });
-              },
-              onTap: () => print("test tap"),
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(expenseDescLength)
+              ],
             ),
             TextField(
               controller: _amountController,
               decoration:
                   const InputDecoration(labelText: editableAmountLabelText),
               readOnly: false,
-              onSubmitted: (value) async {
-                final amount = double.tryParse(value);
-                if (amount == null) {
-                  // TODO - handle no input - show toast
-                } else {
-                  var updated = await _updateAmount(amount);
-                  if (updated.amount == amount) {
-                    setState(() {
-                      widget.expense.amount = amount;
-                      isSubmitted = true;
-                    });
-                  }
-                }
-              },
             ),
             TextField(
               controller: _dateController,
@@ -106,48 +128,30 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
                   const InputDecoration(labelText: editableDateLabelText),
               readOnly: false,
               onTap: () => {_selectDate(context)},
-              onSubmitted: (date) async {
-                final updatedDate = DateTime.tryParse(date);
-                if (updatedDate == null) {
-                  // TODO - handle null date
-                } else {
-                  var updated = await _updateDate(updatedDate);
-                  if (updated.date == updatedDate) {
-                    setState(() {
-                      widget.expense.date = updatedDate;
-                      isSubmitted = true;
-                    });
-                  }
-                }
-              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                      onPressed: _isFormValid
+                          ? () async {
+                              await _modifyExpense();
+                              widget.onClose();
+                            }
+                          : null,
+                      child: widget.exists
+                          ? modifyExpenseBtnText
+                          : createExpenseBtnText),
+                ),
+              ],
             )
           ],
         ),
       ),
     );
-  }
-
-// Method for updating category based on user input
-  Future<Expense> _updateCategory(String category) async {
-    var json = widget.expense.toJson();
-    json["category"] = category;
-
-    return await repo.updateExpense("${widget.expense.id}", json);
-  }
-
-// Method for updating description based on user input
-  Future<Expense> _updateDescription(String description) async {
-    var json = widget.expense.toJson();
-    json["description"] = description;
-
-    return await repo.updateExpense("${widget.expense.id}", json);
-  }
-
-// Method for updating amount based on user input
-  Future<Expense> _updateAmount(double amount) async {
-    var json = widget.expense.toJson();
-    json["amount"] = amount;
-    return await repo.updateExpense("${widget.expense.id}", json);
   }
 
   // Pick a date
@@ -166,9 +170,18 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     }
   }
 
-  Future<Expense> _updateDate(DateTime date) async {
+// Method for modifying the JSON of the new expense and updating it in the database.
+  Future<Expense> _modifyExpense() async {
     var json = widget.expense.toJson();
-    json["date"] = date;
-    return await repo.updateExpense("${widget.expense.id}", json);
+    json["category"] = _categoryController.value.text;
+    json["description"] = _descriptionController.value.text;
+    json["amount"] = _amountController.value.text;
+    json["date"] = DateTime.tryParse(_dateController.text);
+    if (mounted) {
+      return await Provider.of<ExpenseProvider>(context, listen: false)
+          .updateExpense(json, widget.expense.id.toString());
+    } else {
+      return widget.expense;
+    }
   }
 }

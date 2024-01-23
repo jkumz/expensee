@@ -124,6 +124,7 @@ class BoardProvider extends ChangeNotifier {
     } else {
       logger.e("Board with id $boardId has failed to referesh");
     }
+    notifyListeners();
     return board;
   }
 

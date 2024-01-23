@@ -12,11 +12,11 @@ ExpenseBoard _$ExpenseBoardFromJson(Map<String, dynamic> json) {
     requiredKeys: const ['owner_id', 'name', 'is_group'],
   );
   return ExpenseBoard(
-    id: json['id'] as int?,
-    ownerId: json['owner_id'],
-    name: json['name'] as String,
-    isGroup: json['is_group'] as bool,
-  );
+      id: json['id'] as int?,
+      ownerId: json['owner_id'],
+      name: json['name'] as String,
+      isGroup: json['is_group'] as bool,
+      balance: json['balance'] as double);
 }
 
 Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
@@ -32,5 +32,6 @@ Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
   val['owner_id'] = instance.ownerId;
   val['name'] = instance.name;
   val['is_group'] = instance.isGroup;
+  val['balance'] = instance.balance;
   return val;
 }

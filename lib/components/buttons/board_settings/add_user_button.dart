@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AddUserButton extends StatelessWidget {
   final String text;
-  late String imagePath = addBoardImagePath;
+  late String imagePath = addImagePath;
   final VoidCallback onPressed;
 
   AddUserButton({super.key, required this.text, required this.onPressed});

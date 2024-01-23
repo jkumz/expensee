@@ -33,7 +33,7 @@ const signInExplanationText =
 // ASSET PATHS
 const singleBoardImagePath = "assets/images/user.png";
 const groupBoardImagePath = "assets/images/people.png";
-const addBoardImagePath = "assets/images/add-user.png";
+const addImagePath = "assets/images/add-user.png";
 const boardSettingsImagePath = "assets/images/settings.png";
 const removeUserFromBoardImagePath = "assets/images/minus.png";
 const manageUsersImagePath = "assets/images/manage-roles.png";
@@ -76,3 +76,10 @@ const manageUserRolesText = "Manage User Roles";
 const renameBoardText = "Rename Board";
 const boldedExpenseTextStyle =
     TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
+
+// EXPENSE CREATION SCREEN
+
+const createExpenseBtnText = Text("Create Expense");
+const modifyExpenseBtnText = Text("Modify Expense");
+const categoryLength = 17;
+const expenseDescLength = 46;

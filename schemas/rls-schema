@@ -1,0 +1,9 @@
+# The code below relates to adding/removing expense based on user role. Re-add after RBAC implemented.
+
+(EXISTS ( SELECT 1
+   FROM group_members
+  WHERE ((group_members.board_id = expenses.board_id) AND (group_members.user_id = auth.uid()) AND ((group_members.role = 'Admin'::text) OR (group_members.role = 'Owner'::text)))))
+
+(EXISTS ( SELECT 1
+   FROM group_members
+  WHERE ((group_members.board_id = expenses.board_id) AND (group_members.user_id = auth.uid()) AND (group_members.role = 'Shareholder'::text))))

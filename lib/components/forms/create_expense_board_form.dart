@@ -15,6 +15,7 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
   // to store user input
   String _boardName = "";
   bool _isGroup = false;
+  String _balance = "";
 
   // handle form submission
   void _submit() async {
@@ -25,8 +26,11 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
           Provider.Provider.of<BoardProvider>(context, listen: false);
 
       // Use service layer to create an expense board
-      bool created = await boardProvider
-          .createBoard({'name': _boardName, 'is_group': _isGroup});
+      bool created = await boardProvider.createBoard({
+        'name': _boardName,
+        'is_group': _isGroup,
+        'balance': double.parse(_balance)
+      });
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
@@ -59,6 +63,20 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
               validator: (value) =>
                   value!.isEmpty ? "Please enter a board name" : null,
             ),
+            TextFormField(
+                decoration:
+                    InputDecoration(labelText: "Starting Balance (GBP)"),
+                // assign name input
+                onSaved: (value) => _balance = value!,
+                // validate name input
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter a balance in X.XX format";
+                  } else if (!RegExp(r'^\d+(\.\d{2})?$').hasMatch(value)) {
+                    return "Invalid format. Please enter a balance in X.XX format";
+                  }
+                  return null;
+                }),
             SwitchListTile(
                 title: const Text("Group board?"),
                 value: _isGroup,

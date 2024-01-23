@@ -1,20 +1,17 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
 import 'package:expensee/components/bottom_bars/board_settings_nav_bar.dart';
 import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
-import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_creation_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 // TODO - error handling, validation, styling
@@ -31,9 +28,21 @@ class ExpenseBoardScreen extends StatefulWidget {
 
 class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   List<BaseExpenseItem> expenses = [];
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
   bool loading = false;
   final repo = ExpenseRepository();
   bool isGroupExpense = false;
+  onCloseCreationOrEdit() => {
+        setState(
+          () => displayBoard = true,
+        ),
+        _refreshIndicatorKey.currentState?.show()
+      };
+
+// Variables to help switching between creation and view of expenses
+  bool displayBoard = true;
+  Expense? editingExpense;
 
   @override
   void initState() {
@@ -51,22 +60,32 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
         actions: [/*TODO*/],
       ),
       body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: Column(
-          children: [
-            _renderProgressBar(context),
-            Expanded(child: _renderListView(context)),
-            Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: IconButton(
-                  icon: Image.asset("assets/images/add.png",
-                      fit: BoxFit.contain, width: 50, height: 50),
-                  onPressed: () => _navigateToCreationAndRefresh(),
-                ))
-          ],
-        ),
-      ),
+          key: _refreshIndicatorKey,
+          onRefresh: _loadData,
+          child: displayBoard
+              ? _buildMainContent(context)
+              : ExpenseCreationScreen(
+                  expense: editingExpense!,
+                  exists: editingExpense != null,
+                  onClose: () => onCloseCreationOrEdit(),
+                )),
       bottomNavigationBar: ExpenseBoardNavBar(boardId: widget.boardId),
+    );
+  }
+
+  Widget _buildMainContent(BuildContext context) {
+    return Column(
+      children: [
+        _renderProgressBar(context),
+        Expanded(child: _renderListView(context)),
+        Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: IconButton(
+              icon: Image.asset(addImagePath,
+                  fit: BoxFit.contain, width: 50, height: 50),
+              onPressed: () => _navigateToCreationAndRefresh(),
+            ))
+      ],
     );
   }
 
@@ -86,6 +105,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
         : Container());
   }
 
+// helper method
   Future<bool> _isPartOfGroup() async {
     bool isGroup = await repo.isPartOfGroup(widget.boardId);
     setState(() {
@@ -94,6 +114,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     return isGroupExpense;
   }
 
+// renders list view of expenses
   Widget _renderListView(BuildContext context) {
     return ListView.builder(
         itemCount: expenses.length, itemBuilder: _listViewItemBuilder);
@@ -123,6 +144,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     );
   }
 
+// TODO - Styling + constants file
   Widget _renderExpenseView(Expense expense) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -136,14 +158,16 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
             children: [
               Text(
                 expenseDateToString(expense.date),
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 4,
               ),
               Text(
                 "£${expense.amount.toStringAsFixed(2)}",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -186,26 +210,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     );
   }
 
-  // used to build out each expense item in the list view, based on their index
-  Widget _listViewEditableItemBuilder(BuildContext context, int index) {
-    BaseExpenseItem expenseItem = expenses[index];
-
-    return Column(
-      children: [
-        Dismissible(
-          key: Key(expenseItem.expense.id.toString()),
-          child: CreateExpenseForm(expense: expenseItem.expense),
-          direction: DismissDirection.endToStart,
-          onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
-              _deleteExpenseFromBoard(expenseItem.expense, context);
-            }
-          },
-        ),
-      ],
-    );
-  }
-
   Future<bool> _deleteExpenseFromBoard(
       Expense expense, BuildContext context) async {
     // try {
@@ -232,7 +236,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       if (board.expenses.isNotEmpty) {
         setState(() {
           expenses = board.expenses
-              .map((rawExpense) => CreateExpenseForm(expense: rawExpense))
+              .map((rawExpense) => CreateExpenseForm(
+                    expense: rawExpense,
+                    exists: true,
+                    onClose: () => onCloseCreationOrEdit(),
+                  ))
               .toList();
         });
       }
@@ -268,22 +276,25 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     return expense;
   }
 
+// Switches rendered widget to creation form, but on an existing expense
   Future<void> _navigateToEditAndRefresh(Expense expense, context) async {
     if (mounted) {
-      await Navigator.pushNamed(context, ExpenseCreationScreen.routeName,
-          arguments: ExpenseCreationSreenArguments(expense: expense));
-
+      setState(() {
+        editingExpense = expense;
+        displayBoard = false;
+      });
       await _refreshExpenses();
     }
   }
 
+// Switches rendered widget to creation form widget
   Future<void> _navigateToCreationAndRefresh() async {
-    // Navigate and wait for result
     var expense = await _generateBlankExpense();
     if (mounted) {
-      await Navigator.pushNamed(context, ExpenseCreationScreen.routeName,
-          arguments: ExpenseCreationSreenArguments(expense: expense));
-
+      setState(() {
+        editingExpense = expense;
+        displayBoard = false;
+      });
       await _refreshExpenses();
     } else {
       await _deleteExpenseFromBoard(expense, context);

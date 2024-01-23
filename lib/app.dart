@@ -1,5 +1,6 @@
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
@@ -44,11 +45,6 @@ class ExpenseeApp extends StatelessWidget {
           case BoardCreationScreen.routeName:
             return MaterialPageRoute(
                 builder: (_) => const BoardCreationScreen());
-          case ExpenseCreationScreen.routeName:
-            final args = settings.arguments as ExpenseCreationSreenArguments;
-            return MaterialPageRoute(
-              builder: (_) => ExpenseCreationScreen(expense: args.expense),
-            );
           case ExpenseBoardScreen.routeName:
             final args = settings.arguments as ExpenseBoardScreenArguments;
             return MaterialPageRoute(
@@ -88,6 +84,7 @@ class BoardSettingsScreenArguments {
 
 class ExpenseCreationSreenArguments {
   final Expense expense;
+  bool exists;
 
-  ExpenseCreationSreenArguments({required this.expense});
+  ExpenseCreationSreenArguments({required this.expense, this.exists = false});
 }

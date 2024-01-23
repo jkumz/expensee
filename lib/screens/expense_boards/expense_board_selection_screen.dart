@@ -58,7 +58,7 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
             Consumer<BoardProvider>(
               builder: (context, boardProvider, _) {
                 if (boardProvider.isLoading) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 boards = boardProvider.boards;
@@ -68,14 +68,14 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: IconButton(
-                icon: Image.asset(addBoardImagePath,
+                icon: Image.asset(addImagePath,
                     fit: BoxFit.contain, width: 50, height: 50),
                 onPressed: () => _navigateToCreationAndRefresh(),
               ),
             )
           ],
         ),
-        bottomNavigationBar: DefaultBottomAppBar());
+        bottomNavigationBar: const DefaultBottomAppBar());
   }
 
   Future<bool> _deleteBoard(String boardId, BuildContext context) async {
