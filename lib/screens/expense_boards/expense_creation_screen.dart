@@ -6,12 +6,14 @@ class ExpenseCreationScreen extends StatefulWidget {
   static const routeName = "/create-expense";
 
   final Expense expense;
+  final int boardId;
   final bool exists;
   final VoidCallback onClose;
 
   const ExpenseCreationScreen(
       {super.key,
       required this.expense,
+      required this.boardId,
       required this.exists,
       required this.onClose});
 

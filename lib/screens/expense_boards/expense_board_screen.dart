@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
-import 'package:expensee/components/bottom_bars/board_settings_nav_bar.dart';
+import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
 import 'package:expensee/config/constants.dart';
@@ -33,12 +33,15 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   bool loading = false;
   final repo = ExpenseRepository();
   bool isGroupExpense = false;
-  onCloseCreationOrEdit() => {
+  onFinishEditing() => {
         setState(
           () => displayBoard = true,
         ),
         _refreshIndicatorKey.currentState?.show()
       };
+
+  // No need to update refresh indicator state on exit, as not submitted.
+  onExitExpenseView() => {setState(() => displayBoard = true)};
 
 // Variables to help switching between creation and view of expenses
   bool displayBoard = true;
@@ -65,11 +68,16 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
           child: displayBoard
               ? _buildMainContent(context)
               : ExpenseCreationScreen(
+                  boardId: int.parse(widget.boardId),
                   expense: editingExpense!,
                   exists: editingExpense != null,
-                  onClose: () => onCloseCreationOrEdit(),
+                  onClose: () => onFinishEditing(),
                 )),
-      bottomNavigationBar: ExpenseBoardNavBar(boardId: widget.boardId),
+      bottomNavigationBar: ExpenseBoardNavBar(
+        boardId: widget.boardId,
+        isExpenseView: editingExpense != null,
+        exit: onExitExpenseView,
+      ),
     );
   }
 
@@ -239,7 +247,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
               .map((rawExpense) => CreateExpenseForm(
                     expense: rawExpense,
                     exists: true,
-                    onClose: () => onCloseCreationOrEdit(),
+                    onClose: () => onFinishEditing(),
                   ))
               .toList();
         });

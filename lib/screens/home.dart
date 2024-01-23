@@ -1,6 +1,6 @@
 import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/home_app_bar.dart';
-import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
+import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/home_buttons/create_board_button.dart';
 import 'package:expensee/components/buttons/home_buttons/view_boards_button.dart';
 import 'package:expensee/config/constants.dart';

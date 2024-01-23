@@ -1,5 +1,5 @@
 import 'package:expensee/components/appbars/view_boards_app_bar.dart';
-import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
+import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';

@@ -5,16 +5,18 @@ import 'package:expensee/screens/home.dart';
 import 'package:expensee/screens/login.dart';
 import 'package:flutter/material.dart';
 
-class ExpenseBoardNavBar extends StatefulWidget {
+class ExpenseScreenNavBar extends StatefulWidget {
   final String boardId;
+  final VoidCallback onBackButton;
 
-  const ExpenseBoardNavBar({super.key, required this.boardId});
+  const ExpenseScreenNavBar(
+      {super.key, required this.boardId, required this.onBackButton});
 
   @override
-  createState() => _ExpenseBoardNavBarState();
+  createState() => _ExpenseScreenNavBarState();
 }
 
-class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
+class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(

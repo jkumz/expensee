@@ -1,4 +1,4 @@
-import 'package:expensee/components/bottom_bars/default_bottom_bar.dart';
+import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/board_settings/add_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/delete_board_button.dart';
 import 'package:expensee/components/buttons/board_settings/manage_users_button.dart';
