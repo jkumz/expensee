@@ -3,7 +3,6 @@ import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
-import 'package:expensee/repositories/board_repo.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +22,6 @@ class SelectExpenseBoardsScreen extends StatefulWidget {
 
 class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   late List<ExpenseBoard> boards = [];
-  final _repo = BoardRepository();
 
   @override
   void initState() {

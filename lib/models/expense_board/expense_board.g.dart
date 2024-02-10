@@ -9,14 +9,22 @@ part of 'expense_board.dart';
 ExpenseBoard _$ExpenseBoardFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['owner_id', 'name', 'is_group'],
+    requiredKeys: const [
+      'owner_id',
+      'name',
+      'is_group',
+      'initial_balance',
+      'balance'
+    ],
   );
   return ExpenseBoard(
-      id: json['id'] as int?,
-      ownerId: json['owner_id'],
-      name: json['name'] as String,
-      isGroup: json['is_group'] as bool,
-      balance: json['balance'] as double);
+    id: json['id'] as int?,
+    ownerId: json['owner_id'],
+    name: json['name'] as String,
+    isGroup: json['is_group'] as bool,
+    balance: (json['balance'] as num).toDouble(),
+    initialBalance: (json['initial_balance'] as num).toDouble(),
+  );
 }
 
 Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
@@ -32,6 +40,7 @@ Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
   val['owner_id'] = instance.ownerId;
   val['name'] = instance.name;
   val['is_group'] = instance.isGroup;
+  val['initial_balance'] = instance.initialBalance;
   val['balance'] = instance.balance;
   return val;
 }

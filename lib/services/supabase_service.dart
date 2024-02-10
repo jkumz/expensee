@@ -28,7 +28,7 @@ class SupabaseService {
           result as List<dynamic>; // Cast the result to a List<dynamic>
 
       // Map the dynamic list to a list of ExpenseBoard instances
-      return data.map<ExpenseBoard>((json) {
+      return data.where((json) => json != null).map<ExpenseBoard>((json) {
         return ExpenseBoard.fromJson(json as Map<String, dynamic>);
       }).toList();
     } catch (error) {
@@ -77,7 +77,7 @@ class SupabaseService {
         .update(updatedData)
         .match({'id': boardId});
 
-    if (response.data != null) {
+    if (response != null) {
       print("Error updating expense board with id $boardId");
     }
     return ExpenseBoard.fromJson(updatedData);
@@ -148,11 +148,6 @@ class SupabaseService {
     List<dynamic> response =
         await supabase.from('expenses').select().eq('board_id', boardId);
 
-    if (response == null) {
-      // Handle error
-      print('Error fetching expenses');
-      return [];
-    }
     List<Expense> expenses = [];
     for (var expenseJson in response) {
       var e = Expense.fromJson(expenseJson);

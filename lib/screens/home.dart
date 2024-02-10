@@ -1,15 +1,11 @@
 import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/home_app_bar.dart';
 import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
-import 'package:expensee/components/buttons/home_buttons/create_board_button.dart';
 import 'package:expensee/components/buttons/home_buttons/view_boards_button.dart';
 import 'package:expensee/config/constants.dart';
-import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_selection_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:expensee/main.dart';
-import 'package:expensee/screens/login.dart';
 
 class Home extends StatefulWidget {
   static const routeName = "/home";
@@ -23,8 +19,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final _usernameController = TextEditingController();
   final _websiteController = TextEditingController();
-
-  var _loading = true;
 
   @override
   void dispose() {

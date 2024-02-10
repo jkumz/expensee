@@ -29,7 +29,8 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
       bool created = await boardProvider.createBoard({
         'name': _boardName,
         'is_group': _isGroup,
-        'balance': double.parse(_balance)
+        'balance': double.parse(_balance),
+        'initial_balance': double.parse(_balance)
       });
 
       // Build context may have been removed from widget tree by the time async method

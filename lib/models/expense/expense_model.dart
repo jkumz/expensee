@@ -74,8 +74,7 @@ class Expense {
 
   void setData(String date) {
     try {
-      DateTime tempDate =
-          DateTime.parse(date) ?? DateTime.parse("00-00-0000 00:00:00Z");
+      DateTime tempDate = DateTime.parse(date);
       this.date = DateTime(tempDate.year, tempDate.month, tempDate.day);
     } catch (unknownError) {
       print(unknownError.toString());
@@ -84,7 +83,7 @@ class Expense {
 
   void setCategory(String category) {
     try {
-      this.category = category ?? "Uncategorized";
+      this.category = category;
     } catch (unknownError) {
       print(unknownError.toString());
     }
@@ -109,7 +108,7 @@ class Expense {
 
   void setDescription(String description) {
     try {
-      this.description = description ?? "";
+      this.description = description;
     } catch (unknownError) {
       print(unknownError.toString());
     }

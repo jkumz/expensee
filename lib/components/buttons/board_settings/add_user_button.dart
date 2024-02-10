@@ -1,6 +1,7 @@
 import 'package:expensee/config/constants.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class AddUserButton extends StatelessWidget {
   final String text;
   late String imagePath = addImagePath;

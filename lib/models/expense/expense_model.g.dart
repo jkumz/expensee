@@ -24,7 +24,7 @@ Expense _$ExpenseFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$ExpenseToJson(Expense instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, int? value) {
+  void writeNotNull(String key, dynamic value) {
     if (value != null) {
       val[key] = value;
     }

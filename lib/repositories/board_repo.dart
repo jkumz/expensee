@@ -25,7 +25,7 @@ class BoardRepository implements BoardRepositoryInterface {
     } catch (e) {
       // Handle any errors here
       print('Error adding expense board: $e');
-      throw Exception('Failed to add expense board');
+      throw Exception('Failed to add expense board: $e');
     }
   }
 
@@ -52,9 +52,6 @@ class BoardRepository implements BoardRepositoryInterface {
 
   Future<Expense?> getExpense(String expenseId) async {
     var expense = await _service.getExpense(expenseId);
-    if (expense == null) {
-      print("Error getting fetching expense with id $expenseId");
-    }
     return expense;
   }
 

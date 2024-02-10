@@ -1,5 +1,4 @@
 import 'package:expensee/models/expense/expense_model.dart';
-import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
@@ -42,14 +41,10 @@ class BoardProvider extends ChangeNotifier {
     notifyListeners();
     var board = await _repo.addExpenseBoard(json);
 
-    if (board != null) {
-      print("Created board with name ${json['name']}");
-      _boards.add(board);
-      notifyListeners();
-      return true;
-    }
-    isLoading = false;
-    return false;
+    print("Created board with name ${json['name']}");
+    _boards.add(board);
+    notifyListeners();
+    return true;
   }
 
 // delete a board
@@ -116,10 +111,28 @@ class BoardProvider extends ChangeNotifier {
   }
 
   Future<ExpenseBoard?> fetchBoardExpenses(String boardId) async {
+    isLoading = true;
+    notifyListeners();
+
+    // fetch board and its expenses
     ExpenseBoard? board = await getBoardWithId(boardId);
     final expenses = await _repo.getExpenses(boardId);
+
     if (board != null) {
+      // update board balance based on expenses
+      var initialBalance = board.initialBalance;
+      expenses.forEach((element) {
+        initialBalance -= element.amount;
+      });
+      // assign board expenses
       board.expenses = expenses;
+
+      // update in data base
+      if (initialBalance != board.balance) {
+        var newBoardJson = board.toJson();
+        updateBoard(boardId, newBoardJson);
+      }
+
       logger.i("Board with id $boardId has refreshed.");
     } else {
       logger.e("Board with id $boardId has failed to referesh");
@@ -130,5 +143,9 @@ class BoardProvider extends ChangeNotifier {
 
   Future<ExpenseBoard?> getBoardWithId(String boardId) async {
     return await _repo.getBoard(boardId);
+  }
+
+  Future<ExpenseBoard?> refreshBoardBalance(String boardId) async {
+    return fetchBoardExpenses(boardId);
   }
 }

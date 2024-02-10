@@ -160,7 +160,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         context: context,
         firstDate: DateTime(2008),
         lastDate: DateTime.now(),
-        initialDate: widget.expense.date ?? DateTime.now());
+        initialDate: widget.expense.date);
 
     // if new date, update it in the UI
     if (pickedDate != null && pickedDate != widget.expense.date) {

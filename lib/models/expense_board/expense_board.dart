@@ -17,13 +17,16 @@ class ExpenseBoard {
   @JsonKey(name: "is_group", required: true)
   final bool isGroup;
 
+  @JsonKey(name: "initial_balance", required: true)
+  final double initialBalance;
+
   @JsonKey(name: "balance", required: true)
-  final double balance;
+  double balance;
 
   List<Expense> _expenses = [];
   List<Expense> get expenses => _expenses;
-  set expenses(List<Expense> expenses) {
-    _expenses = expenses;
+  set expenses(List<Expense> newExpenses) {
+    _expenses = newExpenses;
   }
 
   ExpenseBoard(
@@ -31,7 +34,8 @@ class ExpenseBoard {
       required this.ownerId,
       required this.name,
       required this.isGroup,
-      required this.balance});
+      required this.balance,
+      required this.initialBalance});
 
   Map<String, dynamic> toJson() => _$ExpenseBoardToJson(this);
 

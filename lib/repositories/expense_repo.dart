@@ -1,4 +1,3 @@
-import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/repositories/interfaces/expense_repo_interface.dart';
 import 'package:expensee/services/supabase_service.dart';
