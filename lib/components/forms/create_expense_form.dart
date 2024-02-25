@@ -1,4 +1,5 @@
 import 'package:expensee/components/expenses/base_expense.dart';
+import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
@@ -9,13 +10,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 // TODO - More rendering / options for group expenses
-class CreateExpenseForm extends BaseExpenseItem {
+class CreateExpenseForm extends ExpenseItem {
   @override
   final Expense expense;
   final bool exists;
   final VoidCallback onClose;
 
-  const CreateExpenseForm(
+  CreateExpenseForm(
       {super.key,
       required this.expense,
       required this.exists,

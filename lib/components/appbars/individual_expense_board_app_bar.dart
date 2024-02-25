@@ -4,7 +4,7 @@ import "package:flutter/material.dart";
 class IndividualExpenseBoardAppBar extends AppBar {
   IndividualExpenseBoardAppBar({
     Key? key,
-    Widget title = const Text("Expense Board"),
+    required Widget title,
     List<Widget>? actions,
   }) : super(key: key, title: title, actions: actions);
 }

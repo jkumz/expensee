@@ -143,10 +143,13 @@ class SupabaseService {
     return jsonList[0]["is_group"];
   }
 
-  // Get expenses for a board
+  // Get expenses for a board in ascending format by date
   Future<List<Expense>> getExpensesForBoard(String boardId) async {
-    List<dynamic> response =
-        await supabase.from('expenses').select().eq('board_id', boardId);
+    List<dynamic> response = await supabase
+        .from('expenses')
+        .select()
+        .eq('board_id', boardId)
+        .order('created_at', ascending: true);
 
     List<Expense> expenses = [];
     for (var expenseJson in response) {

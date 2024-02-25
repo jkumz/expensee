@@ -4,10 +4,10 @@ import 'package:expensee/models/expense/expense_model.dart';
 import 'package:flutter/material.dart';
 
 // Widget used to display an Expense object in human readable format
-class ExpenseItem extends BaseExpenseItem {
+class ExpenseItem extends StatefulWidget {
   final Expense expense;
 
-  ExpenseItem({Key? key, required this.expense}) : super(expense: expense);
+  ExpenseItem({super.key, required this.expense});
 
   @override
   State<StatefulWidget> createState() => _ExpenseItemState();

@@ -37,5 +37,5 @@ mixin MockExpense implements ExpenseItem {
 
   static getAllExpenses() => expenses;
 
-  static getExpense(int index) => expenses[index];
+  //static getExpense(int index) => expenses[index];
 }

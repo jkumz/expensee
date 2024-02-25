@@ -120,16 +120,26 @@ class BoardProvider extends ChangeNotifier {
 
     if (board != null) {
       // update board balance based on expenses
-      var initialBalance = board.initialBalance;
+      var balanceAfterExpenses = board.initialBalance;
       expenses.forEach((element) {
-        initialBalance -= element.amount;
+        balanceAfterExpenses -= element.amount;
       });
+
+      // then update individual expense balances
+      balanceAfterExpenses =
+          (await _repo.getBoard(boardId) as ExpenseBoard).initialBalance;
+      for (Expense expense in expenses) {
+        balanceAfterExpenses -= expense.amount;
+        expense.balance = balanceAfterExpenses;
+      }
+
       // assign board expenses
       board.expenses = expenses;
 
-      // update in data base
-      if (initialBalance != board.balance) {
+      // if balances aren't matched, update the board balance
+      if (balanceAfterExpenses != board.balance) {
         var newBoardJson = board.toJson();
+        newBoardJson["balance"] = balanceAfterExpenses;
         updateBoard(boardId, newBoardJson);
       }
 
@@ -147,5 +157,35 @@ class BoardProvider extends ChangeNotifier {
 
   Future<ExpenseBoard?> refreshBoardBalance(String boardId) async {
     return fetchBoardExpenses(boardId);
+  }
+
+// Get list of expenses and update their balances dynamically.
+  Future<List<Expense>> refreshBoardExpenseBalances(String boardId) async {
+    // Get initial balance, first expense will be this - expense amount. Then
+    // we keep track of this, and use it as the "initial" balance for the next
+    // one, and daisy chain it like that.
+
+    final expenses = await _repo.getExpenses(boardId);
+    var balanceAfterExpenses =
+        (await _repo.getBoard(boardId) as ExpenseBoard).initialBalance;
+
+    for (Expense expense in expenses) {
+      balanceAfterExpenses -= expense.amount;
+      expense.balance = balanceAfterExpenses;
+    }
+
+    return expenses;
+  }
+
+  Future<String> getBoardName(String boardId) async {
+    ExpenseBoard? board = await _repo.getBoard(boardId);
+    if (board != null) return board.name;
+    return "Expense Board";
+  }
+
+  Future<double> getBoardBalance(String boardId) async {
+    ExpenseBoard? board = await _repo.getBoard(boardId);
+    if (board != null) return board.balance;
+    return 0.00;
   }
 }

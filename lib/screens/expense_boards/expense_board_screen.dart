@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
+import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
@@ -20,19 +21,22 @@ class ExpenseBoardScreen extends StatefulWidget {
   static const routeName = "/expense-board";
   final String boardId;
 
-  const ExpenseBoardScreen({required this.boardId});
+  const ExpenseBoardScreen({super.key, required this.boardId});
 
   @override
   State<StatefulWidget> createState() => _ExpenseBoardScreenState();
 }
 
 class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
-  List<BaseExpenseItem> expenses = [];
+  List<ExpenseItem> expenses = [];
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
   bool loading = false;
   final repo = ExpenseRepository();
   bool isGroupExpense = false;
+  String boardName = "Expense Board";
+  List<Widget> actionList = [];
+
   onFinishEditing() => {
         setState(
           () => displayBoard = true,
@@ -60,7 +64,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IndividualExpenseBoardAppBar(
-        actions: [/*TODO*/],
+        title: Text(
+          boardName,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        actions: actionList,
       ),
       body: RefreshIndicator(
           key: _refreshIndicatorKey,
@@ -225,7 +233,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     if (deleted != null) {
       // Remove from board database table then, expense list, then refresh
       expenses.removeWhere((element) => element.expense.id == expense.id);
-      _refreshExpenses();
+      await _refreshExpenses();
       return true;
     }
     return false;
@@ -257,6 +265,8 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
   Future<void> _refreshExpenses() async {
     await _fetchExpenses();
+    await _getAppbarActions(widget.boardId);
+    _refreshIndicatorKey.currentState?.show();
   }
 
 // Handle loading in the expenses
@@ -267,6 +277,9 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       });
       await _fetchExpenses();
       await _isPartOfGroup();
+      await _getBoardName(widget.boardId);
+      await _getAppbarActions(widget.boardId);
+      // await _updateExpenseBalances(widget.boardId);
       setState(() {
         loading = false;
       });
@@ -283,6 +296,15 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     _refreshExpenses();
     return expense;
   }
+
+  // Future<void> _updateExpenseBalances(String boardId) async {
+  //   List<Expense> temp =
+  //       await Provider.of<BoardProvider>(context, listen: false)
+  //           .refreshBoardExpenseBalances(boardId);
+  //   setState(() {
+  //     expenses = temp;
+  //   });
+  // }
 
 // Switches rendered widget to creation form, but on an existing expense
   Future<void> _navigateToEditAndRefresh(Expense expense, context) async {
@@ -307,5 +329,21 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     } else {
       await _deleteExpenseFromBoard(expense, context);
     }
+  }
+
+  Future<void> _getBoardName(boardId) async {
+    boardName = await Provider.of<BoardProvider>(context, listen: false)
+        .getBoardName(boardId);
+  }
+
+  Future<void> _getAppbarActions(boardId) async {
+    var boardBalance = await Provider.of<BoardProvider>(context, listen: false)
+        .getBoardBalance(boardId);
+    actionList = [
+      Padding(
+        padding: const EdgeInsets.only(right: 16.0),
+        child: Text("£$boardBalance"),
+      )
+    ];
   }
 }
