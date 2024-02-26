@@ -1,22 +1,20 @@
-import 'package:expensee/app.dart';
 import 'package:expensee/config/constants.dart';
-import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:expensee/screens/login.dart';
 import 'package:flutter/material.dart';
 
-class ExpenseBoardNavBar extends StatefulWidget {
+class ExpBoardSettingsNavBar extends StatefulWidget {
   final String boardId;
-  final VoidCallback settings;
+  final VoidCallback exit;
 
-  const ExpenseBoardNavBar(
-      {super.key, required this.boardId, required this.settings});
+  const ExpBoardSettingsNavBar(
+      {super.key, required this.boardId, required this.exit});
 
   @override
-  createState() => _ExpenseBoardNavBarState();
+  createState() => _ExpBoardSettingsNavBarState();
 }
 
-class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
+class _ExpBoardSettingsNavBarState extends State<ExpBoardSettingsNavBar> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -28,10 +26,7 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
         children: [
           // Back button
           IconButton(
-              onPressed: Navigator.canPop(context)
-                  ? () => {Navigator.pop(context), _updateState()}
-                  : null,
-              icon: const Icon(Icons.arrow_back)),
+              onPressed: widget.exit, icon: const Icon(Icons.arrow_back)),
           // Home button
           IconButton(
               onPressed: () => Navigator.pushNamed(context, Home.routeName),
@@ -44,15 +39,6 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
                     _updateState()
                   },
               icon: const Icon(Icons.logout_rounded)),
-          IconButton(
-              icon: Image.asset(
-                boardSettingsImagePath,
-                height: 22.5,
-                width: 22.5,
-              ),
-              onPressed: () {
-                widget.settings();
-              }) // TODO - dynamically provide role
         ],
       ),
     );

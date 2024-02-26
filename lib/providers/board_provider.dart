@@ -159,24 +159,6 @@ class BoardProvider extends ChangeNotifier {
     return fetchBoardExpenses(boardId);
   }
 
-// Get list of expenses and update their balances dynamically.
-  Future<List<Expense>> refreshBoardExpenseBalances(String boardId) async {
-    // Get initial balance, first expense will be this - expense amount. Then
-    // we keep track of this, and use it as the "initial" balance for the next
-    // one, and daisy chain it like that.
-
-    final expenses = await _repo.getExpenses(boardId);
-    var balanceAfterExpenses =
-        (await _repo.getBoard(boardId) as ExpenseBoard).initialBalance;
-
-    for (Expense expense in expenses) {
-      balanceAfterExpenses -= expense.amount;
-      expense.balance = balanceAfterExpenses;
-    }
-
-    return expenses;
-  }
-
   Future<String> getBoardName(String boardId) async {
     ExpenseBoard? board = await _repo.getBoard(boardId);
     if (board != null) return board.name;

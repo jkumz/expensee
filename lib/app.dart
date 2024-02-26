@@ -50,8 +50,8 @@ class ExpenseeApp extends StatelessWidget {
           case BoardSettingsScreen.routeName:
             final args = settings.arguments as BoardSettingsScreenArguments;
             return MaterialPageRoute(
-                builder: (_) => BoardSettingsScreen(
-                    id: int.parse(args.id), role: args.role));
+                builder: (_) =>
+                    BoardSettingsScreen(id: args.id, role: args.role));
 
           default:
             return MaterialPageRoute(builder: (_) => const Splash());

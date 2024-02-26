@@ -1,4 +1,3 @@
-import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/board_settings/add_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/delete_board_button.dart';
 import 'package:expensee/components/buttons/board_settings/manage_users_button.dart';
@@ -8,7 +7,7 @@ import 'package:flutter/material.dart';
 
 class BoardSettingsScreen extends StatefulWidget {
   static const routeName = "/board-settings";
-  final int id;
+  final String id;
   final String role;
 
   const BoardSettingsScreen({Key? key, required this.id, required this.role});
@@ -21,8 +20,6 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(boardSettingsAppBarTitle)),
-      bottomNavigationBar: DefaultBottomAppBar(),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(10.0),

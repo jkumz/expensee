@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 
 class ExpenseScreenNavBar extends StatefulWidget {
   final String boardId;
-  final VoidCallback onBackButton;
+  final VoidCallback exit;
 
   const ExpenseScreenNavBar(
-      {super.key, required this.boardId, required this.onBackButton});
+      {super.key, required this.boardId, required this.exit});
 
   @override
   createState() => _ExpenseScreenNavBarState();
@@ -27,10 +27,8 @@ class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // Back button
-          if (Navigator.canPop(context))
-            IconButton(
-                onPressed: () => {Navigator.pop(context), _updateState()},
-                icon: const Icon(Icons.arrow_back)),
+          IconButton(
+              onPressed: widget.exit, icon: const Icon(Icons.arrow_back)),
           // Home button
           IconButton(
               onPressed: () => Navigator.pushNamed(context, Home.routeName),
@@ -42,18 +40,8 @@ class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },
-              icon: const Icon(Icons.logout_rounded)),
-          IconButton(
-              icon: Image.asset(
-                boardSettingsImagePath,
-                height: 22.5,
-                width: 22.5,
-              ),
-              onPressed: () => Navigator.pushNamed(
-                  context, BoardSettingsScreen.routeName,
-                  arguments: BoardSettingsScreenArguments(
-                      id: widget.boardId,
-                      role: "Owner"))) // TODO - dynamically provide role
+              icon: const Icon(
+                  Icons.logout_rounded)), // TODO - dynamically provide role
         ],
       ),
     );
@@ -65,62 +53,3 @@ class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
     });
   }
 }
-
-
-
-
-// We need to make this stateful so that we can dynamically check navigation stack
-// class ExpenseBoardNavBar extends StatefulWidget {
-//   final String boardId, userRole;
-
-//   const ExpenseBoardNavBar(
-//       {Key? key, required this.boardId, required this.userRole});
-
-//   @override
-//   createState() => _ExpenseBoardNavBarState();
-// }
-
-// class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return BottomAppBar(
-//       shape: CircularNotchedRectangle(),
-//       notchMargin: 4,
-//       child: Row(
-//         mainAxisSize: MainAxisSize.max,
-//         mainAxisAlignment: MainAxisAlignment.spaceAround,
-//         children: [
-//           // Back button
-//           if (Navigator.canPop(context))
-//             IconButton(
-//                 onPressed: () => {Navigator.pop(context), _updateState()},
-//                 icon: Icon(Icons.arrow_back)),
-//           // Home button
-//           IconButton(
-//               onPressed: () => Navigator.pushNamed(context, Home.routeName),
-//               icon: Icon(Icons.home)),
-//           // Sign out button
-//           IconButton(
-//               onPressed: () => {
-//                     Login.signOut(),
-//                     Navigator.of(context).pushReplacementNamed(loginRoute),
-//                     _updateState()
-//                   },
-//               icon: Icon(Icons.logout_rounded)),
-//           AddUserButton(
-//               text: addUserText,
-//               onPressed: () => Navigator.pushNamed(
-//                   context, BoardSettingsScreen.routeName,
-//                   arguments: BoardSettingsScreenArguments(
-//                       id: widget.boardId, role: widget.userRole)))
-//         ],
-//       ),
-//     );
-//   }
-
-//   void _updateState() {
-//     setState(() {
-//       // Leave blank - this is just to check state to update navigation stack
-//     });
-//   }
-// }

@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
+import "package:resend/resend.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
+
+  // To send emails
+  Resend(apiKey: "${dotenv.env['RESEND_API_KEY']}");
 
   await Supabase.initialize(
     url: "https://${dotenv.env['SUPABASE_PROJECT_ID']!}.supabase.co",
@@ -20,6 +24,7 @@ void main() async {
 }
 
 final supabase = Supabase.instance.client;
+final resend = Resend.instance;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

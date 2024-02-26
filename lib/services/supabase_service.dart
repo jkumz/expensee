@@ -5,6 +5,11 @@ import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import "package:http/http.dart" as http;
+import "dart:convert";
+
+import 'package:resend/resend.dart';
 
 //TODO - proper error handling + logging
 //TODO - validation
@@ -264,5 +269,41 @@ class SupabaseService {
 
     print("Deleted expense with id $expenseId");
     return expense;
+  }
+
+// Deno implementation
+  // Future<void> sendInvite(String email, String message, String subject) async {
+  //   String debugDenoServer = "http:/localhost:8000";
+  //   const senderEmail = "ExpenSee <onboarding@resend.dev>";
+  //   final url = Uri.parse(debugDenoServer);
+  //   final resendApiKey = dotenv.env["RESEND_API_KEY"];
+
+  //   final response = await http.post(
+  //     url,
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': 'Bearer $resendApiKey'
+  //     },
+  //     body: jsonEncode({
+  //       "from": [senderEmail],
+  //       "to": [email], // The recipient's email address is dynamically set here
+  //       "subject": [subject],
+  //       "text": [message]
+  //     }),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     print('Email sent successfully: ${response.body}');
+  //   } else {
+  //     print('Failed to send email: ${response.statusCode}, ${response.body}');
+  //   }
+  // }
+
+  Future<void> sendInvite(String email, String msg, String subject) async {
+    final resend = Resend.instance; // check if api key is correct
+    resend.sendEmail(
+        from: "onboarding@resend.dev",
+        to: [email],
+        subject: subject,
+        text: msg);
   }
 }

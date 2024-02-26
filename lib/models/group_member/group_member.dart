@@ -10,7 +10,7 @@ class GroupMember {
   @JsonKey(name: "board_id", required: true)
   final String boardId;
 
-  @JsonKey(name: "role", required: true)
+  @JsonKey(name: "role_id", required: true)
   final String role; // admin/owner/shareholder roles, shareholder is custom
 
   GroupMember({this.userId, required this.boardId, required this.role});

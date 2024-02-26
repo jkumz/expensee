@@ -3,14 +3,16 @@ import 'dart:async';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
-import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
+import 'package:expensee/components/nav_bars/board_settings_nav_bar.dart';
+import 'package:expensee/components/nav_bars/expense_screen_nav_bar.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
+import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_creation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,10 +39,16 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   String boardName = "Expense Board";
   List<Widget> actionList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
   onFinishEditing() => {
-        setState(
-          () => displayBoard = true,
-        ),
+        setState(() => {displayBoard = true, editingExpense = null}),
         _refreshIndicatorKey.currentState?.show()
       };
 
@@ -51,42 +59,82 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   bool displayBoard = true;
   Expense? editingExpense;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
-    });
+  // Variables to help switching between settings screen & board
+  bool displaySettings = false;
+
+  void onOpenSettings() {
+    if (mounted) {
+      setState(() {
+        displaySettings = true;
+        displayBoard = false;
+      });
+    }
   }
+
+  void onExitSettings() {
+    if (mounted) {
+      setState(() {
+        displayBoard = true;
+        displaySettings = false;
+      });
+    }
+  } //TODO
 
 // Build out the list view
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IndividualExpenseBoardAppBar(
-        title: Text(
-          boardName,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        actions: actionList,
-      ),
+      appBar: !displaySettings
+          ? IndividualExpenseBoardAppBar(
+              title: Text(
+                boardName,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              actions: actionList,
+            )
+          : AppBar(title: const Text(boardSettingsAppBarTitle)),
       body: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: _loadData,
           child: displayBoard
               ? _buildMainContent(context)
-              : ExpenseCreationScreen(
-                  boardId: int.parse(widget.boardId),
-                  expense: editingExpense!,
-                  exists: editingExpense != null,
-                  onClose: () => onFinishEditing(),
-                )),
-      bottomNavigationBar: ExpenseBoardNavBar(
-        boardId: widget.boardId,
-        isExpenseView: editingExpense != null,
-        exit: onExitExpenseView,
-      ),
+              : _buildAlternativeContent(context)),
+      bottomNavigationBar: _buildNavBar(context),
     );
+  }
+
+  Widget _buildNavBar(BuildContext context) {
+    // Toggle board view
+    if (!displaySettings && displayBoard) {
+      return ExpenseBoardNavBar(
+        boardId: widget.boardId,
+        settings: onOpenSettings,
+      );
+    }
+    // Toggle expense creation/modification view
+    else if (!displaySettings && !displayBoard) {
+      return ExpenseScreenNavBar(
+          boardId: widget.boardId, exit: onExitExpenseView);
+    }
+    // Toggle settings view
+    else {
+      return ExpBoardSettingsNavBar(
+          boardId: widget.boardId, exit: onExitSettings);
+    }
+  }
+
+  Widget _buildExpenseCreationScreen(BuildContext context) {
+    return ExpenseCreationScreen(
+      boardId: int.parse(widget.boardId),
+      expense: editingExpense!,
+      exists: editingExpense != null,
+      onClose: () => onFinishEditing(),
+    );
+  }
+
+  Widget _buildAlternativeContent(BuildContext context) {
+    if (!displaySettings) return _buildExpenseCreationScreen(context);
+    return BoardSettingsScreen(id: widget.boardId, role: "owner");
   }
 
   Widget _buildMainContent(BuildContext context) {
@@ -296,15 +344,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     _refreshExpenses();
     return expense;
   }
-
-  // Future<void> _updateExpenseBalances(String boardId) async {
-  //   List<Expense> temp =
-  //       await Provider.of<BoardProvider>(context, listen: false)
-  //           .refreshBoardExpenseBalances(boardId);
-  //   setState(() {
-  //     expenses = temp;
-  //   });
-  // }
 
 // Switches rendered widget to creation form, but on an existing expense
   Future<void> _navigateToEditAndRefresh(Expense expense, context) async {

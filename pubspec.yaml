@@ -41,6 +41,8 @@ dependencies:
   json_annotation: ^4.8.1
   provider: ^6.1.1
   logger: ^2.0.2+1
+  resend: ^1.0.0
+  http: ^1.2.0
 
 
 dev_dependencies:
