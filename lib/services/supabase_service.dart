@@ -6,8 +6,6 @@ import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import "package:http/http.dart" as http;
-import "dart:convert";
 
 import 'package:resend/resend.dart';
 
@@ -299,11 +297,16 @@ class SupabaseService {
   // }
 
   Future<void> sendInvite(String email, String msg, String subject) async {
-    final resend = Resend.instance; // check if api key is correct
-    resend.sendEmail(
-        from: "onboarding@resend.dev",
-        to: [email],
-        subject: subject,
-        text: msg);
+    var resend = Resend(apiKey: "${dotenv.env['RESEND_API_KEY']}");
+    resend = Resend.instance; // check if api key is correct
+    try {
+      resend.sendEmail(
+          from: "onboarding@resend.dev",
+          to: [email],
+          subject: subject,
+          text: msg);
+    } catch (e) {
+      print(e);
+    }
   }
 }

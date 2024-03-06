@@ -43,6 +43,7 @@ dependencies:
   logger: ^2.0.2+1
   resend: ^1.0.0
   http: ^1.2.0
+  uuid: ^4.3.3
 
 
 dev_dependencies:

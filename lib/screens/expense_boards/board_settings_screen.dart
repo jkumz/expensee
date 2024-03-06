@@ -2,6 +2,7 @@ import 'package:expensee/components/buttons/board_settings/add_user_button.dart'
 import 'package:expensee/components/buttons/board_settings/delete_board_button.dart';
 import 'package:expensee/components/buttons/board_settings/manage_users_button.dart';
 import 'package:expensee/components/buttons/board_settings/rename_board_button.dart';
+import 'package:expensee/components/forms/invite_member_form.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +18,14 @@ class BoardSettingsScreen extends StatefulWidget {
 }
 
 class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
+  bool inviteUsers = false,
+      removeUsers = false,
+      managePerms = false,
+      renameBoard = false;
   @override
   Widget build(BuildContext context) {
+    if (inviteUsers) return InviteUserForm();
+    // add conditionals for other options
     return Scaffold(
       body: Center(
         child: Padding(
@@ -54,5 +61,9 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
     );
   }
 
-  void _navigateToUserSelection() {}
+  void _navigateToUserSelection() {
+    setState(() {
+      inviteUsers = true;
+    });
+  }
 }

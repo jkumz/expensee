@@ -11,9 +11,6 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
-  // To send emails
-  Resend(apiKey: "${dotenv.env['RESEND_API_KEY']}");
-
   await Supabase.initialize(
     url: "https://${dotenv.env['SUPABASE_PROJECT_ID']!}.supabase.co",
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
@@ -24,7 +21,6 @@ void main() async {
 }
 
 final supabase = Supabase.instance.client;
-final resend = Resend.instance;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

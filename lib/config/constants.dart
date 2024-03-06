@@ -69,7 +69,7 @@ const boardSettingsAppBarTitle = "Board Settings";
 // EXPENSE LIST CONSTANTS
 
 const noExpensesText = "No expenses to display";
-const addUserText = "Add User";
+const addUserText = "Invite User";
 const removeUserText = "Remove User";
 const manageUserRolesText = "Manage User Roles";
 const renameBoardText = "Rename Board";

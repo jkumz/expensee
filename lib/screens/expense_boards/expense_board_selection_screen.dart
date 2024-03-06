@@ -3,6 +3,7 @@ import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
+import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +98,8 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
                     ),
                     ChangeNotifierProvider(
                       create: (_) => ExpenseProvider(boardId),
-                    )
+                    ),
+                    ChangeNotifierProvider(create: (_) => GroupMemberProvider())
                   ],
                   child: ExpenseBoardScreen(boardId: boardId),
                 )));
