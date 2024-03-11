@@ -30,6 +30,7 @@ class ExpenseeApp extends StatelessWidget {
           case Home.routeName:
             return MaterialPageRoute(builder: (_) => const Home());
           case Login.routeName:
+            final args = settings.arguments as LoginScreenArguments;
             return MaterialPageRoute(builder: (_) => const Login());
           case SelectExpenseBoardsScreen.routeName:
             // Extract arguments passed in settings
@@ -85,4 +86,11 @@ class ExpenseCreationSreenArguments {
   bool exists;
 
   ExpenseCreationSreenArguments({required this.expense, this.exists = false});
+}
+
+class LoginScreenArguments {
+  String? followUpToken;
+  String? followUpRoute;
+
+  LoginScreenArguments({this.followUpToken, this.followUpRoute});
 }

@@ -1,4 +1,5 @@
 import 'package:expensee/models/group_member/group_member.dart';
+import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/repositories/interfaces/g_member_repo_interface.dart';
 import 'package:expensee/services/email_service.dart';
 import 'package:expensee/services/supabase_service.dart';
@@ -10,7 +11,7 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
   @override
   Future<void> inviteMemberToBoard(String boardId, String invitedEmail) async {
     // To send emails
-    await _emailService.sendInvite(invitedEmail, boardId);
+    await _emailService.sendEmail(invitedEmail, "test", "");
   }
 
   @override
@@ -24,5 +25,9 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
       String boardId, String removedEmail) {
     // TODO: implement removeMemberFromBoard
     throw UnimplementedError();
+  }
+
+  Future<Invitation?> getInvitationDetails(String token) async {
+    return await _service.getInvite(token);
   }
 }

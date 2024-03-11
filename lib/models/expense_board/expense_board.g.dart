@@ -24,7 +24,10 @@ ExpenseBoard _$ExpenseBoardFromJson(Map<String, dynamic> json) {
     isGroup: json['is_group'] as bool,
     balance: (json['balance'] as num).toDouble(),
     initialBalance: (json['initial_balance'] as num).toDouble(),
-  );
+  )..expenses = (json['expenses'] as List<dynamic>?)
+          ?.map((e) => Expense.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [];
 }
 
 Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
@@ -42,5 +45,6 @@ Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
   val['is_group'] = instance.isGroup;
   val['initial_balance'] = instance.initialBalance;
   val['balance'] = instance.balance;
+  val['expenses'] = instance.expenses;
   return val;
 }

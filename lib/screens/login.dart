@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expensee/app.dart';
 import 'package:expensee/components/buttons/authentication_buttons/magic_link_button.dart';
 import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_google_button.dart';
 import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_password_button.dart';
@@ -25,12 +26,14 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  String? followUpToken;
+  String? followUpRoute;
+
   bool _isLoading = false;
   bool _redirecting = false;
   final _appBarTitle = const Text("Log In");
 
-  final authCallback =
-      '${dotenv.env['SUPABASE_PROJECT_SCHEMA']}://login-callback/';
+  final authCallback = '${dotenv.env['PROJECT_SCHEMA']}://login-callback/';
 
   late final TextEditingController _emailController = TextEditingController();
   late final TextEditingController _passwordController =
@@ -170,11 +173,20 @@ class _LoginState extends State<Login> {
 
   @override
   void initState() {
+    final args =
+        ModalRoute.of(context)?.settings.arguments as LoginScreenArguments?;
+    followUpToken = args?.followUpToken;
+    followUpRoute = args?.followUpRoute;
+
     _authStateSubscription = supabase.auth.onAuthStateChange.listen((data) {
       if (_redirecting) return;
       final session = data.session;
       if (session != null) {
         _redirecting = true;
+        if (followUpRoute != null) {
+          Navigator.of(context)
+              .pushReplacementNamed(followUpRoute!, arguments: followUpToken);
+        }
         Navigator.of(context).pushReplacementNamed('/home');
       }
     });

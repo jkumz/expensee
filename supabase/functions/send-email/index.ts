@@ -13,11 +13,11 @@ const handler = async (_request: Request): Promise<Response> => {
     return null;
   });
 
-  if (!requestData || !requestData.to || !requestData.subject || !requestData.html) {
+  if (!requestData || !requestData.to || !requestData.subject || !requestData.text) {
     return new Response("Missing email data in request", { status: 400 });
   }
 
-  const { to, subject, html } = requestData;
+  const { to, subject, text } = requestData;
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -29,7 +29,7 @@ const handler = async (_request: Request): Promise<Response> => {
       from: 'team@expensee.net',
       to, // Pulled from request
       subject, // Pulled from request
-      html, // Pulled from request
+      text, // Pulled from request
     }),
   });
 

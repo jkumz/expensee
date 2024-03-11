@@ -44,6 +44,7 @@ dependencies:
   resend: ^1.0.0
   http: ^1.2.0
   uuid: ^4.3.3
+  uni_links: ^0.5.1
 
 
 dev_dependencies:

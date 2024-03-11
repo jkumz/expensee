@@ -5,6 +5,7 @@ import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
+import 'package:expensee/models/invitation_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:resend/resend.dart';
@@ -20,20 +21,25 @@ class SupabaseService {
   Future<List<ExpenseBoard>> getExpenseBoards(
       String userId, bool isGroup) async {
     try {
-      final result = await supabase
+      final response = await supabase
           .from('expense_boards')
           .select()
           .eq('owner_id', userId)
           .eq('is_group', isGroup);
 
-      // Here, 'result' should be a List<dynamic> containing the data
-      final data =
-          result as List<dynamic>; // Cast the result to a List<dynamic>
+      // Check if the response contains data and it's a list
+      if (response != null && response is List) {
+        // Extract the list of data from the response
+        final List<dynamic> data = response;
 
-      // Map the dynamic list to a list of ExpenseBoard instances
-      return data.where((json) => json != null).map<ExpenseBoard>((json) {
-        return ExpenseBoard.fromJson(json as Map<String, dynamic>);
-      }).toList();
+        // Map the dynamic list to a list of ExpenseBoard instances
+        return data.where((json) => json != null).map<ExpenseBoard>((json) {
+          return ExpenseBoard.fromJson(json as Map<String, dynamic>);
+        }).toList();
+      } else {
+        print('Error: Data is null or not a list');
+        return [];
+      }
     } catch (error) {
       // If there's an error, log it and return an empty list
       print('Error fetching expense boards - Group: $isGroup');
@@ -269,33 +275,6 @@ class SupabaseService {
     return expense;
   }
 
-// Deno implementation
-  // Future<void> sendInvite(String email, String message, String subject) async {
-  //   String debugDenoServer = "http:/localhost:8000";
-  //   const senderEmail = "ExpenSee <onboarding@resend.dev>";
-  //   final url = Uri.parse(debugDenoServer);
-  //   final resendApiKey = dotenv.env["RESEND_API_KEY"];
-
-  //   final response = await http.post(
-  //     url,
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': 'Bearer $resendApiKey'
-  //     },
-  //     body: jsonEncode({
-  //       "from": [senderEmail],
-  //       "to": [email], // The recipient's email address is dynamically set here
-  //       "subject": [subject],
-  //       "text": [message]
-  //     }),
-  //   );
-  //   if (response.statusCode == 200) {
-  //     print('Email sent successfully: ${response.body}');
-  //   } else {
-  //     print('Failed to send email: ${response.statusCode}, ${response.body}');
-  //   }
-  // }
-
   Future<void> sendInvite(String email, String msg, String subject) async {
     var resend = Resend(apiKey: "${dotenv.env['RESEND_API_KEY']}");
     resend = Resend.instance; // check if api key is correct
@@ -308,5 +287,11 @@ class SupabaseService {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<Invitation?> getInvite(String token) async {
+    List<dynamic> inviteData =
+        await supabase.from("invites").select().eq("token", token);
+    return Invitation.fromJson(inviteData.firstOrNull);
   }
 }

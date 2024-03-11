@@ -24,7 +24,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
           Provider.Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Send mock email
-      await gMemberProvider.sendInvite(_userEmail, "TEST", "test email");
+      await gMemberProvider.sendInvite(_userEmail, "TEST");
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
@@ -33,11 +33,6 @@ class _InviteUserFormState extends State<InviteUserForm> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Invite sent to $_userEmail"),
       ));
-
-      // ConditionalSnackbar.show(context,
-      //     isSuccess: created,
-      //     message: boardCreationSuccessMessage,
-      //     errMsg: boardCreationFailureMessage);
 
       Navigator.pop(context);
     }
@@ -59,7 +54,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
               validator: (value) =>
                   value!.isEmpty ? "Please enter an email address" : null,
             ),
-            ElevatedButton(onPressed: _submit, child: const Text("Sned invite"))
+            ElevatedButton(onPressed: _submit, child: const Text("Send invite"))
           ],
         ),
       ),

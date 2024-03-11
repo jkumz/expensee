@@ -1,10 +1,10 @@
 import 'package:expensee/app.dart';
 import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/services/deeplink_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
-import "package:resend/resend.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,23 +12,35 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   await Supabase.initialize(
-    url: "https://${dotenv.env['SUPABASE_PROJECT_ID']!}.supabase.co",
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: "https://${dotenv.env['PROJECT_ID']}.supabase.co",
+    anonKey: dotenv.env['ANON_KEY']!,
     authFlowType: AuthFlowType.pkce,
   );
 
-  runApp(const MyApp());
+  runApp(const AppInitializer());
 }
 
 final supabase = Supabase.instance.client;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  @override
+  _AppInitializerState createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
+  @override
+  void initState() {
+    super.initState();
+    DeepLinkHandler().initDeepLinkListener(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<BoardProvider>(
-        child: const ExpenseeApp(), create: (_) => BoardProvider());
+      create: (_) => BoardProvider(),
+      child: const ExpenseeApp(),
+    );
   }
 }

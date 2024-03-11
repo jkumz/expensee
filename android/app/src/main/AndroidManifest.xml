@@ -30,6 +30,9 @@
                 <data
                 android:scheme="com.expensee"
                 android:host="login-callback" />
+                <data
+                android:scheme="com.expensee"
+                android:host="invite" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
