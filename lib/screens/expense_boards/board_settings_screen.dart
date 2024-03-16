@@ -10,8 +10,10 @@ class BoardSettingsScreen extends StatefulWidget {
   static const routeName = "/board-settings";
   final String id;
   final String role;
+  final String boardId;
 
-  const BoardSettingsScreen({Key? key, required this.id, required this.role});
+  const BoardSettingsScreen(
+      {Key? key, required this.id, required this.role, required this.boardId});
 
   @override
   createState() => _BoardSettingsScreenState();
@@ -24,7 +26,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       renameBoard = false;
   @override
   Widget build(BuildContext context) {
-    if (inviteUsers) return InviteUserForm();
+    if (inviteUsers) return InviteUserForm(boardId: widget.boardId);
     // add conditionals for other options
     return Scaffold(
       body: Center(

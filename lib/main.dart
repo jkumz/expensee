@@ -1,5 +1,6 @@
 import 'package:expensee/app.dart';
 import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/services/deeplink_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,8 +39,13 @@ class _AppInitializerState extends State<AppInitializer> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<BoardProvider>(
-      create: (_) => BoardProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => BoardProvider(),
+        ),
+        ChangeNotifierProvider(create: (_) => GroupMemberProvider())
+      ],
       child: const ExpenseeApp(),
     );
   }

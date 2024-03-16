@@ -93,4 +93,8 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
     return _expense;
   }
+
+  Future<bool> isPartOfGroupBoard(String boardId) async {
+    return await _repo.isPartOfGroup(boardId);
+  }
 }

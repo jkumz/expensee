@@ -11,7 +11,7 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
   @override
   Future<void> inviteMemberToBoard(String boardId, String invitedEmail) async {
     // To send emails
-    await _emailService.sendEmail(invitedEmail, "test", "");
+    await _emailService.sendInvite(invitedEmail, boardId);
   }
 
   @override
@@ -29,5 +29,17 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
 
   Future<Invitation?> getInvitationDetails(String token) async {
     return await _service.getInvite(token);
+  }
+
+  Future<Invitation?> acceptInvite(String token) async {
+    return await _service.acceptInvite(token);
+  }
+
+  Future<Invitation?> declineInvite(String token) async {
+    return await _service.declineInvite(token);
+  }
+
+  Future<List<Invitation>> getInvites(String email, String status) async {
+    return await _service.getInvitesForMember(email, status);
   }
 }

@@ -37,6 +37,9 @@ const boardSettingsImagePath = "assets/images/settings.png";
 const removeUserFromBoardImagePath = "assets/images/minus.png";
 const manageUsersImagePath = "assets/images/manage-roles.png";
 const renameBoardImagePath = "assets/images/rename.png";
+const viewInvitesImagePath = "assets/images/invitation.png";
+const acceptInviteImagePath = "assets/images/accept.png";
+const declineInviteImagePath = "assets/images/decline.png";
 
 // EXPENSE BOARD SELECTION CONSATNS
 
@@ -59,8 +62,9 @@ const editableDateLabelText = "Date";
 const boardCreationSuccessMessage = "Expense board created";
 const boardCreationFailureMessage = "Failed to create board";
 
-const ViewSoloExpenseBoardsBtnText = "View your Expense Boards";
-const ViewGroupExpenseBoardsBtnText = "View Group Expense Boards";
+const viewSoloExpenseBoardsBtnText = "View your Expense Boards";
+const viewGroupExpenseBoardsBtnText = "View Group Expense Boards";
+const viewInvitesBtnText = "Manage Invites";
 
 // EXPENSE BOARD SETTINGS SCREEN CONSTANTS
 
@@ -82,3 +86,9 @@ const createExpenseBtnText = Text("Create Expense");
 const modifyExpenseBtnText = Text("Modify Expense");
 const categoryLength = 17;
 const expenseDescLength = 46;
+
+// INVITE MANAGEMENT SCREEN CONSTANTS
+
+const viewInvitesAppBarTitle = Text("Manage Board Invites");
+const acceptBtnText = "ACCEPT";
+const declineBtnText = "DECLINE";

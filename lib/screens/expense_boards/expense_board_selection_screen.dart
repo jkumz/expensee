@@ -94,9 +94,6 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
             builder: (context) => MultiProvider(
                   providers: [
                     ChangeNotifierProvider(
-                      create: (_) => BoardProvider(),
-                    ),
-                    ChangeNotifierProvider(
                       create: (_) => ExpenseProvider(boardId),
                     ),
                     ChangeNotifierProvider(create: (_) => GroupMemberProvider())

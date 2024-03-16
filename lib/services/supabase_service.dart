@@ -7,6 +7,7 @@ import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 import 'package:resend/resend.dart';
 
@@ -101,20 +102,6 @@ class SupabaseService {
     }
     board = ExpenseBoard.fromJson(board[0]);
     return board;
-  }
-
-  // Add a new user to a group expense board
-  Future<bool> addMemberToBoard(
-      String boardId, Map<String, dynamic> memberData) async {
-    final response = await supabase.from('group_members').insert([memberData]);
-
-    if (response.error != null && response != null) {
-      // Handle error
-      print(
-          'Error adding member with id ${memberData["id"]} to board with id $boardId');
-      return false;
-    }
-    return true;
   }
 
   // Remove a user from an expense board
@@ -292,6 +279,149 @@ class SupabaseService {
   Future<Invitation?> getInvite(String token) async {
     List<dynamic> inviteData =
         await supabase.from("invites").select().eq("token", token);
-    return Invitation.fromJson(inviteData.firstOrNull);
+    if (inviteData.isNotEmpty) return Invitation.fromJson(inviteData.first);
+  }
+
+// Changes status of invite token, returns token.
+// Adds invited user to the board.
+  Future<Invitation?> acceptInvite(String token) async {
+    List<dynamic> inviteData =
+        await supabase.from("invites").select().eq("token", token);
+
+    if (inviteData.isNotEmpty) {
+      var inviteJson = inviteData.first;
+      inviteJson["status"] = "accepted";
+      await supabase
+          .from("expenses")
+          .update(inviteJson)
+          .match({'token': token});
+
+      Map<String, dynamic> updatedJson = ((await supabase
+              .from("invites")
+              .select()
+              .eq("token", token)) as List<dynamic>)
+          .first;
+
+      if (updatedJson["status"] != "accepted") {
+        print("Error updating status of token");
+        return null;
+      }
+
+      var invitation = Invitation.fromJson(updatedJson);
+      bool added = await addMemberToBoard(invitation);
+      if (added) {
+        print("Successfully accepted invite token $token");
+        return Invitation.fromJson(updatedJson);
+      }
+
+      // if not added, then change status back and return null
+      updatedJson["status"] = "sent";
+      print("Failed to add user to board - invite status remains unchanged");
+      await supabase
+          .from("expenses")
+          .update(updatedJson)
+          .match({'token': token});
+      return null;
+    } else {
+      print("Failed to fetch invite data for token $token");
+      return null;
+    }
+  }
+
+// Changes status of invite token, returns token.
+  Future<Invitation?> declineInvite(String token) async {
+    List<dynamic> inviteData =
+        await supabase.from("invites").select().eq("token", token);
+    if (inviteData.isNotEmpty) {
+      var inviteJson = inviteData.first;
+      inviteJson["status"] = "declined";
+      await supabase
+          .from("expenses")
+          .update(inviteJson)
+          .match({'token': token});
+
+      Map<String, dynamic> updatedJson = ((await supabase
+              .from("invites")
+              .select()
+              .eq("token", token)) as List<dynamic>)
+          .first;
+
+      if (updatedJson["status"] != "declined") {
+        print("Error updating status of token");
+        return null;
+      }
+      print("Declined invite for token $token");
+      return Invitation.fromJson(updatedJson);
+    } else {
+      print("Failed to fetch invite data for token $token");
+      return null;
+    }
+  }
+
+  // Fetches the user ID based on email from the auth.users table
+  Future<String?> _getUserIdByEmail(String email) async {
+    final response = await supabase
+        .from('auth.users')
+        .select('id')
+        .eq('email', email)
+        .single() as Map<String, dynamic>;
+
+    if (response == null) {
+      print('Error fetching user ID by email: $email');
+      return null;
+    }
+
+    return response["id"];
+  }
+
+  // Add a new user to a group expense board
+  Future<bool> addMemberToBoard(Invitation invitation) async {
+    bool added = true;
+
+    try {
+      final String? userId = await _getUserIdByEmail(invitation.invitedEmail);
+      if (userId == null) {
+        print("Failed to fetch user ID for email: ${invitation.invitedEmail}");
+        return !added;
+      }
+
+      final Map<String, dynamic> groupMemberJson = {
+        "board_id": invitation.boardId,
+        "user_id": userId,
+        "role_id": 1 // default //TODO - RBAC. 3 diff role IDs, with diff perms
+      };
+      final resp =
+          await supabase.from("group_members").insert(groupMemberJson).select();
+
+      if (resp == null) {
+        print(
+            "Failed to add member ${invitation.invitedEmail} to board ${invitation.boardId}");
+        return !added;
+      }
+
+      print(
+          "Added member ${invitation.invitedEmail} to board ${invitation.boardId}");
+      return added;
+    } catch (e) {}
+
+    return !added;
+  }
+
+  // Get a list of user invites, can filter whether declined or accepted.
+  Future<List<Invitation>> getInvitesForMember(
+      String email, String status) async {
+    List<dynamic> response = await supabase
+        .from("invitations")
+        .select()
+        .eq("invitee_email", email)
+        .eq("status", status)
+        .order("created_at", ascending: true);
+
+    List<Invitation> invites = [];
+    for (var inviteJson in response) {
+      var i = Invitation.fromJson(inviteJson);
+      invites.add(i);
+    }
+    return invites;
   }
 }

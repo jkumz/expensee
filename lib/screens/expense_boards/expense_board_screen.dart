@@ -62,7 +62,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   // Variables to help switching between settings screen & board
   bool displaySettings = false;
 
-  void onOpenSettings() {
+  void _onOpenSettings() {
     if (mounted) {
       setState(() {
         displaySettings = true;
@@ -71,7 +71,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     }
   }
 
-  void onExitSettings() {
+  void _onExitSettings() {
     if (mounted) {
       setState(() {
         displayBoard = true;
@@ -108,7 +108,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     if (!displaySettings && displayBoard) {
       return ExpenseBoardNavBar(
         boardId: widget.boardId,
-        settings: onOpenSettings,
+        settings: _onOpenSettings,
       );
     }
     // Toggle expense creation/modification view
@@ -119,7 +119,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     // Toggle settings view
     else {
       return ExpBoardSettingsNavBar(
-          boardId: widget.boardId, exit: onExitSettings);
+          boardId: widget.boardId, exit: _onExitSettings);
     }
   }
 
@@ -134,7 +134,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
   Widget _buildAlternativeContent(BuildContext context) {
     if (!displaySettings) return _buildExpenseCreationScreen(context);
-    return BoardSettingsScreen(id: widget.boardId, role: "owner");
+    return BoardSettingsScreen(
+      id: widget.boardId,
+      role: "owner",
+      boardId: widget.boardId,
+    );
   }
 
   Widget _buildMainContent(BuildContext context) {
@@ -160,7 +164,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
 // renders loading bar view
   Widget _renderProgressBar(BuildContext context) {
-    return (this.loading
+    return (loading
         ? const CircularProgressIndicator(
             value: null,
             backgroundColor: Colors.white,
@@ -171,7 +175,8 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
 // helper method
   Future<bool> _isPartOfGroup() async {
-    bool isGroup = await repo.isPartOfGroup(widget.boardId);
+    bool isGroup = await Provider.of<ExpenseProvider>(context, listen: false)
+        .isPartOfGroupBoard(widget.boardId);
     setState(() {
       isGroupExpense = isGroup;
     });
@@ -277,8 +282,10 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   Future<bool> _deleteExpenseFromBoard(
       Expense expense, BuildContext context) async {
     // try {
-    Expense? deleted = await repo.removeExpense(expense.id!);
-    if (deleted != null) {
+    Expense? del = await Provider.of<ExpenseProvider>(context, listen: false)
+        .removeExpense(expense.id!);
+    //Expense? deleted = await repo.removeExpense(expense.id!);
+    if (del != null) {
       // Remove from board database table then, expense list, then refresh
       expenses.removeWhere((element) => element.expense.id == expense.id);
       await _refreshExpenses();

@@ -3,7 +3,8 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart' as Provider;
 
 class InviteUserForm extends StatefulWidget {
-  const InviteUserForm({super.key});
+  const InviteUserForm({super.key, required this.boardId});
+  final String boardId;
 
   @override
   State<StatefulWidget> createState() => _InviteUserFormState();
@@ -24,7 +25,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
           Provider.Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Send mock email
-      await gMemberProvider.sendInvite(_userEmail, "TEST");
+      await gMemberProvider.sendInvite(_userEmail, widget.boardId);
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.

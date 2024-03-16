@@ -1,9 +1,11 @@
 import 'package:expensee/app.dart';
 import 'package:expensee/components/appbars/home_app_bar.dart';
+import 'package:expensee/components/buttons/home_buttons/view_invites_button.dart';
 import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/components/buttons/home_buttons/view_boards_button.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/screens/expense_boards/expense_board_selection_screen.dart';
+import 'package:expensee/screens/invite_management_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:expensee/main.dart';
 
@@ -37,6 +39,15 @@ class _HomeState extends State<Home> {
         arguments: ViewExpenseBoardArguments(isGroupBoard: true));
   }
 
+  void _navigateToInviteManagement() {
+    String email = supabase.auth.currentUser!.email!;
+    Navigator.of(context)
+        .pushNamed(InviteManagementScreen.routeName, arguments: {
+      "email": email,
+      "status": "sent" //default
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,17 +67,21 @@ class _HomeState extends State<Home> {
                     "Welcome ${supabase.auth.currentUser!.email}",
                     style: TextStyle(/**TODO - Create this style */),
                   ),
-                  SizedBox(height: 12, width: 18),
+                  const SizedBox(height: 12, width: 18),
                   ViewExpenseBoardsButton(
-                      text: ViewSoloExpenseBoardsBtnText,
+                      text: viewSoloExpenseBoardsBtnText,
                       imagePath: singleBoardImagePath,
                       onPressed: _navigateToSoloBoards),
-                  SizedBox(height: 12, width: 18),
+                  const SizedBox(height: 12, width: 18),
                   ViewExpenseBoardsButton(
-                      text: ViewGroupExpenseBoardsBtnText,
+                      text: viewGroupExpenseBoardsBtnText,
                       imagePath: groupBoardImagePath,
                       onPressed: _navigateToGroupBoards),
-                  SizedBox(height: 12, width: 18),
+                  const SizedBox(height: 12, width: 18),
+                  ViewInvitesButton(
+                      text: viewInvitesBtnText,
+                      imagePath: viewInvitesImagePath,
+                      onPressed: _navigateToInviteManagement)
                 ],
               ),
             )

@@ -19,9 +19,9 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) {
     ],
   );
   return Invitation(
-    invitationId: json['invitation_id'] as String,
-    inviterId: json['inviter_id'] as String,
-    boardId: json['board_id'] as String,
+    invitationId: json['invitation_id'].toString(),
+    inviterId: json['inviter_id'].toString(),
+    boardId: json['board_id'].toString(),
     invitedEmail: json['invitee_email'] as String,
     status: json['status'] as String,
     token: json['token'] as String,

@@ -12,9 +12,6 @@ class EmailService {
   final _endpointUrl =
       "https://piqrlsincgavakepwelg.supabase.co/functions/v1/send-email";
 
-  String inviteText(String url) =>
-      "You've been invited to an expense board! Click here to join:\n$url";
-
   Future<void> sendEmail(String to, String subject, String html) async {
     final url = Uri.parse(_endpointUrl);
     final jwtToken = supabase.auth.currentSession!.accessToken;
@@ -36,10 +33,24 @@ class EmailService {
     }
   }
 
+  String inviteText(String url) =>
+      "You've been invited to an expense board! Click here to join:\n$url";
+
+// TODO - validate board id exists
   Future<void> sendInvite(String email, String boardId) async {
     final url = Uri.parse(_endpointUrl);
     final jwtToken = supabase.auth.currentSession!.accessToken;
-    final sender = supabase.auth.currentSession!.user!.email;
+    final inviteCallback = '${dotenv.env['PROJECT_SCHEMA']}://invite/';
+    final inviteLink = inviteText(inviteCallback);
+
+    String emailBody = '''
+      <html>
+      <body>
+        <p>Click the link below to access your board:</p>
+        <p><a href="$inviteLink">Access Board</a></p>
+      </body>
+      </html>
+      ''';
 
     // Generate invitation token
     const uuid = Uuid();
@@ -50,8 +61,6 @@ class EmailService {
       return;
     }
 
-    final inviteCallback = '${dotenv.env['PROJECT_SCHEMA']}://invite/';
-
     final emailResponse = await http.post(url,
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +69,7 @@ class EmailService {
         body: jsonEncode({
           'to': [email],
           'subject': "Board Invitation",
-          'text': inviteText(inviteCallback),
+          'text': emailBody,
         }));
     if (emailResponse.statusCode == 200) {
       logger.i("Email sent successfuly");

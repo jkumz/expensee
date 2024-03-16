@@ -1,15 +1,13 @@
 import 'package:expensee/models/expense/expense_model.dart';
-import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
-import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
 import 'package:expensee/screens/home.dart';
+import 'package:expensee/screens/invite_management_screen.dart';
 import 'package:expensee/screens/login.dart';
 import 'package:expensee/screens/expense_boards/expense_board_selection_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:expensee/screens/splash.dart';
-import 'package:provider/provider.dart';
 
 class ExpenseeApp extends StatelessWidget {
   const ExpenseeApp({super.key});
@@ -30,17 +28,16 @@ class ExpenseeApp extends StatelessWidget {
           case Home.routeName:
             return MaterialPageRoute(builder: (_) => const Home());
           case Login.routeName:
-            final args = settings.arguments as LoginScreenArguments;
-            return MaterialPageRoute(builder: (_) => const Login());
+            final args = settings.arguments as LoginScreenArguments?;
+            return MaterialPageRoute(
+              builder: (_) => Login(),
+            );
           case SelectExpenseBoardsScreen.routeName:
             // Extract arguments passed in settings
             final args = settings.arguments as ViewExpenseBoardArguments;
             return MaterialPageRoute(
-                builder: (context) => ChangeNotifierProvider(
-                      create: (context) => BoardProvider(),
-                      child: SelectExpenseBoardsScreen(
-                          isGroupBoardScreen: args.isGroupBoard),
-                    ));
+                builder: (context) => SelectExpenseBoardsScreen(
+                    isGroupBoardScreen: args.isGroupBoard));
           case BoardCreationScreen.routeName:
             return MaterialPageRoute(
                 builder: (_) => const BoardCreationScreen());
@@ -48,12 +45,15 @@ class ExpenseeApp extends StatelessWidget {
             final args = settings.arguments as ExpenseBoardScreenArguments;
             return MaterialPageRoute(
                 builder: (_) => ExpenseBoardScreen(boardId: args.id));
-          case BoardSettingsScreen.routeName:
-            final args = settings.arguments as BoardSettingsScreenArguments;
+          case InviteManagementScreen.routeName:
+            final args = settings.arguments as Map<String, dynamic>;
+            final String email = args["email"];
+            final String status = args["status"];
             return MaterialPageRoute(
-                builder: (_) =>
-                    BoardSettingsScreen(id: args.id, role: args.role));
-
+                builder: (_) => InviteManagementScreen(
+                      email: email,
+                      status: status,
+                    ));
           default:
             return MaterialPageRoute(builder: (_) => const Splash());
         }

@@ -17,4 +17,16 @@ class GroupMemberProvider extends ChangeNotifier {
   Future<Invitation?> getInvite(String token) async {
     return await _repo.getInvitationDetails(token);
   }
+
+  Future<Invitation?> acceptInvite(String token) async {
+    return await _repo.acceptInvite(token);
+  }
+
+  Future<Invitation?> declineInvite(String token) async {
+    return await _repo.declineInvite(token);
+  }
+
+  Future<List<Invitation>> getInvites(String userEmail, String status) async {
+    return await _repo.getInvites(userEmail, status);
+  }
 }

@@ -15,7 +15,9 @@ import 'package:expensee/main.dart';
 class Login extends StatefulWidget {
   static const String routeName = "/login";
 
-  const Login({super.key});
+  Login({super.key, this.followUpRoute, this.followUpToken});
+  String? followUpToken;
+  String? followUpRoute;
 
   @override
   _LoginState createState() => _LoginState();
@@ -26,9 +28,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  String? followUpToken;
-  String? followUpRoute;
-
   bool _isLoading = false;
   bool _redirecting = false;
   final _appBarTitle = const Text("Log In");
@@ -173,19 +172,14 @@ class _LoginState extends State<Login> {
 
   @override
   void initState() {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as LoginScreenArguments?;
-    followUpToken = args?.followUpToken;
-    followUpRoute = args?.followUpRoute;
-
     _authStateSubscription = supabase.auth.onAuthStateChange.listen((data) {
       if (_redirecting) return;
       final session = data.session;
       if (session != null) {
         _redirecting = true;
-        if (followUpRoute != null) {
-          Navigator.of(context)
-              .pushReplacementNamed(followUpRoute!, arguments: followUpToken);
+        if (widget.followUpRoute != null) {
+          Navigator.of(context).pushReplacementNamed(widget.followUpRoute!,
+              arguments: widget.followUpToken);
         }
         Navigator.of(context).pushReplacementNamed('/home');
       }

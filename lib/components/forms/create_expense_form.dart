@@ -1,4 +1,3 @@
-import 'package:expensee/components/expenses/base_expense.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
