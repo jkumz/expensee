@@ -1,4 +1,3 @@
-import 'package:expensee/config/constants.dart';
 import 'package:expensee/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -74,7 +73,7 @@ class EmailService {
     if (emailResponse.statusCode == 200) {
       logger.i("Email sent successfuly");
       // Store token in supabase
-      final resp = await supabase.from('invitations').insert({
+      await supabase.from('invitations').insert({
         'board_id': boardIdInt,
         'invitee_email': email,
         'token': invitationToken,

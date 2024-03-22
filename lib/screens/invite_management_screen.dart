@@ -55,8 +55,9 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     );
   }
 
+// Gets all pending invites for a user
   Future<List<(InvitationItem invitation, String boardName)>>
-      _fetchAcceptedInvites(GroupMemberProvider groupMemberProvider,
+      _fetchPendingInvites(GroupMemberProvider groupMemberProvider,
           BoardProvider boardProvider, String email) async {
     final pendingInvites = await groupMemberProvider.getInvites(email, "sent");
 
@@ -79,6 +80,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     return invitesWithBoardNames;
   }
 
+// Gets all declined invites for a user
   Future<List<(InvitationItem invitation, String boardName)>>
       _fetchDeclinedInvites(GroupMemberProvider groupMemberProvider,
           BoardProvider boardProvider, String email) async {
@@ -103,8 +105,9 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     return invitesWithBoardNames;
   }
 
+// Gets all accepted invites for a uer
   Future<List<(InvitationItem invitation, String boardName)>>
-      _fetchPendingInvites(GroupMemberProvider groupMemberProvider,
+      _fetchAcceptedInvites(GroupMemberProvider groupMemberProvider,
           BoardProvider boardProvider, String email) async {
     final pendingInvites =
         await groupMemberProvider.getInvites(email, "accepted");
@@ -138,6 +141,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
         : Container());
   }
 
+// renders main screen
   Widget _buildInvitesScreen(BuildContext context) {
     return Column(
       children: [
@@ -150,11 +154,13 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     );
   }
 
+// helper method for rendering main screen
   Widget _renderListView(BuildContext context) {
     return ListView.builder(
         itemCount: invites.length, itemBuilder: _listViewItemBuilder);
   }
 
+// builds out each individual invite widget to display into a rendered list
   Widget _listViewItemBuilder(BuildContext context, int index) {
     final inviteItem = invites[index];
 
@@ -165,6 +171,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     );
   }
 
+// renders an invite into a displayable widget format
   Widget _renderInviteView(Invitation invite, String boardName) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -190,10 +197,21 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     );
   }
 
-  Future<void> _acceptInvite(invite) async {}
+// accepts an invite for current user
+  Future<void> _acceptInvite(Invitation invite) async {
+    await Provider.of<GroupMemberProvider>(context, listen: false)
+        .acceptInvite(invite.token);
+    await _loadData();
+  }
 
-  Future<void> _declineInvite(invite) async {}
+// decline an invite for current user
+  Future<void> _declineInvite(Invitation invite) async {
+    await Provider.of<GroupMemberProvider>(context, listen: false)
+        .declineInvite(invite.token);
+    await _loadData();
+  }
 
+// method used to load in invites, initially and after accept/decline
   Future<void> _loadData() async {
     if (mounted) {
       setState(() {
@@ -204,55 +222,29 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
           Provider.of<GroupMemberProvider>(context, listen: false);
       final boardProvider = Provider.of<BoardProvider>(context, listen: false);
 
-      switch (widget.status) {
-        case "sent":
-          await _fetchAcceptedInvites(
-              groupMemberProvider, boardProvider, widget.email);
-          break;
-        case "declined":
-          await _fetchDeclinedInvites(
-              groupMemberProvider, boardProvider, widget.email);
-        case "accepted":
-          await _fetchAcceptedInvites(
-              groupMemberProvider, boardProvider, widget.email);
-          break;
+      try {
+        switch (widget.status) {
+          case "sent":
+            await _fetchPendingInvites(
+                groupMemberProvider, boardProvider, widget.email);
+            break;
+          case "declined":
+            await _fetchDeclinedInvites(
+                groupMemberProvider, boardProvider, widget.email);
+          case "accepted":
+            await _fetchPendingInvites(
+                groupMemberProvider, boardProvider, widget.email);
+            break;
+        }
+      } catch (e) {
+        print("Error: $e\n Failed to load invites");
+      } finally {
+        if (mounted) {
+          setState(() {
+            loading = false;
+          });
+        }
       }
-    }
-    if (mounted) {
-      setState(() {
-        loading = false;
-      });
-    }
-  }
-
-  Future<void> _refreshExpenses() async {
-    if (mounted) {
-      setState(() {
-        loading = true;
-      });
-    }
-
-    final groupMemberProvider =
-        Provider.of<GroupMemberProvider>(context, listen: false);
-    final boardProvider = Provider.of<BoardProvider>(context, listen: false);
-    switch (widget.status) {
-      case "sent":
-        await _fetchAcceptedInvites(
-            groupMemberProvider, boardProvider, widget.email);
-        break;
-      case "declined":
-        await _fetchDeclinedInvites(
-            groupMemberProvider, boardProvider, widget.email);
-      case "accepted":
-        await _fetchAcceptedInvites(
-            groupMemberProvider, boardProvider, widget.email);
-        break;
-    }
-
-    if (mounted) {
-      setState(() {
-        loading = false;
-      });
     }
   }
 }

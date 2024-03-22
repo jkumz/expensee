@@ -12,11 +12,15 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
-  await Supabase.initialize(
-    url: "https://${dotenv.env['PROJECT_ID']}.supabase.co",
-    anonKey: dotenv.env['ANON_KEY']!,
-    authFlowType: AuthFlowType.pkce,
-  );
+  try {
+    await Supabase.initialize(
+      url: "https://${dotenv.env['PROJECT_ID']}.supabase.co",
+      anonKey: dotenv.env['ANON_KEY']!,
+      authFlowType: AuthFlowType.pkce,
+    ).timeout(const Duration(seconds: 10));
+  } catch (e) {
+    print("Failed to initialize supabase: $e");
+  }
 
   runApp(const AppInitializer());
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:expensee/app.dart';
 import 'package:expensee/components/buttons/authentication_buttons/magic_link_button.dart';
 import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_google_button.dart';
 import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_password_button.dart';

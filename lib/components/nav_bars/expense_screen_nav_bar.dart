@@ -1,6 +1,4 @@
-import 'package:expensee/app.dart';
 import 'package:expensee/config/constants.dart';
-import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/home.dart';
 import 'package:expensee/screens/login.dart';
 import 'package:flutter/material.dart';

@@ -7,7 +7,6 @@ import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
 
 import 'package:resend/resend.dart';
 
@@ -19,14 +18,43 @@ class SupabaseService {
   // Using our global Supabase client singleton instance from main.dart
 
   // Fetch expense boards for a user
+  // Future<List<ExpenseBoard>> getExpenseBoards(
+  //     String userId, bool isGroup) async {
+  //   try {
+  //     final response = await supabase
+  //         .from('expense_boards')
+  //         .select()
+  //         .eq('owner_id', userId)
+  //         .eq('is_group', isGroup);
+
+  //     // Check if the response contains data and it's a list
+  //     if (response != null && response is List) {
+  //       // Extract the list of data from the response
+  //       final List<dynamic> data = response;
+
+  // Map the dynamic list to a list of ExpenseBoard instances
+  // return data.where((json) => json != null).map<ExpenseBoard>((json) {
+  //   return ExpenseBoard.fromJson(json as Map<String, dynamic>);
+  // }).toList();
+  //     } else {
+  //       print('Error: Data is null or not a list');
+  //       return [];
+  //     }
+  //   } catch (error) {
+  //     // If there's an error, log it and return an empty list
+  //     print('Error fetching expense boards - Group: $isGroup');
+  //     print('Error: $error');
+  //     return [];
+  //   }
+  // }
+
+// Fetch expense boards for a user including those where the user is a group member
   Future<List<ExpenseBoard>> getExpenseBoards(
       String userId, bool isGroup) async {
     try {
-      final response = await supabase
-          .from('expense_boards')
-          .select()
-          .eq('owner_id', userId)
-          .eq('is_group', isGroup);
+      // Perform a raw SQL query using a stored procedure or a complex join statement
+      final response = await supabase.rpc('get_user_boards',
+          params: {'user_id': userId, 'is_group': isGroup});
 
       // Check if the response contains data and it's a list
       if (response != null && response is List) {
@@ -278,7 +306,7 @@ class SupabaseService {
 
   Future<Invitation?> getInvite(String token) async {
     List<dynamic> inviteData =
-        await supabase.from("invites").select().eq("token", token);
+        await supabase.from("invitations").select().eq("token", token);
     if (inviteData.isNotEmpty) return Invitation.fromJson(inviteData.first);
   }
 
@@ -286,18 +314,18 @@ class SupabaseService {
 // Adds invited user to the board.
   Future<Invitation?> acceptInvite(String token) async {
     List<dynamic> inviteData =
-        await supabase.from("invites").select().eq("token", token);
+        await supabase.from("invitations").select().eq("token", token);
 
     if (inviteData.isNotEmpty) {
       var inviteJson = inviteData.first;
       inviteJson["status"] = "accepted";
       await supabase
-          .from("expenses")
+          .from("invitations")
           .update(inviteJson)
           .match({'token': token});
 
       Map<String, dynamic> updatedJson = ((await supabase
-              .from("invites")
+              .from("invitations")
               .select()
               .eq("token", token)) as List<dynamic>)
           .first;
@@ -318,7 +346,7 @@ class SupabaseService {
       updatedJson["status"] = "sent";
       print("Failed to add user to board - invite status remains unchanged");
       await supabase
-          .from("expenses")
+          .from("invitations")
           .update(updatedJson)
           .match({'token': token});
       return null;
@@ -336,12 +364,12 @@ class SupabaseService {
       var inviteJson = inviteData.first;
       inviteJson["status"] = "declined";
       await supabase
-          .from("expenses")
+          .from("invitations")
           .update(inviteJson)
           .match({'token': token});
 
       Map<String, dynamic> updatedJson = ((await supabase
-              .from("invites")
+              .from("invitations")
               .select()
               .eq("token", token)) as List<dynamic>)
           .first;
@@ -358,36 +386,14 @@ class SupabaseService {
     }
   }
 
-  // Fetches the user ID based on email from the auth.users table
-  Future<String?> _getUserIdByEmail(String email) async {
-    final response = await supabase
-        .from('auth.users')
-        .select('id')
-        .eq('email', email)
-        .single() as Map<String, dynamic>;
-
-    if (response == null) {
-      print('Error fetching user ID by email: $email');
-      return null;
-    }
-
-    return response["id"];
-  }
-
   // Add a new user to a group expense board
   Future<bool> addMemberToBoard(Invitation invitation) async {
     bool added = true;
 
     try {
-      final String? userId = await _getUserIdByEmail(invitation.invitedEmail);
-      if (userId == null) {
-        print("Failed to fetch user ID for email: ${invitation.invitedEmail}");
-        return !added;
-      }
-
       final Map<String, dynamic> groupMemberJson = {
         "board_id": invitation.boardId,
-        "user_id": userId,
+        "user_id": invitation.invitedId,
         "role_id": 1 // default //TODO - RBAC. 3 diff role IDs, with diff perms
       };
       final resp =
@@ -402,7 +408,9 @@ class SupabaseService {
       print(
           "Added member ${invitation.invitedEmail} to board ${invitation.boardId}");
       return added;
-    } catch (e) {}
+    } catch (e) {
+      print("Error: $e\nFailed to add member to board");
+    }
 
     return !added;
   }

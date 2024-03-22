@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part "invitation_model.g.dart";
@@ -11,10 +10,13 @@ class Invitation {
   @JsonKey(name: "inviter_id", required: true)
   final String inviterId;
 
+  @JsonKey(name: "inviter_id", required: true)
+  final String invitedId;
+
   @JsonKey(name: "board_id", required: true)
   final String boardId;
 
-  @JsonKey(name: "invitee_email", required: true)
+  @JsonKey(name: "invited_email", required: true)
   final String invitedEmail;
 
   @JsonKey(name: "status", required: true)
@@ -29,7 +31,8 @@ class Invitation {
       required this.boardId,
       required this.invitedEmail,
       required this.status,
-      required this.token});
+      required this.token,
+      required this.invitedId});
 
   factory Invitation.fromJson(Map<String, dynamic> json) =>
       _$InvitationFromJson(json);

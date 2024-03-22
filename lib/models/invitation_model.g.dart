@@ -14,6 +14,7 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) {
       'inviter_id',
       'board_id',
       'invitee_email',
+      'invited_id',
       'status',
       'token'
     ],
@@ -23,6 +24,7 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) {
     inviterId: json['inviter_id'].toString(),
     boardId: json['board_id'].toString(),
     invitedEmail: json['invitee_email'] as String,
+    invitedId: json['invited_id'],
     status: json['status'] as String,
     token: json['token'] as String,
   );
@@ -34,6 +36,7 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
       'inviter_id': instance.inviterId,
       'board_id': instance.boardId,
       'invitee_email': instance.invitedEmail,
+      'invited_id': instance.invitedId,
       'status': instance.status,
       'token': instance.token,
     };
