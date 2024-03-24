@@ -399,7 +399,10 @@ class SupabaseService {
       final Map<String, dynamic> groupMemberJson = {
         "board_id": invitation.boardId,
         "user_id": invitation.invitedId,
-        "role_id": 1 // default //TODO - RBAC. 3 diff role IDs, with diff perms
+        "role": invitation.role
+            .toString()
+            .split(".")
+            .last // default //TODO - RBAC. 3 diff role IDs, with diff perms
       };
       final resp =
           await supabase.from("group_members").insert(groupMemberJson).select();

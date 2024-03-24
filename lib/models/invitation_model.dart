@@ -17,7 +17,7 @@ class Invitation {
   @JsonKey(name: "board_id", required: true)
   final String boardId;
 
-  @JsonKey(name: "invited_email", required: true)
+  @JsonKey(name: "invitee_email", required: true)
   final String invitedEmail;
 
   @JsonKey(name: "status", required: true)
