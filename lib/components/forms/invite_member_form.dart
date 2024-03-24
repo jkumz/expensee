@@ -1,3 +1,6 @@
+import 'package:expensee/components/dropdown/roles_dropdown.dart';
+import 'package:expensee/enums/roles.dart';
+import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart' as Provider;
@@ -12,6 +15,7 @@ class InviteUserForm extends StatefulWidget {
 
 class _InviteUserFormState extends State<InviteUserForm> {
   final _formKey = GlobalKey<FormState>(); // unique id
+  Roles _selectedRole = Roles.shareholder;
 
   // to store user input
   String _userEmail = "";
@@ -25,7 +29,8 @@ class _InviteUserFormState extends State<InviteUserForm> {
           Provider.Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Send mock email
-      await gMemberProvider.sendInvite(_userEmail, widget.boardId);
+      await gMemberProvider.sendInvite(
+          _userEmail, widget.boardId, _selectedRole);
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
@@ -41,6 +46,28 @@ class _InviteUserFormState extends State<InviteUserForm> {
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: Provider.Provider.of<BoardProvider>(context, listen: false)
+          .checkIfOwner(widget.boardId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Show a loading indicator while waiting for the future to complete
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          // Handle the error case
+          return Text('Error: ${snapshot.error}');
+        } else if (snapshot.hasData && snapshot.data == true) {
+          // Build the form with the owner's additional options
+          return buildForm(context, true);
+        } else {
+          // Build the form without the owner's additional options
+          return buildForm(context, false);
+        }
+      },
+    );
+  }
+
+  Widget buildForm(BuildContext context, bool isOwner) {
     return Form(
       key: _formKey,
       child: Padding(
@@ -49,12 +76,14 @@ class _InviteUserFormState extends State<InviteUserForm> {
           children: [
             TextFormField(
               decoration: const InputDecoration(labelText: "Invite User"),
-              // assign name input
               onSaved: (value) => _userEmail = value!,
-              // validate name input
               validator: (value) =>
                   value!.isEmpty ? "Please enter an email address" : null,
             ),
+            if (isOwner)
+              RolesDropdownMenu(
+                onRoleChanged: (Roles newRole) => _selectedRole = newRole,
+              ), // Use conditional if isOwner
             ElevatedButton(onPressed: _submit, child: const Text("Send invite"))
           ],
         ),

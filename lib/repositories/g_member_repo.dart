@@ -1,17 +1,28 @@
+import 'package:expensee/enums/roles.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/repositories/interfaces/g_member_repo_interface.dart';
 import 'package:expensee/services/email_service.dart';
 import 'package:expensee/services/supabase_service.dart';
+import 'package:uuid/uuid.dart';
 
 class GroupMemberRepository implements GroupMemberRepositoryInterface {
   final _service = SupabaseService();
   final _emailService = EmailService();
 
   @override
-  Future<void> inviteMemberToBoard(String boardId, String invitedEmail) async {
+  Future<bool> inviteMemberToBoard(
+      String boardId, String invitedEmail, Roles role) async {
     // To send emails
-    await _emailService.sendInvite(invitedEmail, boardId);
+
+    const uuid = Uuid();
+    final invitationToken = uuid.v4();
+    bool stored = await _service.storeSentInviteDetails(
+        boardId, invitedEmail, invitationToken, role);
+    if (stored) {
+      await _emailService.sendInviteEmail(invitedEmail, boardId, role);
+    }
+    return stored;
   }
 
   @override

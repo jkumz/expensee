@@ -170,4 +170,9 @@ class BoardProvider extends ChangeNotifier {
     if (board != null) return board.balance;
     return 0.00;
   }
+
+  Future<bool> checkIfOwner(String boardId) async {
+    bool owner = await _repo.isOwner(boardId);
+    return owner;
+  }
 }

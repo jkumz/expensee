@@ -9,13 +9,7 @@ import 'package:expensee/providers/g_member_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// We need:
-// A method for refreshing invites for a member - done
-// A method for fetching all invites for a member - done
-// A method for building out the invite display (only non accepted/declined)
-//    - Lists board name, accpet/decline button - done
-// A method for accepting invite + pop up
-// A method for declining invite + refresh
+//TODO - View declined invites, probably dont need to view accepted.
 
 class InviteManagementScreen extends StatefulWidget {
   static const routeName = "/manage-invites";
@@ -30,7 +24,7 @@ class InviteManagementScreen extends StatefulWidget {
 }
 
 class _InviteManagementScreenState extends State<InviteManagementScreen> {
-  List<(InvitationItem invite, String boardName)> invites = [];
+  List<(InvitationItem invite, String boardName, String role)> invites = [];
   bool loading = false;
 
   @override
@@ -56,19 +50,20 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
   }
 
 // Gets all pending invites for a user
-  Future<List<(InvitationItem invitation, String boardName)>>
+  Future<List<(InvitationItem invitation, String boardName, String role)>>
       _fetchPendingInvites(GroupMemberProvider groupMemberProvider,
           BoardProvider boardProvider, String email) async {
     final pendingInvites = await groupMemberProvider.getInvites(email, "sent");
 
-    List<(InvitationItem invitation, String boardName)> invitesWithBoardNames =
-        [];
+    List<(InvitationItem invitation, String boardName, String role)>
+        invitesWithBoardNames = [];
 
     if (pendingInvites.isNotEmpty) {
       for (Invitation invite in pendingInvites) {
         final boardName = await boardProvider.getBoardName(invite.boardId);
         final inviteItem = InvitationItem(invitation: invite);
-        invitesWithBoardNames.add((inviteItem, boardName));
+        final role = invite.role.toString().split(".").last;
+        invitesWithBoardNames.add((inviteItem, boardName, role));
       }
 
       if (mounted) {
@@ -81,20 +76,21 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
   }
 
 // Gets all declined invites for a user
-  Future<List<(InvitationItem invitation, String boardName)>>
+  Future<List<(InvitationItem invitation, String boardName, String role)>>
       _fetchDeclinedInvites(GroupMemberProvider groupMemberProvider,
           BoardProvider boardProvider, String email) async {
     final declinedInvites =
         await groupMemberProvider.getInvites(email, "declined");
 
-    List<(InvitationItem invitation, String boardName)> invitesWithBoardNames =
-        [];
+    List<(InvitationItem invitation, String boardName, String role)>
+        invitesWithBoardNames = [];
 
     if (declinedInvites.isNotEmpty) {
       for (Invitation invite in declinedInvites) {
         final boardName = await boardProvider.getBoardName(invite.boardId);
         final inviteItem = InvitationItem(invitation: invite);
-        invitesWithBoardNames.add((inviteItem, boardName));
+        final role = invite.role.toString().split(".").last;
+        invitesWithBoardNames.add((inviteItem, boardName, role));
       }
       if (mounted) {
         setState(() {
@@ -106,20 +102,21 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
   }
 
 // Gets all accepted invites for a uer
-  Future<List<(InvitationItem invitation, String boardName)>>
+  Future<List<(InvitationItem invitation, String boardName, String role)>>
       _fetchAcceptedInvites(GroupMemberProvider groupMemberProvider,
           BoardProvider boardProvider, String email) async {
     final pendingInvites =
         await groupMemberProvider.getInvites(email, "accepted");
 
-    List<(InvitationItem invitation, String boardName)> invitesWithBoardNames =
-        [];
+    List<(InvitationItem invitation, String boardName, String role)>
+        invitesWithBoardNames = [];
 
     if (pendingInvites.isNotEmpty) {
       for (Invitation invite in pendingInvites) {
         final boardName = await boardProvider.getBoardName(invite.boardId);
         final inviteItem = InvitationItem(invitation: invite);
-        invitesWithBoardNames.add((inviteItem, boardName));
+        final role = invite.role.toString().split(".").last;
+        invitesWithBoardNames.add((inviteItem, boardName, role));
       }
       if (mounted) {
         setState(() {
@@ -166,13 +163,14 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
 
     return Column(
       children: [
-        _renderInviteView(inviteItem.$1.invitation, inviteItem.$2),
+        _renderInviteView(
+            inviteItem.$1.invitation, inviteItem.$2, inviteItem.$3),
       ],
     );
   }
 
 // renders an invite into a displayable widget format
-  Widget _renderInviteView(Invitation invite, String boardName) {
+  Widget _renderInviteView(Invitation invite, String boardName, String role) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Padding(
@@ -183,6 +181,9 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
             Expanded(
                 child: Text(
                     "Board: $boardName")), // Directly display the board name
+            Expanded(
+              child: Text("Role: ${role.toUpperCase()}}"),
+            ),
             AcceptInviteButton(
                 text: acceptBtnText,
                 imagePath: acceptInviteImagePath,

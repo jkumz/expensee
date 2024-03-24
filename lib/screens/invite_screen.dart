@@ -37,8 +37,7 @@ class _InvitationScreenState extends State<InvitationScreen> {
   }
 
   void acceptInvitation(String token) {
-    // Logic to accept the invitation, //TODO make an API call to add the user to the board
-    // Then navigate to the board screen
+    // Logic to accept the invitation
     Provider.of<GroupMemberProvider>(context, listen: false)
         .acceptInvite(token);
     Navigator.of(context).pushReplacementNamed(

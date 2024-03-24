@@ -1,3 +1,4 @@
+import 'package:expensee/enums/roles.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/repositories/g_member_repo.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,8 @@ class GroupMemberProvider extends ChangeNotifier {
 
   bool isLoading = false;
 
-  Future<void> sendInvite(String email, String boardId) async {
-    await _repo.inviteMemberToBoard(boardId, email);
+  Future<void> sendInvite(String email, String boardId, Roles role) async {
+    await _repo.inviteMemberToBoard(boardId, email, role);
   }
 
   Future<Invitation?> getInvite(String token) async {

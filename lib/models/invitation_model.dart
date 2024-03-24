@@ -1,3 +1,4 @@
+import 'package:expensee/enums/roles.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part "invitation_model.g.dart";
@@ -10,7 +11,7 @@ class Invitation {
   @JsonKey(name: "inviter_id", required: true)
   final String inviterId;
 
-  @JsonKey(name: "inviter_id", required: true)
+  @JsonKey(name: "invited_id", required: true)
   final String invitedId;
 
   @JsonKey(name: "board_id", required: true)
@@ -25,6 +26,9 @@ class Invitation {
   @JsonKey(name: "token", required: true)
   final String token;
 
+  @JsonKey(name: "role", required: true)
+  final Roles role;
+
   Invitation(
       {required this.invitationId,
       required this.inviterId,
@@ -32,7 +36,8 @@ class Invitation {
       required this.invitedEmail,
       required this.status,
       required this.token,
-      required this.invitedId});
+      required this.invitedId,
+      required this.role});
 
   factory Invitation.fromJson(Map<String, dynamic> json) =>
       _$InvitationFromJson(json);

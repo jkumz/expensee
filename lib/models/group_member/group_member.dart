@@ -1,3 +1,4 @@
+import 'package:expensee/enums/roles.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part "group_member.g.dart";
@@ -10,8 +11,8 @@ class GroupMember {
   @JsonKey(name: "board_id", required: true)
   final String boardId;
 
-  @JsonKey(name: "role_id", required: true)
-  final String role; // admin/owner/shareholder roles, shareholder is custom
+  @JsonKey(name: "role", required: true)
+  final Roles role; // admin/owner/shareholder roles, shareholder is custom
 
   GroupMember({this.userId, required this.boardId, required this.role});
 
@@ -19,4 +20,13 @@ class GroupMember {
       _$GroupMemberFromJson(json);
 
   Map<String, dynamic> toJson() => _$GroupMemberToJson(this);
+
+  // Convert a role name from the JSON into a Dart enum
+  static Roles _roleFromJson(String roleName) => Roles.values.firstWhere(
+        (e) => e.toString().split('.').last == roleName,
+        orElse: () => throw ArgumentError('Invalid role name: $roleName'),
+      );
+
+  // Convert a Dart enum into a role name for the JSON
+  static String _roleToJson(Roles role) => role.toString().split('.').last;
 }

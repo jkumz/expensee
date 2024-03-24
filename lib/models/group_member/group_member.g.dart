@@ -9,12 +9,12 @@ part of 'group_member.dart';
 GroupMember _$GroupMemberFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['board_id', 'role_id'],
+    requiredKeys: const ['board_id', 'role'],
   );
   return GroupMember(
     userId: json['user_id'] as int?,
     boardId: json['board_id'] as String,
-    role: json['role_id'] as String,
+    role: $enumDecode(_$RolesEnumMap, json['role']),
   );
 }
 
@@ -29,6 +29,12 @@ Map<String, dynamic> _$GroupMemberToJson(GroupMember instance) {
 
   writeNotNull('user_id', instance.userId);
   val['board_id'] = instance.boardId;
-  val['role_id'] = instance.role;
+  val['role'] = _$RolesEnumMap[instance.role]!;
   return val;
 }
+
+const _$RolesEnumMap = {
+  Roles.owner: 'owner',
+  Roles.admin: 'admin',
+  Roles.shareholder: 'shareholder',
+};

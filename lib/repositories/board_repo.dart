@@ -60,4 +60,8 @@ class BoardRepository implements BoardRepositoryInterface {
 
     return expenses;
   }
+
+  Future<bool> isOwner(String boardId) {
+    return _service.isBoardOwner(boardId);
+  }
 }
