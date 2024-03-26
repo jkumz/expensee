@@ -132,6 +132,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     );
   }
 
+// TODO - proper role handling
   Widget _buildAlternativeContent(BuildContext context) {
     if (!displaySettings) return _buildExpenseCreationScreen(context);
     return BoardSettingsScreen(

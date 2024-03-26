@@ -9,29 +9,23 @@ part of 'group_member.dart';
 GroupMember _$GroupMemberFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
-    requiredKeys: const ['board_id', 'role'],
+    requiredKeys: const ['board_id', 'role', 'user_email'],
   );
   return GroupMember(
-    userId: json['user_id'] as int?,
-    boardId: json['board_id'] as String,
+    userId: json['user_id'].toString(),
+    boardId: json['board_id'].toString(),
     role: $enumDecode(_$RolesEnumMap, json['role']),
+    email: json['user_email'] as String,
   );
 }
 
-Map<String, dynamic> _$GroupMemberToJson(GroupMember instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('user_id', instance.userId);
-  val['board_id'] = instance.boardId;
-  val['role'] = _$RolesEnumMap[instance.role]!;
-  return val;
-}
+Map<String, dynamic> _$GroupMemberToJson(GroupMember instance) =>
+    <String, dynamic>{
+      'user_id': instance.userId,
+      'board_id': instance.boardId,
+      'role': _$RolesEnumMap[instance.role]!,
+      'user_email': instance.email,
+    };
 
 const _$RolesEnumMap = {
   Roles.owner: 'owner',

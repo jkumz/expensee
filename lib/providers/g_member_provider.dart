@@ -1,4 +1,5 @@
 import 'package:expensee/enums/roles.dart';
+import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/repositories/g_member_repo.dart';
 import 'package:flutter/material.dart';
@@ -29,5 +30,14 @@ class GroupMemberProvider extends ChangeNotifier {
 
   Future<List<Invitation>> getInvites(String userEmail, String status) async {
     return await _repo.getInvites(userEmail, status);
+  }
+
+  Future<bool> removeGroupMember(String boardId, String email) async {
+    return await _repo.removeMemberFromBoard(boardId, email);
+  }
+
+  Future<List<GroupMember>> getGroupMembers(
+      String boardId, bool isAdmin) async {
+    return await _repo.getMembers(boardId, isAdmin);
   }
 }

@@ -1,25 +1,23 @@
 import 'package:expensee/components/dropdown/roles_dropdown.dart';
+import 'package:expensee/components/dropdown/user_dropdown.dart';
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart' as Provider;
 
-class InviteUserForm extends StatefulWidget {
-  const InviteUserForm({super.key, required this.boardId, required this.role});
+class RemoveUserForm extends StatefulWidget {
+  const RemoveUserForm({super.key, required this.boardId, required this.role});
   final String boardId;
   final String role;
 
   @override
-  State<StatefulWidget> createState() => _InviteUserFormState();
+  State<StatefulWidget> createState() => _RemoveUserFormState();
 }
 
-class _InviteUserFormState extends State<InviteUserForm> {
+class _RemoveUserFormState extends State<RemoveUserForm> {
   final _formKey = GlobalKey<FormState>(); // unique id
-  Roles _selectedRole = Roles.shareholder;
-
-  // to store user input
-  String _userEmail = "";
+  String selectedEmail = "@";
 
   // handle form submission
   void _submit() async {
@@ -30,15 +28,20 @@ class _InviteUserFormState extends State<InviteUserForm> {
           Provider.Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Send mock email
-      await gMemberProvider.sendInvite(
-          _userEmail, widget.boardId, _selectedRole);
-
+      bool removed = await gMemberProvider.removeGroupMember(
+          widget.boardId, selectedEmail);
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
       if (!mounted) return;
+      if (!removed) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Failed to remove $selectedEmail from the board"),
+        ));
+        Navigator.pop(context);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Invite sent to $_userEmail"),
+        content: Text("$selectedEmail has been removed from the expense board"),
       ));
 
       Navigator.pop(context);
@@ -49,11 +52,11 @@ class _InviteUserFormState extends State<InviteUserForm> {
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
       future: Provider.Provider.of<BoardProvider>(context, listen: false)
-          .checkIfOwner(widget.boardId),
+          .checkIfAdmin(widget.boardId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Show a loading indicator while waiting for the future to complete
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           // Handle the error case
           return Text('Error: ${snapshot.error}');
@@ -68,24 +71,32 @@ class _InviteUserFormState extends State<InviteUserForm> {
     );
   }
 
-  Widget buildForm(BuildContext context, bool isOwner) {
+// TODO - text styling, consts moved to const file
+  Widget buildForm(BuildContext context, bool isAdmin) {
     return Form(
       key: _formKey,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            TextFormField(
-              decoration: const InputDecoration(labelText: "Invite User"),
-              onSaved: (value) => _userEmail = value!,
-              validator: (value) =>
-                  value!.isEmpty ? "Please enter an email address" : null,
+            const Center(
+              child: Text(
+                "Select a user to remove",
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
             ),
-            if (isOwner)
-              RolesDropdownMenu(
-                onRoleChanged: (Roles newRole) => _selectedRole = newRole,
-              ), // Use conditional if isOwner
-            ElevatedButton(onPressed: _submit, child: const Text("Send invite"))
+            isAdmin
+                ? UserDropdownMenu(
+                    onUserSelected: (String user) => selectedEmail = user,
+                    isAdmin: isAdmin,
+                    boardId: widget.boardId,
+                  )
+                : UserDropdownMenu(
+                    onUserSelected: (String user) => selectedEmail = user,
+                    isAdmin: !isAdmin,
+                    boardId: widget.boardId,
+                  ), // Use conditional if isOwner
+            ElevatedButton(onPressed: _submit, child: const Text("Remove user"))
           ],
         ),
       ),

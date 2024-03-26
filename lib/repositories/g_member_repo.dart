@@ -32,10 +32,8 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
   }
 
   @override
-  Future<GroupMember> removeMemberFromBoard(
-      String boardId, String removedEmail) {
-    // TODO: implement removeMemberFromBoard
-    throw UnimplementedError();
+  Future<bool> removeMemberFromBoard(String boardId, String removedEmail) {
+    return _service.removeGroupMember(boardId, removedEmail);
   }
 
   Future<Invitation?> getInvitationDetails(String token) async {
@@ -52,5 +50,9 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
 
   Future<List<Invitation>> getInvites(String email, String status) async {
     return await _service.getInvitesForMember(email, status);
+  }
+
+  Future<List<GroupMember>> getMembers(String boardId, bool isAdmin) async {
+    return await _service.getGroupMembers(boardId, isAdmin);
   }
 }

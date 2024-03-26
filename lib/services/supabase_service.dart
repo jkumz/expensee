@@ -6,6 +6,7 @@ import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/main.dart';
+import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -118,6 +119,21 @@ class SupabaseService {
       return false;
     }
     return supabase.auth.currentUser!.id == board["owner_id"];
+  }
+
+  Future<bool> isAdmin(String boardId) async {
+    var board = (await supabase
+            .from("group_members")
+            .select()
+            .match({"id": boardId}).match(
+                {"user_id": supabase.auth.currentUser!.id}) as List<dynamic>)
+        .firstOrNull;
+
+    if (board == null) {
+      print("No board with matching id: $boardId");
+      return false;
+    }
+    return board["role"] == "admin";
   }
 
   // Remove a user from an expense board
@@ -402,7 +418,8 @@ class SupabaseService {
         "role": invitation.role
             .toString()
             .split(".")
-            .last // default //TODO - RBAC. 3 diff role IDs, with diff perms
+            .last, // default //TODO - RBAC. 3 diff role IDs, with diff perms
+        "user_email": invitation.invitedEmail
       };
       final resp =
           await supabase.from("group_members").insert(groupMemberJson).select();
@@ -435,9 +452,53 @@ class SupabaseService {
 
     List<Invitation> invites = [];
     for (var inviteJson in response) {
-      var i = Invitation.fromJson(inviteJson);
-      invites.add(i);
+      invites.add(Invitation.fromJson(inviteJson));
     }
     return invites;
+  }
+
+// Get list of group members for an expense bard
+  Future<List<GroupMember>> getGroupMembers(
+      String boardId, bool isAdmin) async {
+    List<GroupMember> members = [];
+
+// if owner, view ALL but your own
+    if (!isAdmin) {
+      List<dynamic> response = await supabase
+          .from("group_members")
+          .select()
+          .eq("board_id", boardId)
+          .neq("user_email", supabase.auth.currentUser!.email);
+      for (var memberJson in response) {
+        members.add(GroupMember.fromJson(memberJson));
+      }
+    } else {
+      // if admin, only view shareholders
+      final response = (await supabase
+          .from("group_members")
+          .select()
+          .eq("board_id", boardId)
+          .neq("role", "owner")
+          .neq("role", "admin")
+          .neq("user_email", supabase.auth.currentUser!.email));
+      for (var memberJson in response) {
+        members.add(GroupMember.fromJson(memberJson));
+      }
+    }
+
+    return members;
+  }
+
+// Remove a group member from a board using their email address
+  Future<bool> removeGroupMember(String boardId, String email) async {
+    final resp = await supabase
+        .from("group_members")
+        .delete()
+        .match({"board_id": boardId, "user_email": email});
+
+    if (resp != null) {
+      print("Failed to remove $email from board $boardId");
+    }
+    return resp == null;
   }
 }

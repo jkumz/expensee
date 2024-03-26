@@ -64,4 +64,8 @@ class BoardRepository implements BoardRepositoryInterface {
   Future<bool> isOwner(String boardId) {
     return _service.isBoardOwner(boardId);
   }
+
+  Future<bool> isAdmin(String boardId) {
+    return _service.isAdmin(boardId);
+  }
 }

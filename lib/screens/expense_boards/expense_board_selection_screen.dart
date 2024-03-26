@@ -89,17 +89,14 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
 
   void _navigateToExpenseBoard(BuildContext context, String boardId) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => MultiProvider(
-                  providers: [
-                    ChangeNotifierProvider(
-                      create: (_) => ExpenseProvider(boardId),
-                    ),
-                    ChangeNotifierProvider(create: (_) => GroupMemberProvider())
-                  ],
-                  child: ExpenseBoardScreen(boardId: boardId),
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChangeNotifierProvider(
+          create: (_) => ExpenseProvider(boardId),
+          child: ExpenseBoardScreen(boardId: boardId),
+        ),
+      ),
+    );
   }
 
   Widget _buildBoardItem(ExpenseBoard board, BuildContext context) {

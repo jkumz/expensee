@@ -175,4 +175,9 @@ class BoardProvider extends ChangeNotifier {
     bool owner = await _repo.isOwner(boardId);
     return owner;
   }
+
+  Future<bool> checkIfAdmin(String boardId) async {
+    bool admin = await _repo.isAdmin(boardId);
+    return admin;
+  }
 }

@@ -6,15 +6,22 @@ part "group_member.g.dart";
 @JsonSerializable()
 class GroupMember {
   @JsonKey(name: "user_id", includeIfNull: false)
-  final int? userId;
+  final String userId;
 
   @JsonKey(name: "board_id", required: true)
   final String boardId;
 
   @JsonKey(name: "role", required: true)
-  final Roles role; // admin/owner/shareholder roles, shareholder is custom
+  final Roles role;
 
-  GroupMember({this.userId, required this.boardId, required this.role});
+  @JsonKey(name: "user_email", required: true)
+  final String email;
+
+  GroupMember(
+      {required this.userId,
+      required this.boardId,
+      required this.role,
+      required this.email});
 
   factory GroupMember.fromJson(Map<String, dynamic> json) =>
       _$GroupMemberFromJson(json);
