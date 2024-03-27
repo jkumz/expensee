@@ -153,13 +153,12 @@ class SupabaseService {
   }
 
   Future<bool> updateGroupMemberRole(
-      String boardId, String userId, String newRole) async {
-    final response =
-        await supabase.from("group_members").update({'role': newRole});
+      String boardId, String email, String newRole) async {
+    final response = await supabase.from("group_members").update(
+        {'role': newRole}).match({"board_id": boardId, "user_email": email});
 
-    if (response.error != null && response != null) {
-      print(
-          "Error updating group (id: $boardId) member's role with id $userId");
+    if (response != null) {
+      print("Error updating group (id: $boardId) member's role with id $email");
       return false;
     }
     return true;

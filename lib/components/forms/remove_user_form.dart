@@ -1,6 +1,4 @@
-import 'package:expensee/components/dropdown/roles_dropdown.dart';
 import 'package:expensee/components/dropdown/user_dropdown.dart';
-import 'package:expensee/enums/roles.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";

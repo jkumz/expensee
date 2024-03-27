@@ -12,7 +12,7 @@ class GroupMember {
   final String boardId;
 
   @JsonKey(name: "role", required: true)
-  final Roles role;
+  Roles role;
 
   @JsonKey(name: "user_email", required: true)
   final String email;

@@ -55,4 +55,9 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
   Future<List<GroupMember>> getMembers(String boardId, bool isAdmin) async {
     return await _service.getGroupMembers(boardId, isAdmin);
   }
+
+  Future<bool> updateRole(String boardId, String email, Roles role) async {
+    return await _service.updateGroupMemberRole(
+        boardId, email, role.toString().split(".").last);
+  }
 }

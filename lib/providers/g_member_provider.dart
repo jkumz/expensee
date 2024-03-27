@@ -40,4 +40,8 @@ class GroupMemberProvider extends ChangeNotifier {
       String boardId, bool isAdmin) async {
     return await _repo.getMembers(boardId, isAdmin);
   }
+
+  Future<bool> updateRole(String boardId, String email, Roles role) async {
+    return await _repo.updateRole(boardId, email, role);
+  }
 }
