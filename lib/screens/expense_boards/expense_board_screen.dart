@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expensee/components/appbars/board_settings_app_bar.dart';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
@@ -19,6 +20,7 @@ import 'package:provider/provider.dart';
 
 // TODO - error handling, validation, styling
 // TODO - restrict creation / display depending on user role
+// TODO - navigation between settings options should take you back to settings screen, not expense view
 class ExpenseBoardScreen extends StatefulWidget {
   static const routeName = "/expense-board";
   final String boardId;
@@ -92,7 +94,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
               ),
               actions: actionList,
             )
-          : AppBar(title: const Text(boardSettingsAppBarTitle)),
+          : _buildAppBar(context),
       body: RefreshIndicator(
           key: _refreshIndicatorKey,
           onRefresh: _loadData,
@@ -100,6 +102,18 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
               ? _buildMainContent(context)
               : _buildAlternativeContent(context)),
       bottomNavigationBar: _buildNavBar(context),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    // Toggle normal view
+    if (!displaySettings) {
+      return BoardSettingsAppBar(context: context);
+    }
+
+    return BoardSettingsAppBar(
+      context: context,
+      onBack: _onExitSettings,
     );
   }
 

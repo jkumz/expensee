@@ -96,7 +96,7 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
           child: ExpenseBoardScreen(boardId: boardId),
         ),
       ),
-    );
+    ).then((_) => _fetchBoards());
   }
 
   Widget _buildBoardItem(ExpenseBoard board, BuildContext context) {
