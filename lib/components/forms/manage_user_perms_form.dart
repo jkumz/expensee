@@ -1,4 +1,3 @@
-import 'package:expensee/components/dropdown/roles_dropdown.dart';
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/providers/g_member_provider.dart';
@@ -6,10 +5,8 @@ import "package:flutter/material.dart";
 import 'package:provider/provider.dart' as Provider;
 
 class ManageUserPermsForm extends StatefulWidget {
-  const ManageUserPermsForm(
-      {super.key, required this.boardId, required this.role});
+  const ManageUserPermsForm({super.key, required this.boardId});
   final String boardId;
-  final String role;
 
   @override
   State<StatefulWidget> createState() => _ManageUserPermsFormState();

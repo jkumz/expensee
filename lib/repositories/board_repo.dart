@@ -61,11 +61,15 @@ class BoardRepository implements BoardRepositoryInterface {
     return expenses;
   }
 
-  Future<bool> isOwner(String boardId) {
-    return _service.isBoardOwner(boardId);
+  Future<bool> isOwner(String boardId) async {
+    return await _service.isBoardOwner(boardId);
   }
 
-  Future<bool> isAdmin(String boardId) {
-    return _service.isAdmin(boardId);
+  Future<bool> isAdmin(String boardId) async {
+    return await _service.isAdmin(boardId);
+  }
+
+  Future<bool> updateName(String boardId, String newName) async {
+    return _service.updateBoardName(boardId, newName);
   }
 }

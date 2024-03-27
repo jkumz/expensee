@@ -180,4 +180,8 @@ class BoardProvider extends ChangeNotifier {
     bool admin = await _repo.isAdmin(boardId);
     return admin;
   }
+
+  Future<bool> updateBoardName(String boardId, String newName) async {
+    return await _repo.updateName(boardId, newName);
+  }
 }

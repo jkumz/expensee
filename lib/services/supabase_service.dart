@@ -500,4 +500,17 @@ class SupabaseService {
     }
     return resp == null;
   }
+
+  Future<bool> updateBoardName(String boardId, String newName) async {
+    final resp =
+        await supabase.from("expense_boards").select().eq("id", boardId);
+
+    if (resp == null) return false;
+
+    if (resp is List<dynamic>) {
+      resp.first["name"] = newName;
+      updateExpenseBoard(boardId, resp.first);
+    }
+    return true;
+  }
 }

@@ -5,6 +5,7 @@ import 'package:expensee/components/buttons/board_settings/rename_board_button.d
 import 'package:expensee/components/forms/invite_member_form.dart';
 import 'package:expensee/components/forms/manage_user_perms_form.dart';
 import 'package:expensee/components/forms/remove_user_form.dart';
+import 'package:expensee/components/forms/rename_board_form.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,11 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
     }
 
     if (managePerms && widget.role == "owner") {
-      return ManageUserPermsForm(boardId: widget.boardId, role: widget.role);
+      return ManageUserPermsForm(boardId: widget.boardId);
+    }
+
+    if (renameBoard && widget.role == "owner") {
+      return RenameBoardForm(boardId: widget.boardId);
     }
 
     // add conditionals for other options
@@ -73,8 +78,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: RenameBoardButton(
-                    text: renameBoardText,
-                    onPressed: _navigateToInviteUserScreen),
+                    text: renameBoardText, onPressed: _navigateToNamingScreen),
               ),
             ],
           ),
@@ -98,6 +102,12 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   void _navigateToRoleManagementScreen() {
     setState(() {
       managePerms = true;
+    });
+  }
+
+  void _navigateToNamingScreen() {
+    setState(() {
+      renameBoard = true;
     });
   }
 }
