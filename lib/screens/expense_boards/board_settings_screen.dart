@@ -97,8 +97,10 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: PassOwnershipButton(
-                    text: passOwnershipText,
-                    onPressed: _navigateToOwnershipTransfer),
+                  text: passOwnershipText,
+                  onPressed: _navigateToOwnershipTransfer,
+                  isEnabled: (widget.role == "owner"),
+                ),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -143,6 +145,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   }
 
   Future<void> _confirmAndDeleteBoard() async {
+    if (widget.role != "owner") return;
     bool deleteConfirmed =
         await DialogHelper.showConfirmationDialog(context, deleteBoardMessage);
 
