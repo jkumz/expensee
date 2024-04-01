@@ -557,7 +557,7 @@ class SupabaseService {
 // previous state.
 
 // We also want to make sure that the current user is in fact the owner.
-  //TODO - proper handling / logging
+  //TODO - proper handling / logging / validation
 
   Future<bool> transferBoardOwnership(String boardId, String email) async {
     bool transferred = true;

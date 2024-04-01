@@ -97,3 +97,8 @@ const expenseDescLength = 46;
 const viewInvitesAppBarTitle = Text("Manage Board Invites");
 const acceptBtnText = "ACCEPT";
 const declineBtnText = "DECLINE";
+
+// SETTINGS
+
+const deleteBoardMessage =
+    "Are you sure you wish to delete this board? Unless you've backed the data up, all of it will be permanently lost.";

@@ -10,7 +10,10 @@ import 'package:expensee/components/forms/remove_user_form.dart';
 import 'package:expensee/components/forms/rename_board_form.dart';
 import 'package:expensee/components/forms/transfer_ownership_form.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/util/dialog_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BoardSettingsScreen extends StatefulWidget {
   static const routeName = "/board-settings";
@@ -100,7 +103,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: DeleteBoardButton(
-                    text: delBoardText, onPressed: _navigateToNamingScreen),
+                    text: delBoardText, onPressed: _confirmAndDeleteBoard),
               ),
             ],
           ),
@@ -137,5 +140,20 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
     setState(() {
       transferingOwnership = true;
     });
+  }
+
+  Future<void> _confirmAndDeleteBoard() async {
+    bool deleteConfirmed =
+        await DialogHelper.showConfirmationDialog(context, deleteBoardMessage);
+
+    if (deleteConfirmed) {
+      if (!mounted) return;
+      await Provider.of<BoardProvider>(context, listen: false)
+          .deletedBoard(widget.boardId);
+
+      if (!mounted) return;
+      Navigator.of(context)
+          .pop(); // Assuming you want to pop back to the previous screen
+    }
   }
 }
