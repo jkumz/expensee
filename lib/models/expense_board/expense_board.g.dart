@@ -10,7 +10,7 @@ ExpenseBoard _$ExpenseBoardFromJson(Map<String, dynamic> json) {
   $checkKeys(
     json,
     requiredKeys: const [
-      'owner_id',
+      'creator_id',
       'name',
       'is_group',
       'initial_balance',
@@ -19,7 +19,7 @@ ExpenseBoard _$ExpenseBoardFromJson(Map<String, dynamic> json) {
   );
   return ExpenseBoard(
     id: json['id'] as int?,
-    ownerId: json['owner_id'],
+    creatorId: json['creator_id'],
     name: json['name'] as String,
     isGroup: json['is_group'] as bool,
     balance: (json['balance'] as num).toDouble(),
@@ -37,7 +37,7 @@ Map<String, dynamic> _$ExpenseBoardToJson(ExpenseBoard instance) {
   }
 
   writeNotNull('id', instance.id);
-  val['owner_id'] = instance.ownerId;
+  val['creator_id'] = instance.creatorId;
   val['name'] = instance.name;
   val['is_group'] = instance.isGroup;
   val['initial_balance'] = instance.initialBalance;

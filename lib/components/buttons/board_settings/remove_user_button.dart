@@ -2,12 +2,12 @@ import 'package:expensee/config/constants.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class DeleteBoardButton extends StatelessWidget {
+class RemoveUserButton extends StatelessWidget {
   final String text;
-  late String imagePath = deleteImagePath;
+  late String imagePath = removeUserFromBoardImagePath;
   final VoidCallback onPressed;
 
-  DeleteBoardButton({super.key, required this.text, required this.onPressed});
+  RemoveUserButton({super.key, required this.text, required this.onPressed});
 
 // TODO - text styling
   @override
@@ -15,7 +15,7 @@ class DeleteBoardButton extends StatelessWidget {
     return ElevatedButton.icon(
         icon: Padding(
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-          child: Image.asset(imagePath, width: 80, height: 80),
+          child: Image.asset(imagePath, width: 70, height: 80),
         ), // Image on the left
         label: Text(text), // Text on the right
         onPressed: onPressed,

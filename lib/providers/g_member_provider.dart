@@ -44,4 +44,8 @@ class GroupMemberProvider extends ChangeNotifier {
   Future<bool> updateRole(String boardId, String email, Roles role) async {
     return await _repo.updateRole(boardId, email, role);
   }
+
+  Future<bool> transferOwnership(String boardId, String email) async {
+    return await _repo.transferOwnership(boardId, email);
+  }
 }

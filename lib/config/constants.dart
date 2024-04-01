@@ -40,6 +40,8 @@ const renameBoardImagePath = "assets/images/rename.png";
 const viewInvitesImagePath = "assets/images/invitation.png";
 const acceptInviteImagePath = "assets/images/accept.png";
 const declineInviteImagePath = "assets/images/decline.png";
+const deleteImagePath = "assets/images/delete.png";
+const transferImagePath = "assets/images/transfer.png";
 
 // EXPENSE BOARD SELECTION CONSATNS
 
@@ -77,6 +79,9 @@ const addUserText = "Invite User";
 const removeUserText = "Remove User";
 const manageUserRolesText = "Manage User Roles";
 const renameBoardText = "Rename Board";
+const passOwnershipText = "Transfer Ownership";
+const delBoardText = "Delete Board";
+
 const boldedExpenseTextStyle =
     TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 

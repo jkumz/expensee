@@ -8,8 +8,8 @@ class ExpenseBoard {
   @JsonKey(includeIfNull: false)
   final int? id;
 
-  @JsonKey(name: "owner_id", required: true)
-  final ownerId;
+  @JsonKey(name: "creator_id", required: true)
+  final creatorId;
 
   @JsonKey(name: "name", required: true)
   final String name;
@@ -31,7 +31,7 @@ class ExpenseBoard {
 
   ExpenseBoard(
       {this.id,
-      required this.ownerId,
+      required this.creatorId,
       required this.name,
       required this.isGroup,
       required this.balance,

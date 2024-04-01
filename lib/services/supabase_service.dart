@@ -25,7 +25,7 @@ class SupabaseService {
     try {
       // Perform a raw SQL query using a stored procedure
       final response = await supabase.rpc('get_user_boards',
-          params: {'user_id': userId, 'is_group': isGroup});
+          params: {'user_id_param': userId, 'is_group_param': isGroup});
 
       // Check if the response contains data and it's a list
       if (response != null && response is List) {
@@ -52,15 +52,21 @@ class SupabaseService {
   Future<ExpenseBoard> createExpenseBoard(
       Map<String, dynamic> expenseBoardData) async {
     final userId = supabase.auth.currentUser!.id;
-    expenseBoardData['owner_id'] = userId;
+    expenseBoardData['creator_id'] = userId;
 
-    final response =
-        await supabase.from('expense_boards').insert([expenseBoardData]);
+    final response = await supabase
+        .from('expense_boards')
+        .insert([expenseBoardData]).select() as List;
 
-    if (response != null) {
-      if (response.error != null) {
-        // Handle error
-        print('Error creating expense board');
+    if (response.isNotEmpty) {
+      final addedOwner =
+          await _addOwnerToBoard(response.first["id"].toString(), userId);
+
+      if (addedOwner) {
+        print("Board created & owner added");
+      } else {
+        print("Error adding owner to expense board - deleting board!");
+        await deleteExpenseBoard(response.first["id"].toString());
       }
     }
     return ExpenseBoard.fromJson(expenseBoardData);
@@ -108,17 +114,17 @@ class SupabaseService {
   }
 
   Future<bool> isBoardOwner(String boardId) async {
-    var board = (await supabase
-            .from("expense_boards")
+    var boardOwnerRecord = (await supabase
+            .from("group_members")
             .select()
-            .match({"id": boardId}) as List<dynamic>)
+            .match({"id": boardId, "role": "owner"}) as List<dynamic>)
         .firstOrNull;
 
-    if (board == null) {
+    if (boardOwnerRecord == null) {
       print("No board with matching id: $boardId");
       return false;
     }
-    return supabase.auth.currentUser!.id == board["owner_id"];
+    return supabase.auth.currentUser!.id == boardOwnerRecord["user_id"];
   }
 
   Future<bool> isAdmin(String boardId) async {
@@ -379,7 +385,7 @@ class SupabaseService {
 // Changes status of invite token, returns token.
   Future<Invitation?> declineInvite(String token) async {
     List<dynamic> inviteData =
-        await supabase.from("invites").select().eq("token", token);
+        await supabase.from("invitations").select().eq("token", token);
     if (inviteData.isNotEmpty) {
       var inviteJson = inviteData.first;
       inviteJson["status"] = "declined";
@@ -404,6 +410,34 @@ class SupabaseService {
       print("Failed to fetch invite data for token $token");
       return null;
     }
+  }
+
+  Future<bool> _addOwnerToBoard(String boardId, String userId) async {
+    bool added = true;
+
+    final Map<String, dynamic> ownerJson = {
+      "board_id": boardId,
+      "user_id": supabase.auth.currentUser!.id,
+      "role": "owner",
+      "user_email": supabase.auth.currentUser!.email
+    };
+
+    try {
+      final resp = await supabase
+          .from("group_members")
+          .insert(ownerJson)
+          .select() as List;
+      if (resp.isEmpty) {
+        print("Failed to add owner for new board");
+        return !added;
+      }
+      added = true;
+    } catch (e) {
+      //TOOD - handle exception
+      print("Failed to add owner for board $boardId");
+      return !added;
+    }
+    return added;
   }
 
   // Add a new user to a group expense board
@@ -512,5 +546,26 @@ class SupabaseService {
       updateExpenseBoard(boardId, resp.first);
     }
     return true;
+  }
+
+// The logic for this is quite simple. We want to make the current user an "admin".
+// We want to make the user with "email" as their email address the new owner.
+// This means updating both the expense_boards table (owner_id col) and the
+// group_members table (adding owner to the table as an Admin, changing other
+// user to an Admin) - if any of this fails we want to revert it all back to
+// previous state.
+
+// We also want to make sure that the current user is in fact the owner.
+  Future<bool> transferBoardOwnership(String boardId, String email) async {
+    // 1 - Check if current user is owner
+    // 2 - Add current user as an Admin in Group Members
+    // 3 - Change other user to Owner in in Group Members
+    // 4 - Change Expense Boards owner ID to user ID of other member.
+    ////---This is potentially the hardest part here, as we can't look at any
+    ////---user IDs here. It's all database stuff. Perhaps we need a trigger
+    ////---or maybe it makes more sense to refactor our expense_boards table
+    ////---and make it so that when a board is created, the Owner gets added to
+    ////---group members table. That way, we only need to change that table.
+    return false;
   }
 }

@@ -60,4 +60,8 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
     return await _service.updateGroupMemberRole(
         boardId, email, role.toString().split(".").last);
   }
+
+  Future<bool> transferOwnership(String boardId, String email) async {
+    return await _service.transferBoardOwnership(boardId, email);
+  }
 }

@@ -1,5 +1,4 @@
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
-import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
