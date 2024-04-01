@@ -13,7 +13,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:resend/resend.dart';
 
 //TODO - proper error handling + logging
-//TODO - validation
+//TODO - validation - if member part of board, if already removed, if board exists etc. Go over every method.
 //TODO - convert JSON to required format when fetching, may do in classes
 
 class SupabaseService {
@@ -84,7 +84,7 @@ class SupabaseService {
     return true;
   }
 
-  // Update an expense board - / TODO - test this!
+  // Update an expense board - // TODO - test this + validation + error handling
   Future<ExpenseBoard?> updateExpenseBoard(
       String boardId, Map<String, dynamic> updatedData) async {
     final response = await supabase
@@ -117,7 +117,8 @@ class SupabaseService {
     var boardOwnerRecord = (await supabase
             .from("group_members")
             .select()
-            .match({"id": boardId, "role": "owner"}) as List<dynamic>)
+            .eq("board_id", boardId)
+            .eq("role", "owner") as List<dynamic>)
         .firstOrNull;
 
     if (boardOwnerRecord == null) {
@@ -556,16 +557,50 @@ class SupabaseService {
 // previous state.
 
 // We also want to make sure that the current user is in fact the owner.
+  //TODO - proper handling / logging
+
   Future<bool> transferBoardOwnership(String boardId, String email) async {
+    bool transferred = true;
+    final userId = supabase.auth.currentUser!.id;
     // 1 - Check if current user is owner
+    var currentOwner = (await supabase
+            .from("group_members")
+            .select()
+            .eq("board_id", boardId)
+            .eq("role", "owner") as List<dynamic>)
+        .first;
+    if (currentOwner["user_id"] != userId) {
+      print("NOT PERMITTED");
+      return !transferred;
+    }
+
+    var newOwner = (await supabase
+            .from("group_members")
+            .select()
+            .eq("board_id", boardId)
+            .eq("user_email", email) as List<dynamic>)
+        .firstOrNull;
+
+    if (newOwner == null || newOwner.isEmpty) {
+      print("MEMBER TO TRANSFER TO DOESN'T EXIST!");
+      return !transferred;
+    }
+
     // 2 - Add current user as an Admin in Group Members
+    final changedToAdmin = await supabase
+        .from("group_members")
+        .update({"role": "admin"}).match(
+            {"board_id": boardId, "user_id": userId}).select();
+
     // 3 - Change other user to Owner in in Group Members
-    // 4 - Change Expense Boards owner ID to user ID of other member.
-    ////---This is potentially the hardest part here, as we can't look at any
-    ////---user IDs here. It's all database stuff. Perhaps we need a trigger
-    ////---or maybe it makes more sense to refactor our expense_boards table
-    ////---and make it so that when a board is created, the Owner gets added to
-    ////---group members table. That way, we only need to change that table.
-    return false;
+    final changedToOwner = await supabase.from("group_members").update(
+        {"role": "owner"}).match({"board_id": boardId, "user_email": email});
+
+    if (changedToAdmin == null || changedToOwner == null) {
+      // error handling
+      return !transferred;
+    }
+
+    return transferred;
   }
 }

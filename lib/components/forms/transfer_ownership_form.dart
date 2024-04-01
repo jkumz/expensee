@@ -1,6 +1,7 @@
 import 'package:expensee/components/dropdown/user_dropdown.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
+import 'package:expensee/util/dialog_helper.dart';
 import "package:flutter/material.dart";
 import 'package:provider/provider.dart' as Provider;
 
@@ -26,24 +27,33 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
       var gMemberProvider =
           Provider.Provider.of<GroupMemberProvider>(context, listen: false);
 
-      // Send mock email
-      bool removed = await gMemberProvider.removeGroupMember(
-          widget.boardId, selectedEmail);
-      // Build context may have been removed from widget tree by the time async method
-      // finishes. We check if its mounted before trying to use it to prevent a crash.
-      if (!mounted) return;
-      if (!removed) {
+      // Before transferring ownership, we get the user to confirm their decision.
+      bool confirmed = await DialogHelper.showConfirmationDialog(
+          context,
+          "Are you sure you wish to transfer your owner ship of this expense board to $selectedEmail?" +
+              "\n\nOnce you do this, the only way to get your ownership back is if the other user gives it back!");
+      if (confirmed) {
+        bool removed = await gMemberProvider.transferOwnership(
+            widget.boardId, selectedEmail);
+        // Build context may have been removed from widget tree by the time async method
+        // finishes. We check if its mounted before trying to use it to prevent a crash.
+        if (!mounted) return;
+        if (!removed) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Failed to remove $selectedEmail from the board"),
+          ));
+          Navigator.pop(context);
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Failed to remove $selectedEmail from the board"),
+          content: Text("$selectedEmail has been granted ownership!"),
         ));
+
         Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Ownership transfer cancelled!")));
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("$selectedEmail has been removed from the expense board"),
-      ));
-
-      Navigator.pop(context);
     }
   }
 
@@ -71,8 +81,8 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
   }
 
 // TODO - text styling, consts moved to const file
-  Widget buildForm(BuildContext context, bool isAdmin) {
-    if (!isAdmin) {
+  Widget buildForm(BuildContext context, bool isOwner) {
+    if (!isOwner) {
       return Form(
         key: _formKey,
         child: const Padding(
@@ -104,7 +114,7 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
             ),
             UserDropdownMenu(
               onUserSelected: (String user) => selectedEmail = user,
-              isAdmin: !isAdmin,
+              isAdmin: !isOwner,
               boardId: widget.boardId,
             ), // Use conditional if isOwner
             ElevatedButton(
