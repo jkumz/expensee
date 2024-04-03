@@ -12,6 +12,7 @@ import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
+import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_creation_screen.dart';
@@ -40,6 +41,8 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   bool isGroupExpense = false;
   String boardName = "Expense Board";
   List<Widget> actionList = [];
+  String memberRole =
+      ""; // to let the nav bar render - re-assigned when data loaded in
 
   @override
   void initState() {
@@ -123,6 +126,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       return ExpenseBoardNavBar(
         boardId: widget.boardId,
         settings: _onOpenSettings,
+        role: memberRole,
       );
     }
     // Toggle expense creation/modification view
@@ -151,7 +155,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     if (!displaySettings) return _buildExpenseCreationScreen(context);
     return BoardSettingsScreen(
       id: widget.boardId,
-      role: "owner",
+      role: memberRole,
       boardId: widget.boardId,
     );
   }
@@ -299,7 +303,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     // try {
     Expense? del = await Provider.of<ExpenseProvider>(context, listen: false)
         .removeExpense(expense.id!);
-    //Expense? deleted = await repo.removeExpense(expense.id!);
     if (del != null) {
       // Remove from board database table then, expense list, then refresh
       expenses.removeWhere((element) => element.expense.id == expense.id);
@@ -307,6 +310,12 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       return true;
     }
     return false;
+  }
+
+  Future<void> _fetchMemberRole() async {
+    if (!mounted) return;
+    memberRole = await Provider.of<GroupMemberProvider>(context, listen: false)
+        .getMemberRole(widget.boardId);
   }
 
   Future<void> _fetchExpenses() async {
@@ -341,10 +350,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
 // Handle loading in the expenses
   Future<void> _loadData() async {
-    if (this.mounted) {
+    if (mounted) {
       setState(() {
         loading = true;
       });
+      await _fetchMemberRole();
       await _fetchExpenses();
       await _isPartOfGroup();
       await _getBoardName(widget.boardId);

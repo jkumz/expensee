@@ -49,15 +49,15 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       );
     }
 
-    if (managePerms && widget.role == "owner") {
+    if (managePerms) {
       return ManageUserPermsForm(boardId: widget.boardId);
     }
 
-    if (renameBoard && widget.role == "owner") {
+    if (renameBoard) {
       return RenameBoardForm(boardId: widget.boardId);
     }
 
-    if (transferingOwnership && widget.role == "owner") {
+    if (transferingOwnership) {
       return TransferOwnershipForm(
         boardId: widget.boardId,
         role: widget.role,
@@ -92,20 +92,26 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: RenameBoardButton(
-                    text: renameBoardText, onPressed: _navigateToNamingScreen),
+                  text: renameBoardText,
+                  onPressed: _navigateToNamingScreen,
+                  isEnabled: _checkIfOwner(),
+                ),
               ),
               const SizedBox(height: 12),
               Expanded(
                 child: PassOwnershipButton(
                   text: passOwnershipText,
                   onPressed: _navigateToOwnershipTransfer,
-                  isEnabled: (widget.role == "owner"),
+                  isEnabled: _checkIfOwner(),
                 ),
               ),
               const SizedBox(height: 12),
               Expanded(
                 child: DeleteBoardButton(
-                    text: delBoardText, onPressed: _confirmAndDeleteBoard),
+                  text: delBoardText,
+                  onPressed: _confirmAndDeleteBoard,
+                  isEnabled: _checkIfOwner(),
+                ),
               ),
             ],
           ),
@@ -155,8 +161,9 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
           .deletedBoard(widget.boardId);
 
       if (!mounted) return;
-      Navigator.of(context)
-          .pop(); // Assuming you want to pop back to the previous screen
+      Navigator.of(context).pop();
     }
   }
+
+  bool _checkIfOwner() => widget.role == "owner";
 }

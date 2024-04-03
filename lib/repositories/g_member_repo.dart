@@ -64,4 +64,8 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
   Future<bool> transferOwnership(String boardId, String email) async {
     return await _service.transferBoardOwnership(boardId, email);
   }
+
+  Future<String> getMemberRole(String boardId) async {
+    return await _service.getMemberRole(boardId);
+  }
 }

@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 class ExpenseBoardNavBar extends StatefulWidget {
   final String boardId;
   final VoidCallback settings;
+  final String role;
 
   const ExpenseBoardNavBar(
-      {super.key, required this.boardId, required this.settings});
+      {super.key,
+      required this.boardId,
+      required this.settings,
+      required this.role});
 
   @override
   createState() => _ExpenseBoardNavBarState();
@@ -42,15 +46,16 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
                     _updateState()
                   },
               icon: const Icon(Icons.logout_rounded)),
-          IconButton(
-              icon: Image.asset(
-                boardSettingsImagePath,
-                height: 22.5,
-                width: 22.5,
-              ),
-              onPressed: () {
-                widget.settings();
-              }) // TODO - dynamically provide role
+          if (_canAccessSettings())
+            IconButton(
+                icon: Image.asset(
+                  boardSettingsImagePath,
+                  height: 22.5,
+                  width: 22.5,
+                ),
+                onPressed: () {
+                  widget.settings();
+                }) // TODO - dynamically provide role
         ],
       ),
     );
@@ -61,4 +66,7 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
       // Leave blank - this is just to check state to update navigation stack
     });
   }
+
+  bool _canAccessSettings() =>
+      (widget.role == "owner" || widget.role == "admin");
 }

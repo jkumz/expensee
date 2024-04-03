@@ -603,4 +603,23 @@ class SupabaseService {
 
     return transferred;
   }
+
+  // Only to be used when rendering a group board.
+  Future<String> getMemberRole(String boardId) async {
+    final email = supabase.auth.currentUser!.email;
+    final memberRecord = (await supabase
+            .from("group_members")
+            .select()
+            .eq("user_email", email)
+            .eq("board_id", boardId) as List<dynamic>)
+        .firstOrNull;
+
+    if (memberRecord == null) {
+      print("Failed to fetch role in board $boardId for $email");
+      return "";
+      //TODO - proper error handling
+    }
+
+    return memberRecord["role"];
+  }
 }
