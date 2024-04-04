@@ -55,7 +55,7 @@ class Expense {
       String? description,
       int? id})
       : description = description ?? "No description",
-        creatorId = supabase.auth.currentUser!.id;
+        creatorId = creatorId ?? supabase.auth.currentUser!.id;
 
 // TODO - Dyanmic balances
   factory Expense.blank() {

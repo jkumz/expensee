@@ -98,7 +98,11 @@ const viewInvitesAppBarTitle = Text("Manage Board Invites");
 const acceptBtnText = "ACCEPT";
 const declineBtnText = "DECLINE";
 
-// SETTINGS
+// POP UP MESSAGES
 
 const deleteBoardMessage =
     "Are you sure you wish to delete this board? Unless you've backed the data up, all of it will be permanently lost.";
+const deleteExpenseError =
+    "Unless you're an Admin, you can only delete expenses you created.";
+const modifyExpenseError =
+    "Unless you're an Admin, you can only modify expenses you created.";

@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:expensee/components/appbars/board_settings_app_bar.dart';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
 import 'package:expensee/components/nav_bars/board_settings_nav_bar.dart';
 import 'package:expensee/components/nav_bars/expense_screen_nav_bar.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/providers/board_provider.dart';
@@ -216,20 +218,59 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       children: [
         Dismissible(
           key: Key(expenseItem.expense.id.toString()),
-          onDismissed: (direction) {
+          confirmDismiss: (direction) async {
             if (direction == DismissDirection.endToStart) {
+              bool canEdit = await _canEditExpense(expenseItem.expense);
+              if (!canEdit) {
+                // ignore: use_build_context_synchronously
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => DefaultErrorDialog(
+                    title: "Permission Error",
+                    errorMessage: deleteExpenseError,
+                  ),
+                );
+                return false; // Prevent the dismiss if lacking perms
+              } else {
+                // Proceed with delete
+                return true; // Allow the dismiss
+              }
+            }
+            return false; // In case the direction doesn't match
+          },
+          onDismissed: (direction) {
+            //TODO - ask for confirmation using dialog
+            if (direction == DismissDirection.endToStart) {
+              // make sure they have perms
+
               _deleteExpenseFromBoard(expenseItem.expense, context);
             }
           },
           direction: DismissDirection.endToStart,
           child: GestureDetector(
               onTap: () {
+                // Check if creator OR admin/owner
                 _navigateToEditAndRefresh(expenseItem.expense, context);
               },
               child: _renderExpenseView(expenseItem.expense)),
         ),
       ],
     );
+  }
+
+// Checks if user can edit an expense - used when tapping on expense.
+  Future<bool> _canEditExpense(Expense e) async {
+    if (e.creatorId == supabase.auth.currentUser!.id) {
+      return true;
+    } else if (await Provider.of<BoardProvider>(context, listen: false)
+        .checkIfAdmin(widget.boardId)) {
+      return true;
+    } else if (await Provider.of<BoardProvider>(context, listen: false)
+        .checkIfOwner(widget.boardId)) {
+      return true;
+    }
+
+    return false;
   }
 
 // TODO - Styling + constants file
@@ -300,7 +341,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
   Future<bool> _deleteExpenseFromBoard(
       Expense expense, BuildContext context) async {
-    // try {
     Expense? del = await Provider.of<ExpenseProvider>(context, listen: false)
         .removeExpense(expense.id!);
     if (del != null) {
@@ -327,6 +367,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     final board = await Provider.of<BoardProvider>(context, listen: false)
         .fetchBoardExpenses(widget.boardId);
 
+// TODO - handle expenses being empty - render a message, or an empty icon?
     if (board != null) {
       if (board.expenses.isNotEmpty) {
         setState(() {
@@ -379,6 +420,16 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
 // Switches rendered widget to creation form, but on an existing expense
   Future<void> _navigateToEditAndRefresh(Expense expense, context) async {
+    if (!await _canEditExpense(expense)) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => DefaultErrorDialog(
+                title: "Permission Error",
+                errorMessage: modifyExpenseError,
+              ));
+      return;
+    }
+
     if (mounted) {
       setState(() {
         editingExpense = expense;

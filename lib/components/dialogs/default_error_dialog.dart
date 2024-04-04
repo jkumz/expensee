@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 
 class DefaultErrorDialog extends StatelessWidget {
   final String errorMessage;
+  String title;
 
-  const DefaultErrorDialog({
+  DefaultErrorDialog({
     Key? key,
+    this.title = "Error",
     required this.errorMessage,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Error'),
+      title: Text(title),
       content: Text(errorMessage),
       actions: <Widget>[
         TextButton(

@@ -111,6 +111,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
         context: context,
         builder: (BuildContext context) {
           return DefaultErrorDialog(
+              title: "Permission Error",
               errorMessage: "Failed to rename board to $newName");
         },
       );
