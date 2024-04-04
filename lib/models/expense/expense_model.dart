@@ -1,6 +1,8 @@
+import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/date_time_converter.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_dates_converter.dart';
+import 'package:expensee/models/expense/receipt_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 //TODO - add proper error handling + validation
@@ -20,6 +22,9 @@ class Expense {
   @JsonKey(includeIfNull: false)
   int? id;
 
+  @JsonKey(name: "creator_id", required: true)
+  String? creatorId;
+
   @JsonKey(name: "date", required: true)
   ExpenseDate date;
 
@@ -35,6 +40,8 @@ class Expense {
   @JsonKey(name: "description", required: false)
   String? description;
 
+  List<Receipt>? receipts;
+
   void setId(int id) {
     this.id = id;
   }
@@ -44,19 +51,21 @@ class Expense {
       required this.category,
       required this.amount,
       required this.balance,
+      String? creatorId,
       String? description,
       int? id})
-      : this.description = description ?? "No description";
+      : description = description ?? "No description",
+        creatorId = supabase.auth.currentUser!.id;
 
 // TODO - Dyanmic balances
   factory Expense.blank() {
     return Expense(
-      date: DateTime.now(),
-      category: "Uncategorized",
-      amount: 0.00,
-      balance: 0.00,
-      description: "",
-    );
+        date: DateTime.now(),
+        category: "Uncategorized",
+        amount: 0.00,
+        balance: 0.00,
+        description: "",
+        creatorId: supabase.auth.currentUser!.id);
   }
 
 // JSON Serialization
@@ -111,6 +120,14 @@ class Expense {
       this.description = description;
     } catch (unknownError) {
       print(unknownError.toString());
+    }
+  }
+
+  void uploadReceipt(List<Receipt> receipt) {
+    try {
+      this.receipts = receipt;
+    } catch (e) {
+      print("Error: ${e.toString()}");
     }
   }
 }
