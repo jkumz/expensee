@@ -159,6 +159,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       id: widget.boardId,
       role: memberRole,
       boardId: widget.boardId,
+      isGroup: isGroupExpense,
     );
   }
 

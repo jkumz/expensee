@@ -20,9 +20,14 @@ class BoardSettingsScreen extends StatefulWidget {
   final String id;
   final String role;
   final String boardId;
+  final bool isGroup;
 
   const BoardSettingsScreen(
-      {Key? key, required this.id, required this.role, required this.boardId});
+      {Key? key,
+      required this.id,
+      required this.role,
+      required this.boardId,
+      required this.isGroup});
 
   @override
   createState() => _BoardSettingsScreenState();
@@ -38,18 +43,18 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   // TODO - restrict what gets rendered in each form based on whether admin or owner
   @override
   Widget build(BuildContext context) {
-    if (inviteUsers) {
+    if (inviteUsers && widget.isGroup) {
       return InviteUserForm(boardId: widget.boardId, role: widget.role);
     }
 
-    if (removeUsers) {
+    if (removeUsers && widget.isGroup) {
       return RemoveUserForm(
         boardId: widget.boardId,
         role: widget.role,
       );
     }
 
-    if (managePerms) {
+    if (managePerms && widget.isGroup) {
       return ManageUserPermsForm(boardId: widget.boardId);
     }
 
@@ -57,7 +62,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       return RenameBoardForm(boardId: widget.boardId);
     }
 
-    if (transferingOwnership) {
+    if (transferingOwnership && widget.isGroup) {
       return TransferOwnershipForm(
         boardId: widget.boardId,
         role: widget.role,
@@ -72,52 +77,77 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: AddUserButton(
-                    text: addUserText, onPressed: _navigateToInviteUserScreen),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: RemoveUserButton(
-                    text: removeUserText,
-                    onPressed: _navigateToRemoveUserScreen),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: ManageRolesButton(
-                    text: manageUserRolesText,
-                    onPressed: _navigateToRoleManagementScreen),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: RenameBoardButton(
-                  text: renameBoardText,
-                  onPressed: _navigateToNamingScreen,
-                  isEnabled: _checkIfOwner(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: PassOwnershipButton(
-                  text: passOwnershipText,
-                  onPressed: _navigateToOwnershipTransfer,
-                  isEnabled: _checkIfOwner(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: DeleteBoardButton(
-                  text: delBoardText,
-                  onPressed: _confirmAndDeleteBoard,
-                  isEnabled: _checkIfOwner(),
-                ),
-              ),
-            ],
+            children: widget.isGroup
+                ? _buildGroupButtonList()
+                : _buildSoloButtonList(),
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildSoloButtonList() {
+    return [
+      Expanded(
+        child: RenameBoardButton(
+          text: renameBoardText,
+          onPressed: _navigateToNamingScreen,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: DeleteBoardButton(
+          text: delBoardText,
+          onPressed: _confirmAndDeleteBoard,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildGroupButtonList() {
+    return [
+      Expanded(
+        child: AddUserButton(
+            text: addUserText, onPressed: _navigateToInviteUserScreen),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: RemoveUserButton(
+            text: removeUserText, onPressed: _navigateToRemoveUserScreen),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: ManageRolesButton(
+            text: manageUserRolesText,
+            onPressed: _navigateToRoleManagementScreen),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: RenameBoardButton(
+          text: renameBoardText,
+          onPressed: _navigateToNamingScreen,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: PassOwnershipButton(
+          text: passOwnershipText,
+          onPressed: _navigateToOwnershipTransfer,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: DeleteBoardButton(
+          text: delBoardText,
+          onPressed: _confirmAndDeleteBoard,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+    ];
   }
 
   void _navigateToInviteUserScreen() {
