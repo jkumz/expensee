@@ -184,4 +184,13 @@ class BoardProvider extends ChangeNotifier {
   Future<bool> updateBoardName(String boardId, String newName) async {
     return await _repo.updateName(boardId, newName);
   }
+
+  Future<List<String>> getMemberEmails(String boardId, bool adminOnly) async {
+    return await _repo.getMemberEmails(boardId, adminOnly);
+  }
+
+  Future<bool> sendMassEmail(
+      String subject, String body, List<String> recipients) async {
+    return _repo.sendMassEmail(subject, body, recipients);
+  }
 }

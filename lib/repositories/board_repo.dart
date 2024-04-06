@@ -2,12 +2,14 @@ import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/repositories/interfaces/board_repo_interface.dart';
+import 'package:expensee/services/email_service.dart';
 import 'package:expensee/services/supabase_service.dart';
 
 // Repository for querying expense boards from Supabase via Service Layer
 class BoardRepository implements BoardRepositoryInterface {
   final _userId = supabase.auth.currentUser!.id;
   final _service = SupabaseService();
+  final _emailService = EmailService();
 
   @override
   Future<List<ExpenseBoard>> refreshExpenseBoards(bool isGroup) async {
@@ -70,6 +72,15 @@ class BoardRepository implements BoardRepositoryInterface {
   }
 
   Future<bool> updateName(String boardId, String newName) async {
-    return _service.updateBoardName(boardId, newName);
+    return await _service.updateBoardName(boardId, newName);
+  }
+
+  Future<List<String>> getMemberEmails(String boardId, bool adminOnly) async {
+    return await _service.getMemberEmails(boardId, adminOnly);
+  }
+
+  Future<bool> sendMassEmail(
+      String subject, String body, List<String> recipients) async {
+    return _emailService.sendEmailNotification(recipients, subject, body);
   }
 }

@@ -622,4 +622,27 @@ class SupabaseService {
 
     return memberRecord["role"];
   }
+
+  Future<List<String>> getMemberEmails(String boardId, bool adminOnly) async {
+    final memberRecordList = (adminOnly
+        ? await supabase
+            .from("group_members")
+            .select()
+            .eq("board_id", boardId)
+            .neq("role", "shareholder")
+        : await supabase
+            .from("group_members")
+            .select()
+            .eq("board_id", boardId)) as List<dynamic>;
+
+// TODO - proper error handling + logging
+    if (memberRecordList.isEmpty) {
+      print("Failed to get members for board $boardId");
+      return [];
+    }
+
+    return memberRecordList
+        .map((record) => record["user_email"] as String)
+        .toList();
+  }
 }

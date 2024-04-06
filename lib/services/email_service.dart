@@ -1,10 +1,8 @@
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/main.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import "package:logger/logger.dart";
-import 'package:uuid/uuid.dart';
 
 var logger = Logger();
 
@@ -12,7 +10,8 @@ class EmailService {
   final _endpointUrl =
       "https://piqrlsincgavakepwelg.supabase.co/functions/v1/send-email";
 
-  Future<void> sendEmail(String to, String subject, String html) async {
+  Future<bool> sendEmailNotification(
+      List<String> recipientList, String subject, String body) async {
     final url = Uri.parse(_endpointUrl);
     final jwtToken = supabase.auth.currentSession!.accessToken;
 
@@ -21,15 +20,14 @@ class EmailService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken'
         },
-        body: jsonEncode({
-          "to": to,
-          "subject": subject,
-          "text": 'THIS IS NO LONGER HTML!' // html
-        }));
+        body: jsonEncode(
+            {"to": recipientList, "subject": subject, "text": body}));
     if (emailResp.statusCode == 200) {
-      logger.i("Email '$subject' sent successfully to $to");
+      logger.i("Email '$subject' sent successfully to $recipientList");
+      return true;
     } else {
-      logger.e("Email '$subject' failed to sent to $to");
+      logger.e("Email '$subject' failed to sent to $recipientList");
+      return false;
     }
   }
 
@@ -42,13 +40,8 @@ class EmailService {
     final url = Uri.parse(_endpointUrl);
     final jwtToken = supabase.auth.currentSession!.accessToken;
 
-    String emailBody = '''
-      <html>
-      <body>
-        <p>You've been invited to an expense board! This can be managed in the app.</p>
-      </body>
-      </html>
-      ''';
+    String emailBody =
+        "Hi $email,\n\nYou've been invited to an expense board as '${role.toFormattedString()}', respond in the app!\n\n-The Expensee Team";
 
     final int? boardIdInt = int.tryParse(boardId);
     if (boardIdInt == null) {

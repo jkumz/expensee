@@ -1,11 +1,13 @@
 import 'package:expensee/components/buttons/board_settings/add_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/delete_board_button.dart';
+import 'package:expensee/components/buttons/board_settings/mass_email_button.dart';
 import 'package:expensee/components/buttons/board_settings/remove_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/manage_users_button.dart';
 import 'package:expensee/components/buttons/board_settings/rename_board_button.dart';
 import 'package:expensee/components/buttons/board_settings/pass_ownership_button.dart';
 import 'package:expensee/components/forms/invite_member_form.dart';
 import 'package:expensee/components/forms/manage_user_perms_form.dart';
+import 'package:expensee/components/forms/mass_email_form.dart';
 import 'package:expensee/components/forms/remove_user_form.dart';
 import 'package:expensee/components/forms/rename_board_form.dart';
 import 'package:expensee/components/forms/transfer_ownership_form.dart';
@@ -38,35 +40,30 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       removeUsers = false,
       managePerms = false,
       renameBoard = false,
-      transferingOwnership = false;
+      transferingOwnership = false,
+      massEmail = false;
 
   // TODO - restrict what gets rendered in each form based on whether admin or owner
   @override
   Widget build(BuildContext context) {
     if (inviteUsers && widget.isGroup) {
       return InviteUserForm(boardId: widget.boardId, role: widget.role);
-    }
-
-    if (removeUsers && widget.isGroup) {
+    } else if (removeUsers && widget.isGroup) {
       return RemoveUserForm(
         boardId: widget.boardId,
         role: widget.role,
       );
-    }
-
-    if (managePerms && widget.isGroup) {
+    } else if (managePerms && widget.isGroup) {
       return ManageUserPermsForm(boardId: widget.boardId);
-    }
-
-    if (renameBoard) {
+    } else if (renameBoard) {
       return RenameBoardForm(boardId: widget.boardId);
-    }
-
-    if (transferingOwnership && widget.isGroup) {
+    } else if (transferingOwnership && widget.isGroup) {
       return TransferOwnershipForm(
         boardId: widget.boardId,
         role: widget.role,
       );
+    } else if (massEmail && widget.isGroup) {
+      return MassEmailForm(boardId: widget.boardId);
     }
 
     // add conditionals for other options
@@ -141,6 +138,14 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       ),
       const SizedBox(height: 12),
       Expanded(
+        child: MassEmailButton(
+          text: massEmailText,
+          onPressed: _navigateToMassEmailScreen,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
         child: DeleteBoardButton(
           text: delBoardText,
           onPressed: _confirmAndDeleteBoard,
@@ -150,35 +155,14 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
     ];
   }
 
-  void _navigateToInviteUserScreen() {
-    setState(() {
-      inviteUsers = true;
-    });
-  }
-
-  void _navigateToRemoveUserScreen() {
-    setState(() {
-      removeUsers = true;
-    });
-  }
-
-  void _navigateToRoleManagementScreen() {
-    setState(() {
-      managePerms = true;
-    });
-  }
-
-  void _navigateToNamingScreen() {
-    setState(() {
-      renameBoard = true;
-    });
-  }
-
-  void _navigateToOwnershipTransfer() {
-    setState(() {
-      transferingOwnership = true;
-    });
-  }
+// navigation controls
+  void _navigateToInviteUserScreen() => setState(() => inviteUsers = true);
+  void _navigateToRemoveUserScreen() => setState(() => removeUsers = true);
+  void _navigateToRoleManagementScreen() => setState(() => managePerms = true);
+  void _navigateToNamingScreen() => setState(() => renameBoard = true);
+  void _navigateToOwnershipTransfer() =>
+      setState(() => transferingOwnership = true);
+  void _navigateToMassEmailScreen() => setState(() => massEmail = true);
 
   Future<void> _confirmAndDeleteBoard() async {
     if (widget.role != "owner") return;
