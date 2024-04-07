@@ -4,6 +4,7 @@ import 'package:expensee/components/appbars/board_settings_app_bar.dart';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
+import 'package:expensee/components/forms/search_form.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
 import 'package:expensee/components/nav_bars/board_settings_nav_bar.dart';
@@ -16,6 +17,7 @@ import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
+import 'package:expensee/screens/expense_boards/board_search_screen.dart';
 import 'package:expensee/screens/expense_boards/board_settings_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_creation_screen.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +42,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       GlobalKey<RefreshIndicatorState>();
   bool loading = false;
   final repo = ExpenseRepository();
-  bool isGroupExpense = false;
+  bool isGroupBoard = false;
   String boardName = "Expense Board";
   List<Widget> actionList = [];
   String memberRole =
@@ -66,9 +68,13 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   bool displayBoard = true;
   Expense? editingExpense;
 
-  // Variables to help switching between settings screen & board
+  // Variable to help switching between settings screen & board
   bool displaySettings = false;
 
+  // Variable to help switching between search screen & board
+  bool displaySearchFilters = false;
+
+// Switches to rendering settings screen, forces state refresh to load this
   void _onOpenSettings() {
     if (mounted) {
       setState(() {
@@ -78,6 +84,17 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     }
   }
 
+// Switches to rendering search filter screen, forces state refresh to load this
+  void _onOpenSearch() {
+    if (mounted) {
+      setState(() {
+        displayBoard = false;
+        displaySearchFilters = true;
+      });
+    }
+  }
+
+// Switches to rendering the board after exiting settings via forcing state refresh
   void _onExitSettings() {
     if (mounted) {
       setState(() {
@@ -128,11 +145,12 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       return ExpenseBoardNavBar(
         boardId: widget.boardId,
         settings: _onOpenSettings,
+        search: _onOpenSearch,
         role: memberRole,
       );
     }
     // Toggle expense creation/modification view
-    else if (!displaySettings && !displayBoard) {
+    else if (!displaySettings && !displayBoard && !displaySearchFilters) {
       return ExpenseScreenNavBar(
           boardId: widget.boardId, exit: onExitExpenseView);
     }
@@ -152,14 +170,22 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     );
   }
 
-// TODO - proper role handling
+  Widget _buildExpenseSearchScreen(BuildContext context) {
+    return BoardSearchScreen(boardId: widget.boardId, isGroup: isGroupBoard);
+  }
+
+// Renders settings/search/expense creation or modification
   Widget _buildAlternativeContent(BuildContext context) {
-    if (!displaySettings) return _buildExpenseCreationScreen(context);
+    if (!displaySettings && !displaySearchFilters) {
+      return _buildExpenseCreationScreen(context);
+    } else if (displaySearchFilters) {
+      return _buildExpenseSearchScreen(context);
+    }
     return BoardSettingsScreen(
       id: widget.boardId,
       role: memberRole,
       boardId: widget.boardId,
-      isGroup: isGroupExpense,
+      isGroup: isGroupBoard,
     );
   }
 
@@ -200,9 +226,9 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     bool isGroup = await Provider.of<ExpenseProvider>(context, listen: false)
         .isPartOfGroupBoard(widget.boardId);
     setState(() {
-      isGroupExpense = isGroup;
+      isGroupBoard = isGroup;
     });
-    return isGroupExpense;
+    return isGroupBoard;
   }
 
 // renders list view of expenses
@@ -451,6 +477,15 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       await _refreshExpenses();
     } else {
       await _deleteExpenseFromBoard(expense, context);
+    }
+  }
+
+  void _navigateToSearch(String boardId) {
+    if (mounted) {
+      setState(() {
+        displaySettings = true;
+        displayBoard = false;
+      });
     }
   }
 

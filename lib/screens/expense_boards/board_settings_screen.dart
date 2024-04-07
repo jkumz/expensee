@@ -41,7 +41,8 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       managePerms = false,
       renameBoard = false,
       transferingOwnership = false,
-      massEmail = false;
+      massEmail = false,
+      filterExpenses = true;
 
   // TODO - restrict what gets rendered in each form based on whether admin or owner
   @override
@@ -71,9 +72,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ListView(
             children: widget.isGroup
                 ? _buildGroupButtonList()
                 : _buildSoloButtonList(),
@@ -163,6 +162,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   void _navigateToOwnershipTransfer() =>
       setState(() => transferingOwnership = true);
   void _navigateToMassEmailScreen() => setState(() => massEmail = true);
+  void _navigateToSearchForm() => setState(() => filterExpenses = true);
 
   Future<void> _confirmAndDeleteBoard() async {
     if (widget.role != "owner") return;

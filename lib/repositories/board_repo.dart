@@ -83,4 +83,13 @@ class BoardRepository implements BoardRepositoryInterface {
       String subject, String body, List<String> recipients) async {
     return _emailService.sendEmailNotification(recipients, subject, body);
   }
+
+  Future<List<String>> fetchCategories(String boardId) async {
+    return await _service.fetchCategories(boardId);
+  }
+
+  Future<List<(String userId, String userEmail)>> fetchMemberRecords(
+      String boardId) async {
+    return await _service.fetchMemberRecords(boardId);
+  }
 }

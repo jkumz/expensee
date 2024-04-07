@@ -193,4 +193,13 @@ class BoardProvider extends ChangeNotifier {
       String subject, String body, List<String> recipients) async {
     return _repo.sendMassEmail(subject, body, recipients);
   }
+
+  Future<List<String>> fetchCategories(String boardId) async {
+    return _repo.fetchCategories(boardId);
+  }
+
+  Future<List<(String userId, String userEmail)>> fetchMemberRecords(
+      String boardId) async {
+    return _repo.fetchMemberRecords(boardId);
+  }
 }

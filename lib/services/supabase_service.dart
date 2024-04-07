@@ -217,7 +217,6 @@ class SupabaseService {
 
   // Update an expense - pull list of JSON, convert item to map
   // Repeat after update and compare. If the same then update failed
-  // TODO - dynamic balance adjustment
   Future<Expense> updateExpense(
       String expenseId, Map<String, dynamic> expenseData) async {
     var currentExpense = await getExpense(expenseId);
@@ -644,5 +643,43 @@ class SupabaseService {
     return memberRecordList
         .map((record) => record["user_email"] as String)
         .toList();
+  }
+
+  Future<List<String>> fetchCategories(String boardId) async {
+    final allCategoryRecords = await supabase
+        .from("expenses")
+        .select("category")
+        .eq("board_id", boardId) as List<dynamic>;
+
+    if (allCategoryRecords.isEmpty) {
+      // TODO - proper handling
+      print("Failed to fetch categories for board $boardId");
+      return List.empty();
+    }
+
+    // Get all unique category instances and return as a list
+    return allCategoryRecords
+        .map((json) => json["category"] as String)
+        .toSet()
+        .toList();
+  }
+
+  Future<List<(String userId, String userEmail)>> fetchMemberRecords(
+      String boardId) async {
+    final allMemberRecords = await supabase
+        .from("group_members")
+        .select("user_id, user_email")
+        .eq("board_id", boardId) as List<dynamic>;
+
+    if (allMemberRecords.isEmpty) {
+      //TODO - proper handling + logging
+      print("Failed to fetch member records for board $boardId");
+      return List.empty();
+    }
+
+    // specifified output of map for clarity - (userId, userEmail) records
+    return allMemberRecords.map<(String userId, String userEmail)>((json) {
+      return (json['user_id'] as String, json['user_email'] as String);
+    }).toList();
   }
 }

@@ -43,6 +43,10 @@ const declineInviteImagePath = "assets/images/decline.png";
 const deleteImagePath = "assets/images/delete.png";
 const transferImagePath = "assets/images/transfer.png";
 const massEmailImagePath = "assets/images/email.png";
+const searchImagePath = "assets/images/search.png";
+const calendarImagePath = "assets/images/calendar.png";
+const categoryImagePath = "assets/images/category.png";
+const userSelectionImagePath = "assets/images/users.png";
 
 // EXPENSE BOARD SELECTION CONSATNS
 
@@ -83,6 +87,7 @@ const renameBoardText = "Rename Board";
 const passOwnershipText = "Transfer Ownership";
 const delBoardText = "Delete Board";
 const massEmailText = "Send Email Notification";
+const searchBoardText = "Filter Expenses";
 
 const boldedExpenseTextStyle =
     TextStyle(fontSize: 16, fontWeight: FontWeight.bold);

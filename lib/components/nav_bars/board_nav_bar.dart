@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 class ExpenseBoardNavBar extends StatefulWidget {
   final String boardId;
   final VoidCallback settings;
+  final VoidCallback search;
   final String role;
 
   const ExpenseBoardNavBar(
       {super.key,
       required this.boardId,
       required this.settings,
+      required this.search,
       required this.role});
 
   @override
@@ -38,14 +40,13 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
           IconButton(
               onPressed: () => Navigator.pushNamed(context, Home.routeName),
               icon: const Icon(Icons.home)),
-          // Sign out button
+          // Search button
           IconButton(
-              onPressed: () => {
-                    Login.signOut(),
-                    Navigator.of(context).pushReplacementNamed(loginRoute),
-                    _updateState()
-                  },
-              icon: const Icon(Icons.logout_rounded)),
+              onPressed: () {
+                widget.search();
+              },
+              icon: Image.asset(searchImagePath,
+                  height: 20, width: 22.5)), //Search
           if (_canAccessSettings())
             IconButton(
                 icon: Image.asset(
@@ -55,7 +56,7 @@ class _ExpenseBoardNavBarState extends State<ExpenseBoardNavBar> {
                 ),
                 onPressed: () {
                   widget.settings();
-                }) // TODO - dynamically provide role
+                })
         ],
       ),
     );
