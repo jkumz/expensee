@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+// ignore: must_be_immutable
 class SearchForm extends StatefulWidget {
   String boardId;
   final Function(ExpenseBoard) onApplyFilter;

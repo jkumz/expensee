@@ -10,6 +10,58 @@ class EmailService {
   final _endpointUrl =
       "https://piqrlsincgavakepwelg.supabase.co/functions/v1/send-email";
 
+// Sends email notifying recipient list of user's email who got removed from board
+  Future<bool> sendRemovedUserEmail(
+      List<String> recipientList, String removedEmail, String boardName) async {
+    final url = Uri.parse(_endpointUrl);
+    final jwtToken = supabase.auth.currentSession!.accessToken;
+
+    String subject = "$boardName - User Removed";
+    String body =
+        "User with the email $removedEmail has been removed from board $boardName";
+
+    final emailResp = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken'
+        },
+        body: jsonEncode(
+            {"to": recipientList, "subject": subject, "text": body}));
+    if (emailResp.statusCode == 200) {
+      logger.i("Email '$subject' sent successfully to $recipientList");
+      return true;
+    } else {
+      logger.e("Email '$subject' failed to sent to $recipientList");
+      return false;
+    }
+  }
+
+// Sends email notifying recipient list of user's email who got added to board
+  Future<bool> sendAddedUserEmail(
+      List<String> recipientList, String addedEmail, String boardName) async {
+    final url = Uri.parse(_endpointUrl);
+    final jwtToken = supabase.auth.currentSession!.accessToken;
+
+    String subject = "$boardName - User Added";
+    String body =
+        "User with the email $addedEmail has been added to the board $boardName";
+
+    final emailResp = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $jwtToken'
+        },
+        body: jsonEncode(
+            {"to": recipientList, "subject": subject, "text": body}));
+    if (emailResp.statusCode == 200) {
+      logger.i("Email '$subject' sent successfully to $recipientList");
+      return true;
+    } else {
+      logger.e("Email '$subject' failed to sent to $recipientList");
+      return false;
+    }
+  }
+
   Future<bool> sendEmailNotification(
       List<String> recipientList, String subject, String body) async {
     final url = Uri.parse(_endpointUrl);

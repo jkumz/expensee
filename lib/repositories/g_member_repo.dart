@@ -1,4 +1,5 @@
 import 'package:expensee/enums/roles.dart';
+import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/repositories/interfaces/g_member_repo_interface.dart';
@@ -67,5 +68,20 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
 
   Future<String> getMemberRole(String boardId) async {
     return await _service.getMemberRole(boardId);
+  }
+
+  Future<void> notifyAdminsOfRemovedUser(
+      String boardId, String removedEmail) async {
+    List<String> mailingList = await _service.getMemberEmails(boardId, true);
+    String boardName = (await _service.getBoard(boardId) as ExpenseBoard).name;
+    await _emailService.sendRemovedUserEmail(
+        mailingList, removedEmail, boardName);
+  }
+
+  Future<void> notifyAdminsOfAddedUser(
+      String boardId, String addedEmail) async {
+    List<String> mailingList = await _service.getMemberEmails(boardId, true);
+    String boardName = (await _service.getBoard(boardId) as ExpenseBoard).name;
+    await _emailService.sendAddedUserEmail(mailingList, addedEmail, boardName);
   }
 }

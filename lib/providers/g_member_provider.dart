@@ -52,4 +52,12 @@ class GroupMemberProvider extends ChangeNotifier {
   Future<String> getMemberRole(String boardId) async {
     return await _repo.getMemberRole(boardId);
   }
+
+  Future<void> notifyUserRemoval(String boardId, String selectedEmail) async {
+    await _repo.notifyAdminsOfRemovedUser(boardId, selectedEmail);
+  }
+
+  Future<void> notifyUserAdded(String boardId, String selectedEmail) async {
+    await _repo.notifyAdminsOfAddedUser(boardId, selectedEmail);
+  }
 }

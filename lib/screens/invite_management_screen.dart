@@ -203,6 +203,8 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     await Provider.of<GroupMemberProvider>(context, listen: false)
         .acceptInvite(invite.token);
     await _loadData();
+    await Provider.of<GroupMemberProvider>(context, listen: false)
+        .notifyUserAdded(invite.boardId, invite.invitedEmail);
   }
 
 // decline an invite for current user

@@ -1,3 +1,4 @@
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/dropdown/user_dropdown.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
@@ -32,11 +33,12 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
       // finishes. We check if its mounted before trying to use it to prevent a crash.
       if (!mounted) return;
       if (!removed) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Failed to remove $selectedEmail from the board"),
-        ));
-        Navigator.pop(context);
+        DefaultAlertDialog(
+            errorMessage: "Failed to remove $selectedEmail from the board");
+        return;
       }
+      await Provider.Provider.of<GroupMemberProvider>(context, listen: false)
+          .notifyUserRemoval(widget.boardId, selectedEmail);
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("$selectedEmail has been removed from the expense board"),
