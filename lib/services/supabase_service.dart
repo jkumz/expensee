@@ -183,7 +183,7 @@ class SupabaseService {
         .from('expenses')
         .select()
         .eq('board_id', boardId)
-        .order('created_at', ascending: true);
+        .order('date', ascending: true);
 
     List<Expense> expenses = [];
     for (var expenseJson in response) {
@@ -192,6 +192,97 @@ class SupabaseService {
       expenses.add(e);
     }
 
+    return expenses;
+  }
+
+// 10 potemtial queries; 1 normal, 9 different negation combinations
+// how do we handle modifying this custom board? as in, if a user edits one in
+// this clone? i suppose its just a matter of actually updating it
+  Future<List<Expense>> getExpensesWithFilter(List<String> userIDs,
+      List<String> categories, String startDate, String endDate, String boardId,
+      {bool invertIds = false,
+      bool invertCategories = false,
+      bool invertDates = false}) async {
+    List<Expense> expenses = [];
+    bool filteringDates = startDate.isNotEmpty && endDate.isNotEmpty;
+    // build out the query
+    var query = supabase.from("expenses").select().eq("board_id", boardId);
+
+    // apply IDs filter
+    if (userIDs.isNotEmpty) {
+      query = invertIds
+          ? query.not("creator_id", "in", userIDs)
+          : query.filter("creator_id", "in", userIDs);
+    }
+
+    // apply categories filter
+    if (categories.isNotEmpty) {
+      query = invertCategories
+          ? query.not("category", "in", categories)
+          : query.filter("category", "in", categories);
+    }
+
+    // to handle date filtering without inversion is simple
+    // if user wants to invert results, we will just run the query as is
+    // with no date specifified, then remove the results that match the dates
+    // we don't want
+
+    // date range
+    if (filteringDates && startDate != endDate) {
+      if (!invertDates) {
+        // if we are not inverting the dates, we just leave the query as is
+        // and after getting results, we remove any that match the date / span
+        query = query.gte("date", startDate).lte("date", endDate);
+      }
+    }
+    // single date
+    else if (filteringDates) {
+      // we simply search for that date
+      if (!invertDates) {
+        query = query.eq("date", startDate);
+      }
+    }
+
+    // At this stage, we have applied all neccessary filters. The only thing we
+    // must account for is inverted dates.
+    var expenseJsonList = await query.order('date', ascending: true);
+    if (filteringDates) {
+      if (!invertDates) {
+        for (var json in expenseJsonList) {
+          var e = Expense.fromJson(json);
+          e.setId(json["id"]);
+          expenses.add(e);
+        }
+      } else {
+        for (var json in expenseJsonList) {
+          // remove a single date
+          if (startDate == endDate) {
+            if (DateTime.parse(json["date"])
+                .isAtSameMomentAs(DateTime.parse(startDate))) continue;
+            var e = Expense.fromJson(json);
+            e.setId(json["id"]);
+            expenses.add(e);
+          }
+          // remove a span of dates - only add to expenses if date < start date
+          // or if date > end date
+          else {
+            if (DateTime.parse(json["date"])
+                    .isBefore(DateTime.parse(startDate)) ||
+                DateTime.parse(json["date"]).isAfter(DateTime.parse(endDate))) {
+              var e = Expense.fromJson(json);
+              e.setId(json["id"]);
+              expenses.add(e);
+            }
+          }
+        }
+      }
+    } else {
+      for (var json in expenseJsonList) {
+        var e = Expense.fromJson(json);
+        e.setId(json["id"]);
+        expenses.add(e);
+      }
+    }
     return expenses;
   }
 

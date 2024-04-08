@@ -202,4 +202,62 @@ class BoardProvider extends ChangeNotifier {
       String boardId) async {
     return _repo.fetchMemberRecords(boardId);
   }
+
+// applys a filter on a a boards expenses - how exactly are we handling this?
+// it applies a filter on the expenses, then displays them... but we don't want
+// to update the datbaase with this filter, we just want to display a temp
+// clone of the board, with the filter applied...
+// so, where do we return this expense board? if the button calls this, then
+// the button itself will have to be custom, and return an expense board to
+// an exterior variable, which will then be used to load the filter in.
+// TODO - apply the filter in getting expenses
+  Future<ExpenseBoard?> applyFilter(
+      List<String> userIDs,
+      List<String> categories,
+      String startDate,
+      String endDate,
+      String boardId,
+      bool invertDates,
+      bool invertCategories,
+      bool invertUsers) async {
+    isLoading = true;
+    notifyListeners();
+
+    // fetch board and its expenses
+    ExpenseBoard? board = await getBoardWithId(boardId);
+    final expenses = await _repo.getExpensesWithFilter(
+        userIDs,
+        categories,
+        startDate,
+        endDate,
+        boardId,
+        invertDates,
+        invertCategories,
+        invertUsers);
+
+    if (board != null) {
+      // update board balance based on expenses
+      var balanceAfterExpenses = board.initialBalance;
+      expenses.forEach((element) {
+        balanceAfterExpenses -= element.amount;
+      });
+
+      // then update individual expense balances
+      balanceAfterExpenses =
+          (await _repo.getBoard(boardId) as ExpenseBoard).initialBalance;
+      for (Expense expense in expenses) {
+        balanceAfterExpenses -= expense.amount;
+        expense.balance = balanceAfterExpenses;
+      }
+
+      // assign board expenses
+      board.expenses = expenses;
+
+      logger.i("Board with id $boardId has refreshed.");
+    } else {
+      logger.e("Board with id $boardId has failed to referesh");
+    }
+    notifyListeners();
+    return board;
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
-import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +15,8 @@ class SearchForm extends StatefulWidget {
 }
 
 class _SearchFormState extends State<SearchForm> {
+  bool invertDates = false, invertCategories = false, invertUsers = false;
+
   String startDate = "", endDate = "";
   String selectedDateText = "None Selected";
 
@@ -280,9 +281,10 @@ class _SearchFormState extends State<SearchForm> {
         ),
         ElevatedButton(
           onPressed: () {
-            // TODO: search button
+            _filterExpneses(
+                selectedUserIDs, selectedCategories, startDate, endDate);
           },
-          child: Text('Search'),
+          child: const Text('Search'),
         ),
       ],
     );
@@ -304,8 +306,7 @@ class _SearchFormState extends State<SearchForm> {
     if (selectedUserIDs.isEmpty) {
       displayText = 'No users selected';
     } else if (selectedUserIDs.length == 1) {
-      // Assuming _getSelectedUserEmails returns the emails in the same order as the IDs
-      displayText = '${_getSelectedUserEmails().first}';
+      displayText = _getSelectedUserEmails().first;
     } else {
       // Display the first email and the count of the remaining selected users
       displayText =
@@ -337,7 +338,6 @@ class _SearchFormState extends State<SearchForm> {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Text(
-                    // Assuming you'll implement a method to convert selectedUserIDs to emails for display
                     displayText,
                     style: const TextStyle(
                       color: Colors.black54,
@@ -414,6 +414,149 @@ class _SearchFormState extends State<SearchForm> {
     );
   }
 
+  String _buildInversionText() {
+    if (invertDates || invertCategories || invertUsers) {
+      List<String> selectedOptions = [];
+      if (invertDates) {
+        selectedOptions.add('Dates');
+      }
+      if (invertCategories) {
+        selectedOptions.add('Categories');
+      }
+      if (invertUsers) {
+        selectedOptions.add('Users');
+      }
+      return 'Inverted Filters: ${selectedOptions.join(', ')}';
+    } else {
+      return 'Select Inversion';
+    }
+  }
+
+  Widget _buildInversionSelectionRow() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: _showInversionSelectionDialog,
+              icon: Icon(Icons.filter_alt), // You can change the icon as needed
+            ),
+            const SizedBox(width: 8),
+            const Text("Invert Filters?"),
+            const SizedBox(width: 8),
+            Expanded(
+              child: GestureDetector(
+                onTap: _showInversionSelectionDialog,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text(
+                    _buildInversionText(),
+                    style: TextStyle(
+                      color: invertDates || invertCategories || invertUsers
+                          ? Colors.black
+                          : Colors.black54,
+                      fontStyle: FontStyle.normal,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+// helper method for selecting which filters to invert
+  void _showInversionSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        // Initialize a temporary bool for each inversion option
+        bool tempInvertDates = invertDates;
+        bool tempInvertCategories = invertCategories;
+        bool tempInvertUsers = invertUsers;
+
+        // Initialize a list to hold the names of inverted options
+        List<String> invertedOptions = [];
+
+        return AlertDialog(
+          title: const Text('Select Inversion Options'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CheckboxListTile(
+                    title: const Text('Invert Dates'),
+                    value: tempInvertDates,
+                    onChanged: (newValue) {
+                      setState(() {
+                        tempInvertDates = newValue ?? false;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Invert Categories'),
+                    value: tempInvertCategories,
+                    onChanged: (newValue) {
+                      setState(() {
+                        tempInvertCategories = newValue ?? false;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Invert Users'),
+                    value: tempInvertUsers,
+                    onChanged: (newValue) {
+                      setState(() {
+                        tempInvertUsers = newValue ?? false;
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                setState(() {
+                  // Update the main state with the temporary values
+                  invertDates = tempInvertDates;
+                  invertCategories = tempInvertCategories;
+                  invertUsers = tempInvertUsers;
+
+                  // Update the list of inverted options
+                  if (invertDates) {
+                    invertedOptions.add('Dates');
+                  }
+                  if (invertCategories) {
+                    invertedOptions.add('Categories');
+                  }
+                  if (invertUsers) {
+                    invertedOptions.add('Users');
+                  }
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _fetchGroupMembers(String boardId) async {
     userIdToEmailRecords =
         await Provider.of<BoardProvider>(context, listen: false)
@@ -425,29 +568,32 @@ class _SearchFormState extends State<SearchForm> {
         .fetchCategories(widget.boardId);
   }
 
+  // Passes necessary params to filter to provider, which interacts with repository
+  // which in turn interacts with the service layer.
+  Future<void> _filterExpneses(List<String> userIDs, List<String> categories,
+      String startDate, String endDate) async {
+    var temp = await Provider.of<BoardProvider>(context, listen: false)
+        .applyFilter(userIDs, categories, startDate, endDate, widget.boardId,
+            invertDates, invertCategories, invertUsers);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(flex: 1, child: _buildTitle()),
-            Expanded(flex: 1, child: _buildDateSelectionRow()),
-            Expanded(flex: 1, child: _buildCategorySelectionRow()),
-            Expanded(flex: 1, child: _buildUserSelectionRow()),
+            _buildTitle(),
+            _buildDateSelectionRow(),
+            _buildCategorySelectionRow(),
+            _buildUserSelectionRow(),
+            _buildInversionSelectionRow(),
             const Spacer(),
-            Expanded(
-              flex: 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment
-                    .spaceBetween, // aligns children to each side of the row
-                children: [
-                  // TODO - add check boxes inverting filters - users/date/categories
-                  Expanded(flex: 1, child: _buildSearchButton()),
-                ],
-              ),
-            ),
+            const SizedBox(
+                height: 16), // Add spacing between checkboxes and search button
+            _buildSearchButton(),
           ],
         ),
       ),

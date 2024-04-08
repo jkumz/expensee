@@ -92,4 +92,22 @@ class BoardRepository implements BoardRepositoryInterface {
       String boardId) async {
     return await _service.fetchMemberRecords(boardId);
   }
+
+  Future<List<Expense>> getExpensesWithFilter(
+      List<String> userIDs,
+      List<String> categories,
+      String startDate,
+      String endDate,
+      String boardId,
+      bool invertDates,
+      bool invertCategories,
+      bool invertUsers) async {
+    List<Expense> expenses = await _service.getExpensesWithFilter(
+        userIDs, categories, startDate, endDate, boardId,
+        invertCategories: invertCategories,
+        invertDates: invertDates,
+        invertIds: invertUsers);
+
+    return expenses;
+  }
 }
