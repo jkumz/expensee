@@ -13,6 +13,7 @@ import 'package:expensee/config/constants.dart';
 import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
+import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
@@ -73,6 +74,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 
   // Variable to help switching between search screen & board
   bool displaySearchFilters = false;
+  bool filtersApplied = false;
 
 // Switches to rendering settings screen, forces state refresh to load this
   void _onOpenSettings() {
@@ -85,11 +87,22 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   }
 
 // Switches to rendering search filter screen, forces state refresh to load this
-  void _onOpenSearch() {
+  void _onOpenSearch() async {
     if (mounted) {
       setState(() {
         displayBoard = false;
         displaySearchFilters = true;
+      });
+    }
+  }
+
+  void _onApplySearchFilter(ExpenseBoard board) {
+    if (mounted) {
+      setState(() {
+        expenses = board.expenses.map((e) => ExpenseItem(expense: e)).toList();
+        displayBoard = true;
+        displaySearchFilters = false;
+        filtersApplied = true;
       });
     }
   }
@@ -102,7 +115,25 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
         displaySettings = false;
       });
     }
-  } //TODO
+  }
+
+  void _setDefaultSettings() async {
+    if (mounted) {
+      await _refreshExpenses();
+      setState(() {
+        displayBoard = true;
+        displaySearchFilters = false;
+        displaySettings = false;
+        filtersApplied = false;
+      });
+    }
+  }
+
+  void updateExpenses(List<Expense> updatedExpenses) {
+    setState(() {
+      expenses = updatedExpenses.map((e) => ExpenseItem(expense: e)).toList();
+    });
+  }
 
 // Build out the list view
   @override
@@ -171,7 +202,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   }
 
   Widget _buildExpenseSearchScreen(BuildContext context) {
-    return BoardSearchScreen(boardId: widget.boardId, isGroup: isGroupBoard);
+    return BoardSearchScreen(
+      boardId: widget.boardId,
+      isGroup: isGroupBoard,
+      onApplyFilter: _onApplySearchFilter,
+    );
   }
 
 // Renders settings/search/expense creation or modification
@@ -196,11 +231,17 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
         Expanded(child: _renderListView(context)),
         Padding(
             padding: const EdgeInsets.all(12.0),
-            child: IconButton(
-              icon: Image.asset(addImagePath,
-                  fit: BoxFit.contain, width: 50, height: 50),
-              onPressed: () => _navigateToCreationAndRefresh(),
-            ))
+            child: !filtersApplied
+                ? IconButton(
+                    icon: Image.asset(addImagePath,
+                        fit: BoxFit.contain, width: 50, height: 50),
+                    onPressed: () => _navigateToCreationAndRefresh(),
+                  )
+                : IconButton(
+                    icon: Image.asset(resetImagePath,
+                        fit: BoxFit.contain, width: 50, height: 50),
+                    onPressed: () => _setDefaultSettings(),
+                  ))
       ],
     );
   }

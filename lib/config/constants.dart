@@ -47,6 +47,7 @@ const searchImagePath = "assets/images/search.png";
 const calendarImagePath = "assets/images/calendar.png";
 const categoryImagePath = "assets/images/category.png";
 const userSelectionImagePath = "assets/images/users.png";
+const resetImagePath = "assets/images/reset.png";
 
 // EXPENSE BOARD SELECTION CONSATNS
 

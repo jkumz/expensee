@@ -1,4 +1,6 @@
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,8 +9,9 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class SearchForm extends StatefulWidget {
   String boardId;
+  final Function(ExpenseBoard) onApplyFilter;
 
-  SearchForm({super.key, required this.boardId});
+  SearchForm({super.key, required this.boardId, required this.onApplyFilter});
 
   @override
   createState() => _SearchFormState();
@@ -267,24 +270,14 @@ class _SearchFormState extends State<SearchForm> {
 
   Widget _buildSearchButton() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment
-          .spaceBetween, // Aligns children to each side of the row
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Placeholder for checkboxes you might add later
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              // TODO: add checkboxes for inverting user selection, date, users
-            ],
-          ),
-        ),
         ElevatedButton(
           onPressed: () {
-            _filterExpneses(
+            _filterExpenses(
                 selectedUserIDs, selectedCategories, startDate, endDate);
           },
-          child: const Text('Search'),
+          child: const Text('Apply Filters'),
         ),
       ],
     );
@@ -440,7 +433,8 @@ class _SearchFormState extends State<SearchForm> {
           children: [
             IconButton(
               onPressed: _showInversionSelectionDialog,
-              icon: Icon(Icons.filter_alt), // You can change the icon as needed
+              icon: const Icon(
+                  Icons.filter_alt), // You can change the icon as needed
             ),
             const SizedBox(width: 8),
             const Text("Invert Filters?"),
@@ -570,11 +564,19 @@ class _SearchFormState extends State<SearchForm> {
 
   // Passes necessary params to filter to provider, which interacts with repository
   // which in turn interacts with the service layer.
-  Future<void> _filterExpneses(List<String> userIDs, List<String> categories,
+  Future<void> _filterExpenses(List<String> userIDs, List<String> categories,
       String startDate, String endDate) async {
-    var temp = await Provider.of<BoardProvider>(context, listen: false)
+    var filteredBoard = await Provider.of<BoardProvider>(context, listen: false)
         .applyFilter(userIDs, categories, startDate, endDate, widget.boardId,
             invertDates, invertCategories, invertUsers);
+    if (filteredBoard != null) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Board ${widget.boardId} has had filters applied.")));
+      widget.onApplyFilter(filteredBoard);
+    } else {
+      DefaultAlertDialog(errorMessage: "Failed to apply your filter.");
+    }
   }
 
   @override
@@ -583,16 +585,18 @@ class _SearchFormState extends State<SearchForm> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildTitle(),
             _buildDateSelectionRow(),
+            const SizedBox(height: 12),
             _buildCategorySelectionRow(),
+            const SizedBox(height: 12),
             _buildUserSelectionRow(),
+            const SizedBox(height: 12),
             _buildInversionSelectionRow(),
-            const Spacer(),
-            const SizedBox(
-                height: 16), // Add spacing between checkboxes and search button
+            const SizedBox(height: 36),
             _buildSearchButton(),
           ],
         ),

@@ -195,9 +195,7 @@ class SupabaseService {
     return expenses;
   }
 
-// 10 potemtial queries; 1 normal, 9 different negation combinations
-// how do we handle modifying this custom board? as in, if a user edits one in
-// this clone? i suppose its just a matter of actually updating it
+// Gets expenses with user provided filters / inverted filters.
   Future<List<Expense>> getExpensesWithFilter(List<String> userIDs,
       List<String> categories, String startDate, String endDate, String boardId,
       {bool invertIds = false,
@@ -243,7 +241,7 @@ class SupabaseService {
       }
     }
 
-    // At this stage, we have applied all neccessary filters. The only thing we
+    // at this stage, we have applied all neccessary filters. The only thing we
     // must account for is inverted dates.
     var expenseJsonList = await query.order('date', ascending: true);
     if (filteringDates) {
@@ -277,6 +275,7 @@ class SupabaseService {
         }
       }
     } else {
+      // if not filtering dates
       for (var json in expenseJsonList) {
         var e = Expense.fromJson(json);
         e.setId(json["id"]);
