@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:expensee/components/appbars/board_settings_app_bar.dart';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
+import 'package:expensee/components/dialogs/confirmation_dialog.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
-import 'package:expensee/components/forms/search_form.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
 import 'package:expensee/components/nav_bars/board_settings_nav_bar.dart';
@@ -287,8 +287,9 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
         Dismissible(
           key: Key(expenseItem.expense.id.toString()),
           confirmDismiss: (direction) async {
+            bool canEdit = await _canEditExpense(expenseItem.expense);
+            // Right to Left swipe
             if (direction == DismissDirection.endToStart) {
-              bool canEdit = await _canEditExpense(expenseItem.expense);
               if (!canEdit) {
                 // ignore: use_build_context_synchronously
                 showDialog(
@@ -301,16 +302,20 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
                 return false; // Prevent the dismiss if lacking perms
               } else {
                 // Proceed with delete
-                return true; // Allow the dismiss
+                // ignore: use_build_context_synchronously
+                return showDialog(
+                    context: context,
+                    builder: (BuildContext context) =>
+                        const ConfirmationAlertDialog(
+                            title: "Delete Expense",
+                            content:
+                                "Are you sure you want to delete this expense? This action can't be undone."));
               }
             }
             return false; // In case the direction doesn't match
           },
           onDismissed: (direction) {
-            //TODO - ask for confirmation using dialog
             if (direction == DismissDirection.endToStart) {
-              // make sure they have perms
-
               _deleteExpenseFromBoard(expenseItem.expense, context);
             }
           },

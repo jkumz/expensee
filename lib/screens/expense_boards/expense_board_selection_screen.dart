@@ -77,16 +77,6 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
         bottomNavigationBar: const DefaultBottomAppBar());
   }
 
-  Future<bool> _deleteBoard(String boardId, BuildContext context) async {
-    try {
-      // Delete
-      final deleted = await Provider.of<BoardProvider>(context, listen: false)
-          .deletedBoard(boardId);
-      return deleted;
-    } catch (error) {}
-    return false;
-  }
-
   void _navigateToExpenseBoard(BuildContext context, String boardId) {
     Navigator.push(
       context,
@@ -100,19 +90,9 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   }
 
   Widget _buildBoardItem(ExpenseBoard board, BuildContext context) {
-    return Dismissible(
-      key: Key(board.id.toString()),
-      direction: DismissDirection.endToStart,
-      onDismissed: (direction) {
-        if (direction == DismissDirection.endToStart) {
-          _deleteBoard(board.id.toString(), context);
-        }
-      },
-      background: Container(color: Colors.white),
-      child: ListTile(
-        title: Center(child: Text(board.name)),
-        onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
-      ),
+    return ListTile(
+      title: Center(child: Text(board.name)),
+      onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
     );
   }
 

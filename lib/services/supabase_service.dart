@@ -356,6 +356,22 @@ class SupabaseService {
     return updatedExpense;
   }
 
+// TODO - delete image frm bucket if receipt upload failed, notify user
+// TODO - if expense is deleted, delete its receipt too
+  Future<bool> uploadReceiptUrl(int expenseId, String? addedReceiptUrl) async {
+    if (addedReceiptUrl == null) return false;
+    var updatedExpense = await supabase
+        .from("expenses")
+        .update({"receipt_image_url": addedReceiptUrl})
+        .eq("id", expenseId)
+        .select() as List;
+
+    if (!(updatedExpense.first["receipt_image_url"] == addedReceiptUrl)) {
+      return false;
+    }
+    return true;
+  }
+
 // Add expenses to a board
   Future<Expense> addExpense(Map<String, dynamic> expenseData) async {
     var added = await supabase.from('expenses').insert([expenseData]).select();

@@ -5,6 +5,7 @@ import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_
 import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_password_button.dart';
 import 'package:expensee/components/buttons/custom_callback_button.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/screens/sign_up.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -127,46 +128,8 @@ class _LoginState extends State<Login> {
     }
   }
 
-// TO DO - implement this in Supabase back end - need to make Apple dev profile
-// TO DO - refactor both OAuth sign in methods into one method, taking provider as param
-  Future<void> _signInWithApple() async {
-    try {
-      await supabase.auth
-          .signInWithOAuth(Provider.apple, redirectTo: authCallback);
-
-      if (mounted) {
-        displaySignInSuccess();
-      }
-    } on AuthException catch (error) {
-      SnackBar(
-        content: Text(error.message),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      );
-    } catch (error) {
-      SnackBar(
-        content: unexpectedErrorText,
-        backgroundColor: Theme.of(context).colorScheme.error,
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _emailSignUp() async {
-    await supabase.auth.signUp(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim());
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: confirmationEmailPopUpText),
-      );
-      _emailController.clear();
-    }
+  Future<void> _navigateToSignUp() async {
+    Navigator.of(context).pushNamed(SignUp.routeName);
   }
 
   @override
@@ -221,6 +184,7 @@ class _LoginState extends State<Login> {
           TextFormField(
             controller: _passwordController,
             decoration: passwordControllerDecoration,
+            obscureText: true,
           ),
           const SizedBox(height: 18), // to add space
           SignInWithPasswordButton(
@@ -238,7 +202,7 @@ class _LoginState extends State<Login> {
           const SizedBox(height: 18), // to add space
           CustomCallbackButton(
               Text(_isLoading ? loadingText : signUpButtonText),
-              _isLoading ? null : _emailSignUp),
+              _isLoading ? null : _navigateToSignUp),
         ],
       ),
     );

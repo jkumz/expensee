@@ -97,4 +97,12 @@ class ExpenseProvider extends ChangeNotifier {
   Future<bool> isPartOfGroupBoard(String boardId) async {
     return await _repo.isPartOfGroup(boardId);
   }
+
+  Future<String?> addReceipt(BuildContext context, int expenseId) async {
+    return await _repo.addReceipt(context, expenseId);
+  }
+
+  Future<bool> uploadReceiptUrl(int expenseId, String? addedReceiptUrl) async {
+    return _repo.uploadReceiptUrl(expenseId, addedReceiptUrl);
+  }
 }

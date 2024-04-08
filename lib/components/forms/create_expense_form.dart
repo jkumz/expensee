@@ -1,3 +1,5 @@
+import 'package:expensee/components/buttons/expense_board_buttons/add_receipt_button.dart';
+import 'package:expensee/components/buttons/expense_board_buttons/save_expense_button.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
@@ -135,19 +137,30 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                      onPressed: _isFormValid
-                          ? () async {
-                              await _modifyExpense();
-                              widget.onClose();
-                            }
-                          : null,
-                      child: widget.exists
-                          ? modifyExpenseBtnText
-                          : createExpenseBtnText),
-                ),
+                    child: AddReceiptButton(
+                  text: "Add Receipt",
+                  onPressed: _addReceipt,
+                  height: 60,
+                  width: 40,
+                  contentAlignment: Alignment.center,
+                )),
               ],
-            )
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                Expanded(
+                    child: SaveExpenseButton(
+                  text: "Save",
+                  onPressed: _saveExpense,
+                  height: 60,
+                  width: 40,
+                  contentAlignment: Alignment.center,
+                )),
+              ],
+            ),
           ],
         ),
       ),
@@ -184,4 +197,40 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       return widget.expense;
     }
   }
+
+  Future<void> _saveExpense() async {
+    await _modifyExpense();
+    widget.onClose();
+  }
+
+  void _addReceipt() async {
+    // prompt user to take a photo
+    // store the photo in supabase storage
+    // cache it using CDN
+    // add reference to supabase file path url in expenses table
+    // separate method for viewing receipt
+    if (widget.exists) {
+      if (widget.expense.id != null) {
+        var addedReceiptUrl =
+            await Provider.of<ExpenseProvider>(context, listen: false)
+                .addReceipt(context, widget.expense.id!);
+        bool addedToExpensesTable =
+            await Provider.of<ExpenseProvider>(context, listen: false)
+                .uploadReceiptUrl(widget.expense.id!, addedReceiptUrl);
+        if (addedToExpensesTable) {
+          //TODO - show snackbar to say success
+        } else {
+          // TODO - show error, db & bucket reversal done in service layer
+        }
+      }
+    }
+    // if we are only just creating the expense, and not modifying it
+    else {}
+  }
+
+  void _viewReceipt() {}
+
+  void _deleteReceipt() {}
+
+  void _exportReceiptToPhone() {}
 }

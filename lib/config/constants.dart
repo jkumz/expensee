@@ -29,6 +29,10 @@ const unexpectedErrorText = Text("Unexpected error occured...");
 const signInExplanationText =
     'To use our passwordless log in, put in your email and press the Send Magic Link button.\n\nAlternatively, you can sign up with your email of choice or log in with your Google/Apple account.';
 
+// SIGN UP PAGE
+const signUpExplanationText =
+    "To sign up with your email, please provide an email and password then verify account creation in your inbox.";
+
 // ASSET PATHS
 const singleBoardImagePath = "assets/images/user.png";
 const groupBoardImagePath = "assets/images/people.png";
@@ -48,6 +52,8 @@ const calendarImagePath = "assets/images/calendar.png";
 const categoryImagePath = "assets/images/category.png";
 const userSelectionImagePath = "assets/images/users.png";
 const resetImagePath = "assets/images/reset.png";
+const addReceiptImagePath = "assets/images/receipt.png";
+const saveImagePath = "assets/images/save.png";
 
 // EXPENSE BOARD SELECTION CONSATNS
 
@@ -114,3 +120,5 @@ const deleteExpenseError =
     "Unless you're an Admin, you can only delete expenses you created.";
 const modifyExpenseError =
     "Unless you're an Admin, you can only modify expenses you created.";
+const addReceiptError =
+    "Unless you're an Admin, you can only add receipts to expenses you created.";

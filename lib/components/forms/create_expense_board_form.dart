@@ -57,7 +57,7 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
         child: Column(
           children: [
             TextFormField(
-              decoration: InputDecoration(labelText: "Board Name"),
+              decoration: const InputDecoration(labelText: "Board Name"),
               // assign name input
               onSaved: (value) => _boardName = value!,
               // validate name input
@@ -66,7 +66,7 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
             ),
             TextFormField(
                 decoration:
-                    InputDecoration(labelText: "Starting Balance (GBP)"),
+                    const InputDecoration(labelText: "Starting Balance (GBP)"),
                 // assign name input
                 onSaved: (value) => _balance = value!,
                 // validate name input

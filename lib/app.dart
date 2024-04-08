@@ -5,6 +5,7 @@ import 'package:expensee/screens/home.dart';
 import 'package:expensee/screens/invite_management_screen.dart';
 import 'package:expensee/screens/login.dart';
 import 'package:expensee/screens/expense_boards/expense_board_selection_screen.dart';
+import 'package:expensee/screens/sign_up.dart';
 import 'package:flutter/material.dart';
 
 import 'package:expensee/screens/splash.dart';
@@ -17,7 +18,8 @@ class ExpenseeApp extends StatelessWidget {
     return MaterialApp(
       title: 'Expensee',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 122, 67, 45)),
         useMaterial3: true,
       ),
       initialRoute: Splash.routeName, // TODO Splash.routeName
@@ -32,6 +34,8 @@ class ExpenseeApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (_) => Login(),
             );
+          case SignUp.routeName:
+            return MaterialPageRoute(builder: (_) => const SignUp());
           case SelectExpenseBoardsScreen.routeName:
             // Extract arguments passed in settings
             final args = settings.arguments as ViewExpenseBoardArguments;

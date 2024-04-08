@@ -48,45 +48,61 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _navigateToUserSettings() {}
+
   @override
   Widget build(BuildContext context) {
+    return _buildHomePageOptions();
+  }
+
+  Widget _buildHomePageOptions() {
     return Scaffold(
-        appBar: HomeAppBar(
-          actions: [
-            // TODO
-          ],
-        ),
-        bottomNavigationBar: DefaultBottomAppBar(),
-        body: Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
+      appBar: HomeAppBar(
+        actions: [
+          // TODO
+        ],
+      ),
+      bottomNavigationBar: DefaultBottomAppBar(),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: Expanded(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    "Welcome ${supabase.auth.currentUser!.email}",
-                    style: TextStyle(/**TODO - Create this style */),
+                  Center(
+                    child: Text(
+                      "Welcome ${supabase.auth.currentUser!.email}",
+                      style: TextStyle(/**TODO - Create this style */),
+                    ),
                   ),
-                  const SizedBox(height: 12, width: 18),
+                  const SizedBox(height: 12),
                   ViewExpenseBoardsButton(
-                      text: viewSoloExpenseBoardsBtnText,
-                      imagePath: singleBoardImagePath,
-                      onPressed: _navigateToSoloBoards),
-                  const SizedBox(height: 12, width: 18),
+                    text: viewSoloExpenseBoardsBtnText,
+                    imagePath: singleBoardImagePath,
+                    onPressed: _navigateToSoloBoards,
+                  ),
+                  const SizedBox(height: 12),
                   ViewExpenseBoardsButton(
-                      text: viewGroupExpenseBoardsBtnText,
-                      imagePath: groupBoardImagePath,
-                      onPressed: _navigateToGroupBoards),
-                  const SizedBox(height: 12, width: 18),
+                    text: viewGroupExpenseBoardsBtnText,
+                    imagePath: groupBoardImagePath,
+                    onPressed: _navigateToGroupBoards,
+                  ),
+                  const SizedBox(height: 12),
                   ViewInvitesButton(
-                      text: viewInvitesBtnText,
-                      imagePath: viewInvitesImagePath,
-                      onPressed: _navigateToInviteManagement)
+                    text: viewInvitesBtnText,
+                    imagePath: viewInvitesImagePath,
+                    onPressed: _navigateToInviteManagement,
+                  ),
                 ],
               ),
-            )
-          ],
-        ));
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
 
