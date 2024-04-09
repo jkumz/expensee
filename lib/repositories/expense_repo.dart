@@ -57,4 +57,12 @@ class ExpenseRepository implements ExpenseRepositoryInterface {
   Future<bool> uploadReceiptUrl(int expenseId, String? addedReceiptUrl) async {
     return await _service.uploadReceiptUrl(expenseId, addedReceiptUrl);
   }
+
+  Future<String> getReceiptForExpense(int expenseId) async {
+    return await _service.generateSignedReceiptUrl(expenseId);
+  }
+
+  Future<bool> hasReceipt(int expenseId) async {
+    return await _service.hasReceipt(expenseId);
+  }
 }

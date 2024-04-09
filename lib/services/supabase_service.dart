@@ -372,6 +372,74 @@ class SupabaseService {
     return true;
   }
 
+  Future<String> generateSignedReceiptUrl(int expenseId) async {
+    var json = await supabase
+        .from("expenses")
+        .select("receipt_image_url")
+        .eq("id", expenseId) as List;
+
+    if (json.isEmpty) {
+      throw Exception(
+          'Failed to get expense receipt $expenseId URL or no such expense exists.');
+    }
+
+    var receiptUrl = json.first["receipt_image_url"];
+    if (receiptUrl == null) return ""; //TODO - handling
+    var uri = Uri.parse(receiptUrl);
+    String fileName = uri.pathSegments.last;
+
+    // generate signed URL
+    var signedUrlResponse =
+        await supabase.storage.from("receipts").createSignedUrl(fileName, 90);
+    if (signedUrlResponse.isEmpty) {
+      throw Exception("Failed to gemerate signed URL for receipt $expenseId");
+    }
+
+    return signedUrlResponse;
+  }
+
+  Future<bool> hasReceipt(int expenseId) async {
+    var json = await supabase
+        .from("expenses")
+        .select("receipt_image_url")
+        .eq("id", expenseId) as List;
+
+    return json.first["receipt_image_url"] != null;
+  }
+
+  Future<void> _deleteReceipt(int expenseId) async {
+    // Retrieve the receipt URL from your database.
+    var json = await supabase
+        .from("expenses")
+        .select("receipt_image_url")
+        .eq("id", expenseId) as List;
+
+    if (json.isEmpty) {
+      throw Exception(
+          'Failed to get expense receipt $expenseId URL or no such expense exists.');
+    }
+
+    var receiptUrl = json.first["receipt_image_url"];
+    var uri = Uri.parse(receiptUrl);
+    String fileName = uri.pathSegments.last;
+
+    // Delete the file from Supabase Storage.
+    final deleteResponse =
+        await supabase.storage.from('receipts').remove([fileName]);
+
+    if (deleteResponse.isEmpty) {
+      print('Error deleting receipt for expense $expenseId');
+      return;
+    }
+
+    // Update the expenses table to remove the receipt URL.
+    await supabase
+        .from('expenses')
+        .update({'receipt_image_url': null}).eq('id', expenseId);
+
+    // TODO - error handling, try catch etc
+  }
+
 // Add expenses to a board
   Future<Expense> addExpense(Map<String, dynamic> expenseData) async {
     var added = await supabase.from('expenses').insert([expenseData]).select();

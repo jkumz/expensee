@@ -54,6 +54,7 @@ const userSelectionImagePath = "assets/images/users.png";
 const resetImagePath = "assets/images/reset.png";
 const addReceiptImagePath = "assets/images/receipt.png";
 const saveImagePath = "assets/images/save.png";
+const viewReceiptImagePath = "assets/images/view-receipt.png";
 
 // EXPENSE BOARD SELECTION CONSATNS
 

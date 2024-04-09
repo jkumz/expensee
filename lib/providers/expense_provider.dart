@@ -105,4 +105,13 @@ class ExpenseProvider extends ChangeNotifier {
   Future<bool> uploadReceiptUrl(int expenseId, String? addedReceiptUrl) async {
     return _repo.uploadReceiptUrl(expenseId, addedReceiptUrl);
   }
+
+  Future<Image> getReceiptForExpense(int expenseId) async {
+    var url = await _repo.getReceiptForExpense(expenseId);
+    return Image.network(url);
+  }
+
+  Future<bool> hasReceipt(int expenseId) async {
+    return await _repo.hasReceipt(expenseId);
+  }
 }

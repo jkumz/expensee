@@ -1,5 +1,6 @@
 import 'package:expensee/components/buttons/expense_board_buttons/add_receipt_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/save_expense_button.dart';
+import 'package:expensee/components/buttons/expense_board_buttons/view_receipt_button.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
@@ -10,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-// TODO - More rendering / options for group expenses
+// TODO - More rendering / options for group expenses - better validation
 class CreateExpenseForm extends ExpenseItem {
   @override
   final Expense expense;
@@ -33,6 +34,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   late TextEditingController _descriptionController;
   late TextEditingController _amountController;
   late TextEditingController _dateController;
+  bool hasReceipt = false;
   final repo = ExpenseRepository();
   bool isSubmitted = false;
   bool _isFormValid = true;
@@ -47,10 +49,18 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         TextEditingController(text: widget.expense.amount.toStringAsFixed(2));
     _dateController =
         TextEditingController(text: expenseDateToString(widget.expense.date));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkReceipt();
+    });
 
     // Add validation to controllers
     _amountController.addListener(() => _validateForm());
     _dateController.addListener(() => _validateForm());
+  }
+
+  Future<void> _checkReceipt() async {
+    hasReceipt = await Provider.of<ExpenseProvider>(context, listen: false)
+        .hasReceipt(widget.expense.id!);
   }
 
   void _validateForm() {
@@ -152,6 +162,22 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
             Row(
               children: [
                 Expanded(
+                    child: ViewReceiptButton(
+                  text: "View Receipt",
+                  onPressed: _viewReceipt,
+                  height: 60,
+                  width: 40,
+                  contentAlignment: Alignment.center,
+                  isEnabled: hasReceipt,
+                )),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                Expanded(
                     child: SaveExpenseButton(
                   text: "Save",
                   onPressed: _saveExpense,
@@ -228,9 +254,88 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     else {}
   }
 
-  void _viewReceipt() {}
+  void _viewReceipt() async {
+    var img = await Provider.of<ExpenseProvider>(context, listen: false)
+        .getReceiptForExpense(widget.expense.id!);
 
-  void _deleteReceipt() {}
+    // ignore: use_build_context_synchronously
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            insetPadding:
+                const EdgeInsets.all(10), // Add some padding around the dialog
+            child: Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    width: double
+                        .infinity, // Ensures the container fills the width
+                    child: img, // Your pre-built Image widget
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(context).pop(), // Save functionality
+                      child: const Text('Save'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        // Delete functionality with confirmation
+                        bool confirmDelete = await _confirmDeleteReceipt();
+                        if (confirmDelete) {
+                          await _deleteReceipt(widget.expense.id!);
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text('Delete'),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(context).pop(), // Close dialog
+                      child: const Text('Close'),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
+  }
 
-  void _exportReceiptToPhone() {}
+  Future<void> _deleteReceipt(int expenseId) async {
+    //TODO call service delete receipt --> provider --> repo --> service layer comms
+  }
+
+  void _saveReceiptToCameraRoll(Image img) async {
+    //TODO
+  }
+
+// Used to verify deletion of receipt by user
+  Future<bool> _confirmDeleteReceipt() async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirm Delete'),
+              content:
+                  const Text('Are you sure you want to delete this receipt?'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                TextButton(
+                  child: const Text('Delete'),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Returning false if null (dialog dismissed)
+  }
 }
