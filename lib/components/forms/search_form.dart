@@ -576,7 +576,7 @@ class _SearchFormState extends State<SearchForm> {
           content: Text("Board ${widget.boardId} has had filters applied.")));
       widget.onApplyFilter(filteredBoard);
     } else {
-      DefaultAlertDialog(errorMessage: "Failed to apply your filter.");
+      DefaultErrorDialog(errorMessage: "Failed to apply your filter.");
     }
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class DefaultAlertDialog extends StatelessWidget {
+class DefaultErrorDialog extends StatelessWidget {
   final String errorMessage;
   String title;
 
-  DefaultAlertDialog({
+  DefaultErrorDialog({
     Key? key,
     this.title = "Error",
     required this.errorMessage,

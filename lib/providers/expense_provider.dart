@@ -114,4 +114,8 @@ class ExpenseProvider extends ChangeNotifier {
   Future<bool> hasReceipt(int expenseId) async {
     return await _repo.hasReceipt(expenseId);
   }
+
+  Future<bool> deleteReceipt(int expenseId) async {
+    return await _repo.deleteReceipt(expenseId);
+  }
 }

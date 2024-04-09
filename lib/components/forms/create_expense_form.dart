@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:expensee/components/buttons/expense_board_buttons/add_receipt_button.dart';
+import 'package:expensee/components/buttons/expense_board_buttons/delete_receipt_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/save_expense_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/view_receipt_button.dart';
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
@@ -63,6 +67,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         .hasReceipt(widget.expense.id!);
   }
 
+// TODO - make this better...
   void _validateForm() {
     // Regex - Check it's start of line, then match digit between 1 to 7 times
     // (up to a millions), then match the decimal, then match exactly 2 digits.
@@ -108,88 +113,105 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       //margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _categoryController,
-              readOnly: false,
-              decoration: const InputDecoration(
-                  labelText: editableExpenseCategoryLabelText),
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(categoryLength)
-              ],
-            ),
-            TextField(
-              controller: _descriptionController,
-              readOnly: false,
-              decoration: const InputDecoration(
-                  labelText: editableDescriptionLabelText),
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(expenseDescLength)
-              ],
-            ),
-            TextField(
-              controller: _amountController,
-              decoration:
-                  const InputDecoration(labelText: editableAmountLabelText),
-              readOnly: false,
-            ),
-            TextField(
-              controller: _dateController,
-              decoration:
-                  const InputDecoration(labelText: editableDateLabelText),
-              readOnly: false,
-              onTap: () => {_selectDate(context)},
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: AddReceiptButton(
-                  text: "Add Receipt",
-                  onPressed: _addReceipt,
-                  height: 60,
-                  width: 40,
-                  contentAlignment: Alignment.center,
-                )),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: ViewReceiptButton(
-                  text: "View Receipt",
-                  onPressed: _viewReceipt,
-                  height: 60,
-                  width: 40,
-                  contentAlignment: Alignment.center,
-                  isEnabled: hasReceipt,
-                )),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: SaveExpenseButton(
-                  text: "Save",
-                  onPressed: _saveExpense,
-                  height: 60,
-                  width: 40,
-                  contentAlignment: Alignment.center,
-                )),
-              ],
-            ),
+        child: _renderButtons(),
+      ),
+    );
+  }
+
+  Widget _renderButtons() {
+    return Column(
+      children: [
+        TextField(
+          controller: _categoryController,
+          readOnly: false,
+          decoration: const InputDecoration(
+              labelText: editableExpenseCategoryLabelText),
+          inputFormatters: [LengthLimitingTextInputFormatter(categoryLength)],
+        ),
+        TextField(
+          controller: _descriptionController,
+          readOnly: false,
+          decoration:
+              const InputDecoration(labelText: editableDescriptionLabelText),
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(expenseDescLength)
           ],
         ),
-      ),
+        TextField(
+          controller: _amountController,
+          decoration: const InputDecoration(labelText: editableAmountLabelText),
+          readOnly: false,
+        ),
+        TextField(
+          controller: _dateController,
+          decoration: const InputDecoration(labelText: editableDateLabelText),
+          readOnly: false,
+          onTap: () => {_selectDate(context)},
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+                child: AddReceiptButton(
+              text: "Add Receipt",
+              onPressed: _addReceipt,
+              height: 60,
+              width: 40,
+              contentAlignment: Alignment.center,
+              isEnabled: !hasReceipt,
+            )),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+                child: ViewReceiptButton(
+              text: "View Receipt",
+              onPressed: _viewReceipt,
+              height: 60,
+              width: 40,
+              contentAlignment: Alignment.center,
+              isEnabled: hasReceipt,
+            )),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+                child: DeleteReceiptButton(
+              text: "Delete Receipt",
+              onPressed: _deleteReceipt,
+              height: 60,
+              width: 40,
+              contentAlignment: Alignment.center,
+              isEnabled: hasReceipt,
+            )),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+                child: SaveExpenseButton(
+              text: "Save",
+              onPressed: _saveExpense,
+              height: 60,
+              width: 40,
+              contentAlignment: Alignment.center,
+            )),
+          ],
+        ),
+      ],
     );
   }
 
@@ -245,6 +267,9 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
                 .uploadReceiptUrl(widget.expense.id!, addedReceiptUrl);
         if (addedToExpensesTable) {
           //TODO - show snackbar to say success
+          setState(() {
+            hasReceipt = true;
+          });
         } else {
           // TODO - show error, db & bucket reversal done in service layer
         }
@@ -285,11 +310,8 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
                     TextButton(
                       onPressed: () async {
                         // Delete functionality with confirmation
-                        bool confirmDelete = await _confirmDeleteReceipt();
-                        if (confirmDelete) {
-                          await _deleteReceipt(widget.expense.id!);
-                          Navigator.of(context).pop();
-                        }
+                        await _deleteReceipt();
+                        Navigator.of(context).pop();
                       },
                       child: const Text('Delete'),
                     ),
@@ -306,8 +328,28 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         });
   }
 
-  Future<void> _deleteReceipt(int expenseId) async {
-    //TODO call service delete receipt --> provider --> repo --> service layer comms
+  Future<void> _deleteReceipt() async {
+    bool confirmed = await _confirmDeleteReceipt();
+    if (confirmed) {
+      // ignore: use_build_context_synchronously
+      bool deleted = await Provider.of<ExpenseProvider>(context, listen: false)
+          .deleteReceipt(widget.expense.id!);
+      if (!deleted) {
+        // ignore: use_build_context_synchronously
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(
+                  errorMessage:
+                      "Failed to delete receipt for expense ${widget.expense.id!}");
+            });
+      } else {
+        // TODO - show success snackbar
+        setState(() {
+          hasReceipt = false;
+        });
+      }
+    }
   }
 
   void _saveReceiptToCameraRoll(Image img) async {

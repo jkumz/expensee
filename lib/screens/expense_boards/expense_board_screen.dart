@@ -294,7 +294,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
                 // ignore: use_build_context_synchronously
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) => DefaultAlertDialog(
+                  builder: (BuildContext context) => DefaultErrorDialog(
                     title: "Permission Error",
                     errorMessage: deleteExpenseError,
                   ),
@@ -496,7 +496,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     if (!await _canEditExpense(expense)) {
       showDialog(
           context: context,
-          builder: (BuildContext context) => DefaultAlertDialog(
+          builder: (BuildContext context) => DefaultErrorDialog(
                 title: "Permission Error",
                 errorMessage: modifyExpenseError,
               ));

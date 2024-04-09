@@ -407,7 +407,7 @@ class SupabaseService {
     return json.first["receipt_image_url"] != null;
   }
 
-  Future<void> _deleteReceipt(int expenseId) async {
+  Future<bool> deleteReceipt(int expenseId) async {
     // Retrieve the receipt URL from your database.
     var json = await supabase
         .from("expenses")
@@ -415,28 +415,39 @@ class SupabaseService {
         .eq("id", expenseId) as List;
 
     if (json.isEmpty) {
-      throw Exception(
-          'Failed to get expense receipt $expenseId URL or no such expense exists.');
+      print(
+          "Failed to get expense receipt $expenseId URL or no such expense exists.");
+      return false;
     }
 
     var receiptUrl = json.first["receipt_image_url"];
     var uri = Uri.parse(receiptUrl);
-    String fileName = uri.pathSegments.last;
 
-    // Delete the file from Supabase Storage.
+    // We assume that the path segment immediately following 'object' in the URL
+    // path is the bucket name, 'receipts'.
+    // Then the rest is the path within the bucket.
+    List<String> pathSegments = uri.pathSegments;
+    int objectIndex = pathSegments.indexOf('object');
+    String key = pathSegments
+        .sublist(objectIndex + 2)
+        .join('/'); // Skip 'object' and the bucket name
+
+    // Now we should have the correct path to use with remove.
     final deleteResponse =
-        await supabase.storage.from('receipts').remove([fileName]);
-
+        await supabase.storage.from('receipts').remove([key]);
     if (deleteResponse.isEmpty) {
       print('Error deleting receipt for expense $expenseId');
-      return;
+      return false;
+    } else {
+      // Update the expenses table to remove the receipt URL.
+      var result = await supabase
+          .from('expenses')
+          .update({'receipt_image_url': null})
+          .eq('id', expenseId)
+          .select() as List;
+      return result.first["receipt_image_url"] == null;
+      // TODO - a clean up method called when expenses are fetched that, if there isn't a file at the url, automatically updates it to null
     }
-
-    // Update the expenses table to remove the receipt URL.
-    await supabase
-        .from('expenses')
-        .update({'receipt_image_url': null}).eq('id', expenseId);
-
     // TODO - error handling, try catch etc
   }
 

@@ -41,7 +41,7 @@ class _MassEmailFormState extends State<MassEmailForm> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DefaultAlertDialog(title: "Success", errorMessage: message);
+        return DefaultErrorDialog(title: "Success", errorMessage: message);
       },
     );
   }
@@ -50,7 +50,7 @@ class _MassEmailFormState extends State<MassEmailForm> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DefaultAlertDialog(
+        return DefaultErrorDialog(
             title: "Empty Mailing List",
             errorMessage: "Failed to retrieve emails...");
       },
@@ -64,7 +64,7 @@ class _MassEmailFormState extends State<MassEmailForm> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DefaultAlertDialog(title: "Success", errorMessage: message);
+        return DefaultErrorDialog(title: "Success", errorMessage: message);
       },
     );
   }

@@ -33,7 +33,7 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
       // finishes. We check if its mounted before trying to use it to prevent a crash.
       if (!mounted) return;
       if (!removed) {
-        DefaultAlertDialog(
+        DefaultErrorDialog(
             errorMessage: "Failed to remove $selectedEmail from the board");
         return;
       }

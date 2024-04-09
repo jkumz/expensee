@@ -65,4 +65,8 @@ class ExpenseRepository implements ExpenseRepositoryInterface {
   Future<bool> hasReceipt(int expenseId) async {
     return await _service.hasReceipt(expenseId);
   }
+
+  Future<bool> deleteReceipt(int expenseId) async {
+    return await _service.deleteReceipt(expenseId);
+  }
 }
