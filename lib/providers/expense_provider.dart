@@ -111,6 +111,10 @@ class ExpenseProvider extends ChangeNotifier {
     return Image.network(url);
   }
 
+  Future<String> getReceiptUrlForExpense(int expenseId) async {
+    return await _repo.getReceiptForExpense(expenseId);
+  }
+
   Future<bool> hasReceipt(int expenseId) async {
     return await _repo.hasReceipt(expenseId);
   }

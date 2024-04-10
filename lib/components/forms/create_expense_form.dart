@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:expensee/components/buttons/expense_board_buttons/add_receipt_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/delete_receipt_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/save_expense_button.dart';
@@ -13,6 +11,9 @@ import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 // TODO - More rendering / options for group expenses - better validation
@@ -280,7 +281,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   }
 
   void _viewReceipt() async {
-    var img = await Provider.of<ExpenseProvider>(context, listen: false)
+    Image img = await Provider.of<ExpenseProvider>(context, listen: false)
         .getReceiptForExpense(widget.expense.id!);
 
     // ignore: use_build_context_synchronously
@@ -288,23 +289,24 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            insetPadding:
-                const EdgeInsets.all(10), // Add some padding around the dialog
+            insetPadding: const EdgeInsets.all(10),
             child: Column(
               children: [
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     width: double
                         .infinity, // Ensures the container fills the width
-                    child: img, // Your pre-built Image widget
+                    child: img,
                   ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(
-                      onPressed: () =>
-                          Navigator.of(context).pop(), // Save functionality
+                      onPressed: () async {
+                        await _saveReceiptToCameraRoll();
+                        Navigator.of(context).pop(); // Save functionality
+                      },
                       child: const Text('Save'),
                     ),
                     TextButton(
@@ -352,8 +354,47 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     }
   }
 
-  void _saveReceiptToCameraRoll(Image img) async {
-    //TODO
+  Future<void> _saveReceiptToCameraRoll() async {
+    if (!await _checkStoragePerms()) {
+      await [
+        Permission.photos,
+        Permission.videos,
+      ].request();
+    }
+    if (!await _checkStoragePerms()) {
+      // ignore: use_build_context_synchronously
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage:
+                    "Storage permissions are needed to save this receipt");
+          });
+    }
+
+    try {
+      String imgUrl = await Provider.of<ExpenseProvider>(context, listen: false)
+          .getReceiptUrlForExpense(widget.expense.id!);
+      final bytes = await readBytes(Uri.parse(imgUrl));
+      final result = await ImageGallerySaver.saveImage(bytes);
+      if (result["isSuccess"]) {
+        //TODO - success snakcbar
+      } else {
+        // ignore: use_build_context_synchronously
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(errorMessage: "Failed to save receipt");
+            });
+      }
+    } catch (e) {
+//TODO - error handling
+    }
+  }
+
+  Future<bool> _checkStoragePerms() async {
+    return await Permission.photos.isGranted &&
+        await Permission.videos.isGranted;
   }
 
 // Used to verify deletion of receipt by user
