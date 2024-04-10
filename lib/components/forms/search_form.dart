@@ -51,11 +51,13 @@ class _SearchFormState extends State<SearchForm> {
   }
 
   void _updateDateRange(String start, String end, String text) {
-    setState(() {
-      startDate = start;
-      endDate = end;
-      selectedDateText = text;
-    });
+    if (mounted) {
+      setState(() {
+        startDate = start;
+        endDate = end;
+        selectedDateText = text;
+      });
+    }
   }
 
   void _showDatePickerDialog() {
@@ -193,9 +195,11 @@ class _SearchFormState extends State<SearchForm> {
             TextButton(
               child: Text('OK'),
               onPressed: () {
-                setState(() {
-                  selectedCategories = _tempSelectedCategories;
-                });
+                if (mounted) {
+                  setState(() {
+                    selectedCategories = _tempSelectedCategories;
+                  });
+                }
                 Navigator.pop(context);
               },
             ),
@@ -377,10 +381,12 @@ class _SearchFormState extends State<SearchForm> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                setState(() {
-                  // Update the main state
-                  selectedUserIDs = tempSelectedUserIDs;
-                });
+                if (mounted) {
+                  setState(() {
+                    // Update the main state
+                    selectedUserIDs = tempSelectedUserIDs;
+                  });
+                }
                 Navigator.pop(context);
               },
             ),
@@ -508,23 +514,25 @@ class _SearchFormState extends State<SearchForm> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                setState(() {
-                  // Update the main state with the temporary values
-                  invertDates = tempInvertDates;
-                  invertCategories = tempInvertCategories;
-                  invertUsers = tempInvertUsers;
+                if (mounted) {
+                  setState(() {
+                    // Update the main state with the temporary values
+                    invertDates = tempInvertDates;
+                    invertCategories = tempInvertCategories;
+                    invertUsers = tempInvertUsers;
 
-                  // Update the list of inverted options
-                  if (invertDates) {
-                    invertedOptions.add('Dates');
-                  }
-                  if (invertCategories) {
-                    invertedOptions.add('Categories');
-                  }
-                  if (invertUsers) {
-                    invertedOptions.add('Users');
-                  }
-                });
+                    // Update the list of inverted options
+                    if (invertDates) {
+                      invertedOptions.add('Dates');
+                    }
+                    if (invertCategories) {
+                      invertedOptions.add('Categories');
+                    }
+                    if (invertUsers) {
+                      invertedOptions.add('Users');
+                    }
+                  });
+                }
                 Navigator.pop(context);
               },
             ),

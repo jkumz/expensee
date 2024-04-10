@@ -6,5 +6,10 @@ class ViewBoardsAppBar extends AppBar {
     Key? key,
     Widget title = const Text("View Expense Boards"),
     List<Widget>? actions,
-  }) : super(key: key, title: title, actions: actions);
+  }) : super(
+            key: key,
+            title: title,
+            actions: actions,
+            leading: null,
+            automaticallyImplyLeading: false);
 }

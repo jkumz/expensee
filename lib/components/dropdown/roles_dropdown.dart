@@ -33,10 +33,12 @@ class _RolesDropdownMenuState extends State<RolesDropdownMenu> {
       // Update the selected role when the user selects a different option
       onChanged: (Roles? newValue) {
         if (newValue != null) {
-          setState(() {
-            selectedRole = newValue;
-          });
-          widget.onRoleChanged(newValue);
+          if (mounted) {
+            setState(() {
+              selectedRole = newValue;
+              widget.onRoleChanged(newValue);
+            });
+          }
         }
       },
     );

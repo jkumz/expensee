@@ -41,9 +41,11 @@ class _LoginState extends State<Login> {
 
   Future<void> _signInWithMagicLink() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = true;
+        });
+      }
       await supabase.auth.signInWithOtp(
         email: _emailController.text.trim(),
         emailRedirectTo: kIsWeb ? null : authCallback,
@@ -71,9 +73,11 @@ class _LoginState extends State<Login> {
 
   Future<void> _signInWithPassword() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = true;
+        });
+      }
 
       await supabase.auth.signInWithPassword(
           password: _passwordController.text.trim(),

@@ -6,5 +6,10 @@ class HomeAppBar extends AppBar {
     Key? key,
     Widget title = const Text("Home"),
     List<Widget>? actions,
-  }) : super(key: key, title: title, actions: actions);
+  }) : super(
+            key: key,
+            title: title,
+            actions: actions,
+            leading: null,
+            automaticallyImplyLeading: false);
 }

@@ -58,12 +58,13 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   }
 
   onFinishEditing() => {
-        setState(() => {displayBoard = true, editingExpense = null}),
+        if (mounted)
+          setState(() => {displayBoard = true, editingExpense = null}),
         _refreshIndicatorKey.currentState?.show()
       };
 
   // No need to update refresh indicator state on exit, as not submitted.
-  onExitExpenseView() => {setState(() => displayBoard = true)};
+  onExitExpenseView() => {if (mounted) setState(() => displayBoard = true)};
 
 // Variables to help switching between creation and view of expenses
   bool displayBoard = true;
@@ -130,9 +131,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   }
 
   void updateExpenses(List<Expense> updatedExpenses) {
-    setState(() {
-      expenses = updatedExpenses.map((e) => ExpenseItem(expense: e)).toList();
-    });
+    if (mounted) {
+      setState(() {
+        expenses = updatedExpenses.map((e) => ExpenseItem(expense: e)).toList();
+      });
+    }
   }
 
 // Build out the list view
@@ -266,9 +269,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
   Future<bool> _isPartOfGroup() async {
     bool isGroup = await Provider.of<ExpenseProvider>(context, listen: false)
         .isPartOfGroupBoard(widget.boardId);
-    setState(() {
-      isGroupBoard = isGroup;
-    });
+    if (mounted) {
+      setState(() {
+        isGroupBoard = isGroup;
+      });
+    }
     return isGroupBoard;
   }
 
@@ -443,15 +448,17 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
 // TODO - handle expenses being empty - render a message, or an empty icon?
     if (board != null) {
       if (board.expenses.isNotEmpty) {
-        setState(() {
-          expenses = board.expenses
-              .map((rawExpense) => CreateExpenseForm(
-                    expense: rawExpense,
-                    exists: true,
-                    onClose: () => onFinishEditing(),
-                  ))
-              .toList();
-        });
+        if (mounted) {
+          setState(() {
+            expenses = board.expenses
+                .map((rawExpense) => CreateExpenseForm(
+                      expense: rawExpense,
+                      exists: true,
+                      onClose: () => onFinishEditing(),
+                    ))
+                .toList();
+          });
+        }
       }
     }
   }
@@ -474,9 +481,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       await _getBoardName(widget.boardId);
       await _getAppbarActions(widget.boardId);
       // await _updateExpenseBalances(widget.boardId);
-      setState(() {
-        loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
     }
   }
 

@@ -32,9 +32,11 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
 
   void _validateForm() {
     String name = _nameController.text;
-    setState(() {
-      _isNameValid = name.length <= 30;
-    });
+    if (mounted) {
+      setState(() {
+        _isNameValid = name.length <= 30;
+      });
+    }
 
     if (!_isNameValid) {
       _showErrorDialog();

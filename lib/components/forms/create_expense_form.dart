@@ -87,9 +87,11 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       _showValidationMessage("Date must be in YYYY-MM-DD format");
     }
 
-    setState(() {
-      _isFormValid = isAmountValid && isDateValid;
-    });
+    if (mounted) {
+      setState(() {
+        _isFormValid = isAmountValid && isDateValid;
+      });
+    }
   }
 
   void _showValidationMessage(String msg) {
@@ -226,9 +228,11 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
 
     // if new date, update it in the UI
     if (pickedDate != null && pickedDate != widget.expense.date) {
-      setState(() {
-        _dateController.text = expenseDateToString(pickedDate);
-      });
+      if (mounted) {
+        setState(() {
+          _dateController.text = expenseDateToString(pickedDate);
+        });
+      }
     }
   }
 
@@ -268,9 +272,11 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
                 .uploadReceiptUrl(widget.expense.id!, addedReceiptUrl);
         if (addedToExpensesTable) {
           //TODO - show snackbar to say success
-          setState(() {
-            hasReceipt = true;
-          });
+          if (mounted) {
+            setState(() {
+              hasReceipt = true;
+            });
+          }
         } else {
           // TODO - show error, db & bucket reversal done in service layer
         }
@@ -347,9 +353,11 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
             });
       } else {
         // TODO - show success snackbar
-        setState(() {
-          hasReceipt = false;
-        });
+        if (mounted) {
+          setState(() {
+            hasReceipt = false;
+          });
+        }
       }
     }
   }

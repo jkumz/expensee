@@ -38,9 +38,11 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   void _fetchBoards() async {
     var temp = await Provider.of<BoardProvider>(context, listen: false)
         .refreshBoards(widget.isGroupBoardScreen);
-    setState(() {
-      if (temp != null) boards = temp;
-    });
+    if (mounted) {
+      setState(() {
+        if (temp != null) boards = temp;
+      });
+    }
   }
 
   @override

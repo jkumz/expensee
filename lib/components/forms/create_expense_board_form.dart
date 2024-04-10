@@ -81,7 +81,8 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
             SwitchListTile(
                 title: const Text("Group board?"),
                 value: _isGroup,
-                onChanged: (bool val) => setState(() => _isGroup = val)),
+                onChanged: (bool val) =>
+                    mounted ? setState(() => _isGroup = val) : null),
             ElevatedButton(
                 onPressed: _submit, child: const Text("Create board"))
           ],

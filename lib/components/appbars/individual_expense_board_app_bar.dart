@@ -6,5 +6,10 @@ class IndividualExpenseBoardAppBar extends AppBar {
     Key? key,
     required Widget title,
     List<Widget>? actions,
-  }) : super(key: key, title: title, actions: actions);
+  }) : super(
+            key: key,
+            title: title,
+            actions: actions,
+            leading: null,
+            automaticallyImplyLeading: false);
 }

@@ -173,14 +173,20 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   }
 
 // navigation controls
-  void _navigateToInviteUserScreen() => setState(() => inviteUsers = true);
-  void _navigateToRemoveUserScreen() => setState(() => removeUsers = true);
-  void _navigateToRoleManagementScreen() => setState(() => managePerms = true);
-  void _navigateToNamingScreen() => setState(() => renameBoard = true);
+  void _navigateToInviteUserScreen() =>
+      {if (mounted) setState(() => inviteUsers = true)};
+  void _navigateToRemoveUserScreen() =>
+      {if (mounted) setState(() => removeUsers = true)};
+  void _navigateToRoleManagementScreen() =>
+      {if (mounted) setState(() => managePerms = true)};
+  void _navigateToNamingScreen() =>
+      {if (mounted) setState(() => renameBoard = true)};
   void _navigateToOwnershipTransfer() =>
-      setState(() => transferingOwnership = true);
-  void _navigateToMassEmailScreen() => setState(() => massEmail = true);
-  void _navigateToSearchForm() => setState(() => filterExpenses = true);
+      {if (mounted) setState(() => transferingOwnership = true)};
+  void _navigateToMassEmailScreen() =>
+      {if (mounted) setState(() => massEmail = true)};
+  void _navigateToSearchForm() =>
+      {if (mounted) setState(() => filterExpenses = true)};
 
   Future<void> _confirmAndDeleteBoard() async {
     if (widget.role != "owner") return;

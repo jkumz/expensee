@@ -108,12 +108,14 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
             DataCell(
               PopupMenuButton<Roles>(
                 onSelected: (Roles selectedRole) {
-                  setState(() {
-                    member.role = selectedRole;
-                    _selectedRole = selectedRole;
-                    _selectedEmail = member.email;
-                  });
-                  _submit();
+                  if (mounted) {
+                    setState(() {
+                      member.role = selectedRole;
+                      _selectedRole = selectedRole;
+                      _selectedEmail = member.email;
+                    });
+                    _submit();
+                  }
                 },
                 itemBuilder: _rolesItemBuilder,
                 child: _tableRow(member),

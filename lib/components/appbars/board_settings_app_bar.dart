@@ -12,7 +12,6 @@ class BoardSettingsAppBar extends AppBar {
             key: key,
             title: title,
             actions: actions,
-            leading: IconButton(
-                onPressed: onBack ?? () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back)));
+            leading: null,
+            automaticallyImplyLeading: false);
 }

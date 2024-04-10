@@ -55,10 +55,12 @@ class _UserDropdownMenuState extends State<UserDropdownMenu> {
                 : null,
             onChanged: (String? newValue) {
               if (newValue != null) {
-                setState(() {
-                  selectedEmail = newValue;
-                });
-                widget.onUserSelected(newValue);
+                if (mounted) {
+                  setState(() {
+                    selectedEmail = newValue;
+                    widget.onUserSelected(newValue);
+                  });
+                }
               }
             },
           );

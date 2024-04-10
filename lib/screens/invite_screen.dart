@@ -29,11 +29,13 @@ class _InvitationScreenState extends State<InvitationScreen> {
     // Simulate fetching invitation details from Supabase or your backend
     // This is where you would make the API call to get the invitation details using the token
     // For now, let's mock this with a dummy invitation
-    setState(() async {
-      _invitation =
-          await Provider.of<GroupMemberProvider>(context, listen: false)
-              .getInvite(token);
-    });
+    if (mounted) {
+      setState(() async {
+        _invitation =
+            await Provider.of<GroupMemberProvider>(context, listen: false)
+                .getInvite(token);
+      });
+    }
   }
 
   void acceptInvitation(String token) {

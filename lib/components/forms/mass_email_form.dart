@@ -109,9 +109,11 @@ class _MassEmailFormState extends State<MassEmailForm> {
               title: const Text("Send to Admins Only"),
               value: adminOnlyEmail,
               onChanged: (bool? newValue) {
-                setState(() {
-                  adminOnlyEmail = newValue ?? false;
-                });
+                if (mounted) {
+                  setState(() {
+                    adminOnlyEmail = newValue ?? false;
+                  });
+                }
               },
               controlAffinity: ListTileControlAffinity
                   .leading, // places the checkbox at the start of the tile
