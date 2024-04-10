@@ -23,6 +23,13 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // save current state of the form
 
+      if (selectedEmail == "@") {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("You must select an email to remove."),
+        ));
+        return;
+      }
+
       var gMemberProvider =
           Provider.Provider.of<GroupMemberProvider>(context, listen: false);
 
@@ -43,36 +50,38 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("$selectedEmail has been removed from the expense board"),
       ));
-
-      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: Provider.Provider.of<BoardProvider>(context, listen: false)
-          .checkIfAdmin(widget.boardId),
+    return FutureBuilder<Map<String, dynamic>>(
+      future: fetchData(), // Call the combined data fetching method
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show a loading indicator while waiting for the future to complete
-          return const CircularProgressIndicator();
+          return const CircularProgressIndicator(); // Show loading indicator
         } else if (snapshot.hasError) {
-          // Handle the error case
-          return Text('Error: ${snapshot.error}');
-        } else if (snapshot.hasData && snapshot.data == true) {
-          // Build the form with the owner's additional options
-          return buildForm(context, true);
+          return Text('Error: ${snapshot.error}'); // Handle error case
         } else {
-          // Build the form without the owner's additional options
-          return buildForm(context, false);
+          // Now you have both isAdmin and members data
+          bool isAdmin = snapshot.data?['isAdmin'] ?? false;
+          List members = snapshot.data?['members'] ?? [];
+
+          if (members.isEmpty) {
+            return const Center(
+              child: Text("No members to remove"), // Show message if no members
+            );
+          } else {
+            return buildForm(context, isAdmin,
+                members); // Pass both isAdmin and members to the form
+          }
         }
       },
     );
   }
 
 // TODO - text styling, consts moved to const file
-  Widget buildForm(BuildContext context, bool isAdmin) {
+  Widget buildForm(BuildContext context, bool isAdmin, List members) {
     return Form(
       key: _formKey,
       child: Padding(
@@ -101,5 +110,19 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
         ),
       ),
     );
+  }
+
+  Future<Map<String, dynamic>> fetchData() async {
+    final isAdmin =
+        await Provider.Provider.of<BoardProvider>(context, listen: false)
+            .checkIfAdmin(widget.boardId);
+    final members =
+        await Provider.Provider.of<GroupMemberProvider>(context, listen: false)
+            .getGroupMembers(widget.boardId, false);
+
+    return {
+      'isAdmin': isAdmin,
+      'members': members,
+    };
   }
 }

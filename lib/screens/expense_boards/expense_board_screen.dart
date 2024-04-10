@@ -114,6 +114,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       setState(() {
         displayBoard = true;
         displaySettings = false;
+        displaySearchFilters = false;
       });
     }
   }
@@ -378,7 +379,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
               ),
             ],
           ),
-          _renderVerticalDivider(),
           Expanded(
               child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,15 +405,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
           )
         ]),
       ),
-    );
-  }
-
-//TODO - make the dividers visible... a black line will do
-  Widget _renderVerticalDivider() {
-    return const VerticalDivider(
-      width: 2,
-      thickness: 1,
-      color: Colors.black,
     );
   }
 
@@ -532,15 +523,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       await _refreshExpenses();
     } else {
       await _deleteExpenseFromBoard(expense, context);
-    }
-  }
-
-  void _navigateToSearch(String boardId) {
-    if (mounted) {
-      setState(() {
-        displaySettings = true;
-        displayBoard = false;
-      });
     }
   }
 

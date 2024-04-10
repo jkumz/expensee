@@ -1,3 +1,4 @@
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/dropdown/roles_dropdown.dart';
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/providers/board_provider.dart';
@@ -35,13 +36,15 @@ class _InviteUserFormState extends State<InviteUserForm> {
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
-      if (!mounted) return;
+      if (!mounted) return; // TODO - error alert
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Invite sent to $_userEmail"),
-      ));
-
-      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultSuccessDialog(
+                successMessage: "Invite sent to $_userEmail");
+          });
+      setState(() {});
     }
   }
 
@@ -53,7 +56,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Show a loading indicator while waiting for the future to complete
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           // Handle the error case
           return Text('Error: ${snapshot.error}');

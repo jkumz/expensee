@@ -21,8 +21,7 @@ class UserDropdownMenu extends StatefulWidget {
 
 class _UserDropdownMenuState extends State<UserDropdownMenu> {
   late Future<List<GroupMember>> _memberListFuture;
-  // ignore: avoid_init_to_null
-  String? selectedEmail = null;
+  String? selectedEmail; // Start with no email selected
 
   @override
   void initState() {
@@ -43,26 +42,24 @@ class _UserDropdownMenuState extends State<UserDropdownMenu> {
         } else {
           final memberList = snapshot.data!;
           return DropdownButton<String>(
+            hint: Text(
+                "Select an email"), // Used when no item is selected (value is null)
+            value: selectedEmail, // Value is null until an item is selected
             items: memberList.map((GroupMember member) {
-              final email = member.email;
               return DropdownMenuItem<String>(
-                value: email,
-                child: Text(email),
+                value: member.email,
+                child: Text(member.email),
               );
             }).toList(),
-            value: memberList.isNotEmpty
-                ? (selectedEmail ?? memberList.first.email)
-                : null,
             onChanged: (String? newValue) {
-              if (newValue != null) {
-                if (mounted) {
-                  setState(() {
-                    selectedEmail = newValue;
-                    widget.onUserSelected(newValue);
-                  });
-                }
+              if (newValue != null && mounted) {
+                setState(() {
+                  selectedEmail = newValue;
+                  widget.onUserSelected(newValue);
+                });
               }
             },
+            isExpanded: true, // Ensure it occupies the full width
           );
         }
       },

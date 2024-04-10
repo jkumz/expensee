@@ -13,11 +13,15 @@ class DefaultErrorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title),
-      content: Text(errorMessage),
+      title: Text(title,
+          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
+      content: Text(errorMessage,
+          style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
+      backgroundColor: Color.fromARGB(255, 189, 29, 17),
       actions: <Widget>[
         TextButton(
-          child: const Text('OK'),
+          child: const Text('OK',
+              style: TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ],

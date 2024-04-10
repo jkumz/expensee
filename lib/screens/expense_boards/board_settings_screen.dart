@@ -185,8 +185,6 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       {if (mounted) setState(() => transferingOwnership = true)};
   void _navigateToMassEmailScreen() =>
       {if (mounted) setState(() => massEmail = true)};
-  void _navigateToSearchForm() =>
-      {if (mounted) setState(() => filterExpenses = true)};
 
   Future<void> _confirmAndDeleteBoard() async {
     if (widget.role != "owner") return;
