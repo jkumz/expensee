@@ -43,7 +43,11 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: viewInvitesAppBarTitle),
+      appBar: AppBar(
+        title: const Center(child: viewInvitesAppBarTitle),
+        leading: null,
+        automaticallyImplyLeading: false,
+      ),
       bottomNavigationBar: const DefaultBottomAppBar(),
       body: _buildInvitesScreen(context),
     );
@@ -65,12 +69,11 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
         final role = invite.role.toString().split(".").last;
         invitesWithBoardNames.add((inviteItem, boardName, role));
       }
-
-      if (mounted) {
-        setState(() {
-          invites = invitesWithBoardNames;
-        });
-      }
+    }
+    if (mounted) {
+      setState(() {
+        invites = invitesWithBoardNames;
+      });
     }
     return invitesWithBoardNames;
   }
@@ -205,6 +208,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     await _loadData();
     await Provider.of<GroupMemberProvider>(context, listen: false)
         .notifyUserAdded(invite.boardId, invite.invitedEmail);
+    //TODO - snackbar
   }
 
 // decline an invite for current user
@@ -212,6 +216,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     await Provider.of<GroupMemberProvider>(context, listen: false)
         .declineInvite(invite.token);
     await _loadData();
+    // TODO - snackbar
   }
 
 // method used to load in invites, initially and after accept/decline

@@ -26,10 +26,20 @@ class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
         children: [
           // Back button
           IconButton(
-              onPressed: widget.exit, icon: const Icon(Icons.arrow_back)),
+              onPressed: Navigator.canPop(context) ? widget.exit : null,
+              icon: const Icon(Icons.arrow_back)),
           // Home button
           IconButton(
-              onPressed: () => Navigator.pushNamed(context, Home.routeName),
+              onPressed: () {
+                // Obtain the current route's name
+                String? currentRouteName =
+                    ModalRoute.of(context)?.settings.name;
+
+                // Check if the current route is not the Home page before navigating
+                if (currentRouteName != Home.routeName) {
+                  Navigator.pushNamed(context, Home.routeName);
+                }
+              },
               icon: const Icon(Icons.home)),
           // Sign out button
           IconButton(
