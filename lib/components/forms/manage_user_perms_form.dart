@@ -1,3 +1,6 @@
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/providers/g_member_provider.dart';
@@ -18,7 +21,6 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
   Roles _selectedRole = Roles.shareholder;
 
   // handle form submission
-  // TODO - fix navigation
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // save current state of the form
@@ -28,15 +30,23 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
       // finishes. We check if its mounted before trying to use it to prevent a crash.
       if (!mounted) return;
       if (!removed) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Failed to change permission for $_selectedEmail"),
-        ));
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(
+                errorMessage: failedToChangePermsMsg(_selectedEmail),
+              );
+            });
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-            "$_selectedEmail permissions changed to ${_selectedRole.toFormattedString()}"),
-      ));
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultSuccessDialog(
+                title: permsChangeSuccessTitle,
+                successMessage: permsChangedMessage(
+                    _selectedEmail, _selectedRole.toFormattedString()));
+          });
     }
   }
 
@@ -57,15 +67,12 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
           return _buildForm(context, snapshot.data);
         } else {
           // Build the form without the owner's additional options
-          return const Center(
-            child: Text("No members to display"),
-          );
+          return noMembers;
         }
       },
     );
   }
 
-// TODO - text styling, consts moved to const file
   Widget _buildForm(BuildContext context, List<dynamic>? memberList) {
     return Form(
       key: _formKey,

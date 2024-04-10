@@ -125,3 +125,12 @@ const modifyExpenseError =
     "Unless you're an Admin, you can only modify expenses you created.";
 const addReceiptError =
     "Unless you're an Admin, you can only add receipts to expenses you created.";
+
+const permsChangeSuccessTitle = "Permissions updated";
+String permsChangedMessage(String email, String role) =>
+    "$email permissions changed to $role";
+String failedToChangePermsMsg(String email) =>
+    "Failed to change permission for $email";
+
+// GENERIC CONSTANTS
+const noMembers = Center(child: Text("No members to display"));
