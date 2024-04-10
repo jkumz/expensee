@@ -1,10 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/buttons/board_settings/add_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/delete_board_button.dart';
+import 'package:expensee/components/buttons/board_settings/download_receipts_button.dart';
 import 'package:expensee/components/buttons/board_settings/mass_email_button.dart';
 import 'package:expensee/components/buttons/board_settings/remove_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/manage_users_button.dart';
 import 'package:expensee/components/buttons/board_settings/rename_board_button.dart';
 import 'package:expensee/components/buttons/board_settings/pass_ownership_button.dart';
+import 'package:expensee/components/calendar/date_picker.dart';
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/forms/invite_member_form.dart';
 import 'package:expensee/components/forms/manage_user_perms_form.dart';
 import 'package:expensee/components/forms/mass_email_form.dart';
@@ -13,9 +18,14 @@ import 'package:expensee/components/forms/rename_board_form.dart';
 import 'package:expensee/components/forms/transfer_ownership_form.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
+import 'package:expensee/providers/expense_provider.dart';
 import 'package:expensee/util/dialog_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class BoardSettingsScreen extends StatefulWidget {
   static const routeName = "/board-settings";
@@ -145,6 +155,14 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       ),
       const SizedBox(height: 12),
       Expanded(
+        child: DownloadReceiptsButton(
+          text: downloadReceiptsText,
+          onPressed: _downloadAllReceipts,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
         child: DeleteBoardButton(
           text: delBoardText,
           onPressed: _confirmAndDeleteBoard,
@@ -180,4 +198,104 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   }
 
   bool _checkIfOwner() => widget.role == "owner";
+
+  // we need to get a list of all expnese IDs in the board, then for eahc of those save it to camera roll
+  Future<void> _downloadAllReceipts() async {
+    String? start;
+    String? end;
+
+    // First, show the date picker dialog to let the user select a date range
+    bool dateSelected = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Select Date Range"),
+            content: CustomDateRangePicker(
+                onDateRangeSelected: (startDate, endDate, selectedDateText) {
+              start = startDate;
+              end = endDate;
+            }),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false); // User cancelled
+                },
+              ),
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(true); // User confirmed
+                },
+              ),
+            ],
+          );
+        });
+
+    if (!dateSelected) return; // User cancelled the date selection
+
+    // Check storage permissions
+    if (!await _checkStoragePerms()) {
+      await [Permission.photos, Permission.videos].request();
+    }
+
+    if (!await _checkStoragePerms()) {
+      return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage:
+                    "Storage permissions are needed to save receipts.");
+          });
+    }
+
+    // If we got to this point, proceed with fetching expense IDs and downloading
+    List<int> ids = await Provider.of<ExpenseProvider>(context, listen: false)
+        .getExpenseIdsForBoard(widget.boardId, start, end);
+
+    try {
+      bool failedToSave = false;
+      for (int id in ids) {
+        if (!await Provider.of<ExpenseProvider>(context, listen: false)
+            .hasReceipt(id)) continue;
+
+        String imgUrl =
+            await Provider.of<ExpenseProvider>(context, listen: false)
+                .getReceiptUrlForExpense(id);
+        final bytes = await readBytes(Uri.parse(imgUrl));
+        final uniqueIdentifier = Uuid().v4();
+        final result = await ImageGallerySaver.saveImage(bytes,
+            name: "receipt_${id}_$uniqueIdentifier");
+
+        failedToSave = !result["isSuccess"];
+      }
+      if (!failedToSave) {
+        // Show success snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('All receipts saved successfully!')),
+        );
+      } else {
+        // Show error dialog
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(
+                  errorMessage: "Failed to save one or more receipts.");
+            });
+      }
+    } catch (e) {
+      // Handle errors
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage: "An error occurred while saving receipts.");
+          });
+    }
+  }
+
+  Future<bool> _checkStoragePerms() async {
+    return await Permission.photos.isGranted &&
+        await Permission.videos.isGranted;
+  }
 }

@@ -97,6 +97,7 @@ const passOwnershipText = "Transfer Ownership";
 const delBoardText = "Delete Board";
 const massEmailText = "Send Email Notification";
 const searchBoardText = "Filter Expenses";
+const downloadReceiptsText = "Download Receipts";
 
 const boldedExpenseTextStyle =
     TextStyle(fontSize: 16, fontWeight: FontWeight.bold);

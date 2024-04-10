@@ -1,3 +1,4 @@
+import 'package:expensee/components/calendar/date_picker.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
@@ -49,31 +50,12 @@ class _SearchFormState extends State<SearchForm> {
     await _fetchGroupMembers(widget.boardId);
   }
 
-  void _onDatePickerSelectionChanged(DateRangePickerSelectionChangedArgs args) {
-    if (args.value is PickerDateRange) {
-      // update date range strings
-      setState(() {
-        startDate = "${args.value.startDate}";
-        endDate = "${args.value.endDate ?? args.value.startDate}";
-        if (args.value.startDate != null && args.value.endDate != null) {
-          selectedDateText =
-              "${DateFormat("dd-MM-yyyy").format(args.value.startDate)} - ${DateFormat("dd-MM-yyyy").format(args.value.endDate)}";
-        } else if (args.value.startDate != null) {
-          selectedDateText =
-              "${DateFormat("dd-MM-yyyy").format(args.value.startDate)}";
-        }
-      });
-    }
-  }
-
-  Widget _renderDatePicker() {
-    return SfDateRangePicker(
-      view: DateRangePickerView.year,
-      onSelectionChanged: _onDatePickerSelectionChanged,
-      selectionMode: DateRangePickerSelectionMode.range,
-      initialSelectedRange: PickerDateRange(
-          DateTime.now().subtract(const Duration(days: 1)), DateTime.now()),
-    );
+  void _updateDateRange(String start, String end, String text) {
+    setState(() {
+      startDate = start;
+      endDate = end;
+      selectedDateText = text;
+    });
   }
 
   void _showDatePickerDialog() {
@@ -85,7 +67,7 @@ class _SearchFormState extends State<SearchForm> {
           content: SizedBox(
             height: 400,
             width: double.infinity,
-            child: _renderDatePicker(),
+            child: CustomDateRangePicker(onDateRangeSelected: _updateDateRange),
           ),
           actions: <Widget>[
             TextButton(
