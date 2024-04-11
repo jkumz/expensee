@@ -61,8 +61,7 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
               // assign name input
               onSaved: (value) => _boardName = value!,
               // validate name input
-              validator: (value) =>
-                  value!.isEmpty ? "Please enter a board name" : null,
+              validator: (value) => value!.isEmpty ? enterBoardName : null,
             ),
             TextFormField(
                 decoration:
@@ -72,19 +71,18 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
                 // validate name input
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Please enter a balance in X.XX format";
+                    return blankValueText;
                   } else if (!RegExp(r'^\d+(\.\d{2})?$').hasMatch(value)) {
-                    return "Invalid format. Please enter a balance in X.XX format";
+                    return invalidValueText;
                   }
                   return null;
                 }),
             SwitchListTile(
-                title: const Text("Group board?"),
+                title: groupBoardQuestionText,
                 value: _isGroup,
                 onChanged: (bool val) =>
                     mounted ? setState(() => _isGroup = val) : null),
-            ElevatedButton(
-                onPressed: _submit, child: const Text("Create board"))
+            ElevatedButton(onPressed: _submit, child: createBoardText)
           ],
         ),
       ),

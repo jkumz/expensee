@@ -1,5 +1,6 @@
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/dropdown/user_dropdown.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
@@ -25,7 +26,7 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
 
       if (selectedEmail == "@") {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("You must select an email to remove."),
+          content: noEmailText,
         ));
         return;
       }
@@ -63,17 +64,13 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}'); // Handle error case
         } else {
-          // Now you have both isAdmin and members data
           bool isAdmin = snapshot.data?['isAdmin'] ?? false;
           List members = snapshot.data?['members'] ?? [];
 
           if (members.isEmpty) {
-            return const Center(
-              child: Text("No members to remove"), // Show message if no members
-            );
+            return noMembers;
           } else {
-            return buildForm(context, isAdmin,
-                members); // Pass both isAdmin and members to the form
+            return buildForm(context, isAdmin, members);
           }
         }
       },
@@ -90,7 +87,7 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
           children: [
             const Center(
               child: Text(
-                "Select a user to remove",
+                selectUserText,
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
             ),
@@ -105,7 +102,8 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
                     isAdmin: !isAdmin,
                     boardId: widget.boardId,
                   ), // Use conditional if isOwner
-            ElevatedButton(onPressed: _submit, child: const Text("Remove user"))
+            ElevatedButton(
+                onPressed: _submit, child: const Text(removeUserText))
           ],
         ),
       ),

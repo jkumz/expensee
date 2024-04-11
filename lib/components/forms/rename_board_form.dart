@@ -1,4 +1,5 @@
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
@@ -48,11 +49,11 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Name must be 30 characters or less.'),
+          title: const Text(errorText),
+          content: boardNameTooLongError,
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: okText,
               onPressed: () {
                 // Dismiss the dialog
                 Navigator.of(context).pop();
@@ -93,7 +94,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
                     onPressed: () async {
                       await _renameBoard(_nameController.text);
                     },
-                    child: Text("Rename"),
+                    child: renameText,
                   ),
                 )
               ],
@@ -113,7 +114,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
         context: context,
         builder: (BuildContext context) {
           return DefaultErrorDialog(
-              title: "Permission Error",
+              title: permsErrorTitle,
               errorMessage: "Failed to rename board to $newName");
         },
       );

@@ -46,6 +46,11 @@ class BoardRepository implements BoardRepositoryInterface {
     return updated;
   }
 
+  Future<bool> leaveBoard(String boardId) async {
+    return await _service.deleteGroupMember(
+        boardId, supabase.auth.currentUser!.id);
+  }
+
   Future<ExpenseBoard?> getBoard(String boardId) async {
     var board = await _service.getBoard(boardId);
 

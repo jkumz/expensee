@@ -1,5 +1,6 @@
 import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/dropdown/roles_dropdown.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
@@ -42,7 +43,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
           context: context,
           builder: (BuildContext context) {
             return DefaultSuccessDialog(
-                successMessage: "Invite sent to $_userEmail");
+                successMessage: inviteSentText(_userEmail));
           });
       setState(() {});
     }
@@ -79,16 +80,15 @@ class _InviteUserFormState extends State<InviteUserForm> {
         child: Column(
           children: [
             TextFormField(
-              decoration: const InputDecoration(labelText: "Invite User"),
+              decoration: const InputDecoration(labelText: addUserText),
               onSaved: (value) => _userEmail = value!,
-              validator: (value) =>
-                  value!.isEmpty ? "Please enter an email address" : null,
+              validator: (value) => value!.isEmpty ? insertEmailText : null,
             ),
             if (isOwner)
               RolesDropdownMenu(
                 onRoleChanged: (Roles newRole) => _selectedRole = newRole,
               ), // Use conditional if isOwner
-            ElevatedButton(onPressed: _submit, child: const Text("Send invite"))
+            ElevatedButton(onPressed: _submit, child: sendInviteText)
           ],
         ),
       ),

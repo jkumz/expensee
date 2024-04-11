@@ -4,9 +4,7 @@ import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 // ignore: must_be_immutable
 class SearchForm extends StatefulWidget {
@@ -65,7 +63,7 @@ class _SearchFormState extends State<SearchForm> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Select Range'),
+          title: selectDateRange,
           content: SizedBox(
             height: 400,
             width: double.infinity,
@@ -73,7 +71,7 @@ class _SearchFormState extends State<SearchForm> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: cancelText,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -154,7 +152,7 @@ class _SearchFormState extends State<SearchForm> {
         // copy already selected categories over
         final _tempSelectedCategories = [...selectedCategories];
         return AlertDialog(
-          title: Text('Select Categories'),
+          title: selectCategoriesPopupText,
           content: StatefulBuilder(
             // This will allow us to update the dialog's content.
             builder: (BuildContext context, StateSetter setState) {
@@ -187,13 +185,13 @@ class _SearchFormState extends State<SearchForm> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: cancelText,
               onPressed: () {
                 Navigator.pop(context);
               },
             ),
             TextButton(
-              child: Text('OK'),
+              child: okText,
               onPressed: () {
                 if (mounted) {
                   setState(() {
@@ -225,7 +223,7 @@ class _SearchFormState extends State<SearchForm> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text("Select Categories"),
+            selectCategoriesPopupText,
             const SizedBox(width: 8),
             Expanded(
               child: GestureDetector(

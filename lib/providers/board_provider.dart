@@ -62,6 +62,10 @@ class BoardProvider extends ChangeNotifier {
     return deleted;
   }
 
+  Future<bool> leaveBoard(String boardId) async {
+    return await _repo.leaveBoard(boardId);
+  }
+
 // update a board
   Future<bool> updateBoard(
       String boardId, Map<String, dynamic> updatedJson) async {

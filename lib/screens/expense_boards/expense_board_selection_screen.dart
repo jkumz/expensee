@@ -1,4 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/appbars/view_boards_app_bar.dart';
+import 'package:expensee/components/dialogs/confirmation_dialog.dart';
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
@@ -92,9 +97,30 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   }
 
   Widget _buildBoardItem(ExpenseBoard board, BuildContext context) {
-    return ListTile(
-      title: Center(child: Text(board.name)),
-      onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
+    return Dismissible(
+      key: Key(board.id.toString()),
+      background: Container(color: Colors.red),
+      child: ListTile(
+        title: Center(child: Text(board.name)),
+        onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
+      ),
+      confirmDismiss: (direction) {
+        return _promptLeavingBoard(board.id!.toString());
+      },
+      onDismissed: (direction) => {
+        if (direction == DismissDirection.endToStart)
+          {
+            _leaveExpenseBoard(board.id!.toString()).then((hasLeft) {
+              if (hasLeft) {
+                if (mounted) {
+                  setState(() {
+                    boards.removeWhere((element) => element.id! == board.id!);
+                  });
+                }
+              }
+            })
+          }
+      },
     );
   }
 
@@ -123,5 +149,57 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
     await Navigator.of(context).pushNamed(BoardCreationScreen.routeName);
 
     _fetchBoards();
+  }
+
+  Future<bool> _leaveExpenseBoard(String boardId) async {
+    // Attempt to leave
+    bool hasLeft = await Provider.of<BoardProvider>(context, listen: false)
+        .leaveBoard(boardId);
+    if (hasLeft) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultSuccessDialog(
+                successMessage: "Left board with id $boardId");
+          });
+      return hasLeft;
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage:
+                    "Faild to leave board with id $boardId - please try again");
+          });
+    }
+    return hasLeft;
+  }
+
+  Future<bool> _promptLeavingBoard(String boardId) async {
+    // Can't leave as the owner - must transfer ownership or delet board
+    bool leaving = false;
+    if (await Provider.of<BoardProvider>(context, listen: false)
+        .checkIfOwner(boardId)) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+              title: "Unable to Delete",
+              errorMessage:
+                  "You are the owner of this board. Pass on ownership or delete it instead",
+            );
+          });
+      leaving = false;
+    } else {
+      leaving = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return const ConfirmationAlertDialog(
+              title: "Leave Expense Board",
+              content: "Are you sure you want to leave this expense board?",
+            );
+          }) as bool;
+    }
+    return leaving;
   }
 }

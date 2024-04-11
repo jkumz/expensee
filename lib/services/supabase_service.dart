@@ -146,11 +146,13 @@ class SupabaseService {
   // Remove a user from an expense board
   Future<bool> deleteGroupMember(String boardId, String userId) async {
     final response = await supabase
-        .from('group_members')
-        .delete()
-        .match({'id': boardId, 'user_id': userId});
+            .from('group_members')
+            .delete()
+            .match({'board_id': boardId, 'user_id': userId}).select()
+        as List<dynamic>;
 
-    if (response.error != null && response != null) {
+    if (response.isEmpty) {
+      //TODO imrpvoe this
       print(
           'Error deleting group member with id $userId from board with id $boardId');
       return false;

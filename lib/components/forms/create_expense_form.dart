@@ -16,7 +16,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-// TODO - More rendering / options for group expenses - better validation
+// TODO - better validation
 class CreateExpenseForm extends ExpenseItem {
   @override
   final Expense expense;
@@ -68,7 +68,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         .hasReceipt(widget.expense.id!);
   }
 
-// TODO - make this better...
+// TODO - make this better... --> error shown on submit, rather than every time
   void _validateForm() {
     // Regex - Check it's start of line, then match digit between 1 to 7 times
     // (up to a millions), then match the decimal, then match exactly 2 digits.
@@ -81,10 +81,10 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(_dateController.text);
 
     if (!isAmountValid) {
-      _showValidationMessage("Amount must be to 2 decimal places...");
+      _showInvalidValueMessage();
     }
     if (!isDateValid) {
-      _showValidationMessage("Date must be in YYYY-MM-DD format");
+      _showInvalidDateMessage();
     }
 
     if (mounted) {
@@ -94,11 +94,20 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     }
   }
 
-  void _showValidationMessage(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      duration: Duration(seconds: 1),
-    ));
+  void _showInvalidValueMessage() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DefaultErrorDialog(errorMessage: invalidValueText);
+        });
+  }
+
+  void _showInvalidDateMessage() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DefaultErrorDialog(errorMessage: invalidDateText);
+        });
   }
 
   @override
@@ -313,7 +322,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
                         await _saveReceiptToCameraRoll();
                         Navigator.of(context).pop(); // Save functionality
                       },
-                      child: const Text('Save'),
+                      child: saveText,
                     ),
                     TextButton(
                       onPressed: () async {
@@ -321,12 +330,12 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
                         await _deleteReceipt();
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Delete'),
+                      child: deleteText,
                     ),
                     TextButton(
                       onPressed: () =>
                           Navigator.of(context).pop(), // Close dialog
-                      child: const Text('Close'),
+                      child: closeText,
                     ),
                   ],
                 )
@@ -348,8 +357,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
             context: context,
             builder: (BuildContext context) {
               return DefaultErrorDialog(
-                  errorMessage:
-                      "Failed to delete receipt for expense ${widget.expense.id!}");
+                  errorMessage: receiptDeleteFail(widget.expense.id!));
             });
       } else {
         // TODO - show success snackbar
@@ -374,9 +382,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       return showDialog(
           context: context,
           builder: (BuildContext context) {
-            return DefaultErrorDialog(
-                errorMessage:
-                    "Storage permissions are needed to save this receipt");
+            return DefaultErrorDialog(errorMessage: noStoragePerms);
           });
     }
 
@@ -411,16 +417,15 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Confirm Delete'),
-              content:
-                  const Text('Are you sure you want to delete this receipt?'),
+              title: askToDeleteReceiptTitle,
+              content: askToDeleteReceipt,
               actions: <Widget>[
                 TextButton(
-                  child: const Text('Cancel'),
+                  child: cancelText,
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
                 TextButton(
-                  child: const Text('Delete'),
+                  child: deleteText,
                   onPressed: () => Navigator.of(context).pop(true),
                 ),
               ],

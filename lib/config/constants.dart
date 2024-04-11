@@ -73,7 +73,7 @@ const editableDescriptionLabelText = "Description";
 const editableAmountLabelText = "Amount";
 const editableDateLabelText = "Date";
 
-// EXPENSE BOARD WIDGET CONSTANTS
+// EXPENSE BOARD CONSTANTS
 
 const boardCreationSuccessMessage = "Expense board created";
 const boardCreationFailureMessage = "Failed to create board";
@@ -81,10 +81,14 @@ const boardCreationFailureMessage = "Failed to create board";
 const viewSoloExpenseBoardsBtnText = "View your Expense Boards";
 const viewGroupExpenseBoardsBtnText = "View Group Expense Boards";
 const viewInvitesBtnText = "Manage Invites";
+const enterBoardName = "Please enter a board name";
+const createBoardText = Text("Create board");
+const groupBoardQuestionText = Text("Group board?");
 
 // EXPENSE BOARD SETTINGS SCREEN CONSTANTS
 
 const boardSettingsAppBarTitle = "Board Settings";
+const renameText = Text("Rename");
 
 // EXPENSE LIST CONSTANTS
 
@@ -108,12 +112,18 @@ const createExpenseBtnText = Text("Create Expense");
 const modifyExpenseBtnText = Text("Modify Expense");
 const categoryLength = 17;
 const expenseDescLength = 46;
+const invalidDateText = "Date must be in YYYY-MM-DD format";
+const invalidValueText =
+    "Invalid format. Please enter a balance in X.XX format";
+const blankValueText = "Please enter a balance in X.XX format";
 
-// INVITE MANAGEMENT SCREEN CONSTANTS
+// INVITE MANAGEMENT CONSTANTS
 
 const viewInvitesAppBarTitle = Text("Manage Board Invites");
 const acceptBtnText = "ACCEPT";
 const declineBtnText = "DECLINE";
+String inviteSentText(String email) => "Invite sent to $email";
+const sendInviteText = Text("Send invite");
 
 // POP UP MESSAGES
 
@@ -125,7 +135,17 @@ const modifyExpenseError =
     "Unless you're an Admin, you can only modify expenses you created.";
 const addReceiptError =
     "Unless you're an Admin, you can only add receipts to expenses you created.";
+String receiptDeleteFail(int id) => "Failed to delete receipt for expense $id";
+const noStoragePerms = "Storage permissions are needed to save this receipt";
+const askToDeleteReceipt =
+    Text('Are you sure you want to delete this receipt?');
+const askToDeleteReceiptTitle = Text('Confirm Delete');
+const boardNameTooLongError = Text('Name must be 30 characters or less.');
+const permsErrorTitle = "Permission Error";
+const selectCategoriesPopupText = Text('Select Categories');
+const selectDateRange = Text('Select Range');
 
+// PERMS TEXT
 const permsChangeSuccessTitle = "Permissions updated";
 String permsChangedMessage(String email, String role) =>
     "$email permissions changed to $role";
@@ -134,3 +154,29 @@ String failedToChangePermsMsg(String email) =>
 
 // GENERIC CONSTANTS
 const noMembers = Center(child: Text("No members to display"));
+const saveText = Text('Save');
+const deleteText = Text('Delete');
+const okText = Text('OK');
+const closeText = Text('Close');
+const cancelText = Text('Cancel');
+const insertEmailText = "Please enter an email address";
+const successText = "Success";
+const errorText = "Error";
+const failText = "Failed";
+const noEmailText = Text("No email selected");
+const selectUserText = "Select a user";
+
+// MASS EMAIL
+const adminEmailSentText =
+    "Your emails have been sent to the admin mailing list";
+const massEmailSentText =
+    "Your emails have been sent to everyone in this board.";
+const noRecipientsTitle = "Empty Mailing List";
+const noRecipientsError = "Failed to retrieve emails...";
+const adminEmailFailed =
+    "Your emails have failed to send to the admin mailing list";
+const massEmailFailed = "Your emails failed to send to everyone in this board.";
+const emailSubjectText = "Enter email subject";
+const emailBodyText = "Enter email body";
+const sentToAdminsSuccess = Text("Send to Admins Only");
+const sendEmailText = Text("Send Email");

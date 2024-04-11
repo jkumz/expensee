@@ -1,4 +1,5 @@
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
@@ -26,22 +27,18 @@ class _MassEmailFormState extends State<MassEmailForm> {
   @override
   void initState() {
     super.initState();
-    subjectController = TextEditingController(text: "Enter email subject");
-    bodyController = TextEditingController(text: "Enter email body");
+    subjectController = TextEditingController(text: emailSubjectText);
+    bodyController = TextEditingController(text: emailBodyText);
 
     // TODO - validation
-    // subjectController.addListener(() => _validateForm());
-    // subjectController.addListener(() => _validateForm());
   }
 
   void _showFailAlert(bool adminOnly) {
-    String message = adminOnly
-        ? "Your emails have failed to send to the admin mailing list"
-        : "Your emails failed to send to everyone in this board.";
+    String message = adminOnly ? adminEmailFailed : massEmailFailed;
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DefaultErrorDialog(title: "Success", errorMessage: message);
+        return DefaultErrorDialog(title: failText, errorMessage: message);
       },
     );
   }
@@ -51,20 +48,17 @@ class _MassEmailFormState extends State<MassEmailForm> {
       context: context,
       builder: (BuildContext context) {
         return DefaultErrorDialog(
-            title: "Empty Mailing List",
-            errorMessage: "Failed to retrieve emails...");
+            title: noRecipientsTitle, errorMessage: noRecipientsError);
       },
     );
   }
 
   void _showSuccessAlert(bool adminOnly) {
-    String message = adminOnly
-        ? "Your emails have been sent to the admin mailing list"
-        : "Your emails have been sent to everyone in this board.";
+    String message = adminOnly ? adminEmailSentText : massEmailSentText;
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DefaultErrorDialog(title: "Success", errorMessage: message);
+        return DefaultErrorDialog(title: successText, errorMessage: message);
       },
     );
   }
@@ -106,7 +100,7 @@ class _MassEmailFormState extends State<MassEmailForm> {
               height: 10,
             ),
             CheckboxListTile(
-              title: const Text("Send to Admins Only"),
+              title: sentToAdminsSuccess,
               value: adminOnlyEmail,
               onChanged: (bool? newValue) {
                 if (mounted) {
@@ -129,7 +123,7 @@ class _MassEmailFormState extends State<MassEmailForm> {
                       await _sendEmails(
                           subjectController.text, bodyController.text);
                     },
-                    child: const Text("Send Email"),
+                    child: sendEmailText,
                   ),
                 )
               ],
@@ -152,7 +146,8 @@ class _MassEmailFormState extends State<MassEmailForm> {
     if (await Provider.of<BoardProvider>(context, listen: false)
         .sendMassEmail(subject, body, mailingList)) {
       _showSuccessAlert(adminOnlyEmail);
-    } else
+    } else {
       _showFailAlert(adminOnlyEmail);
+    }
   }
 }
