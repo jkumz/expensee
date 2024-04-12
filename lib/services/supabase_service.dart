@@ -9,12 +9,17 @@ import 'package:expensee/main.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:logger/logger.dart';
 
 import 'package:resend/resend.dart';
 
-//TODO - proper error handling + logging
+//TODO - proper error handling
 //TODO - validation - if member part of board, if already removed, if board exists etc. Go over every method.
 //TODO - convert JSON to required format when fetching, may do in classes
+
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
 
 class SupabaseService {
   // Using our global Supabase client singleton instance from main.dart
@@ -32,18 +37,20 @@ class SupabaseService {
         // Extract the list of data from the response
         final List<dynamic> data = response;
 
+        logger
+            .d("Fetching expense boards for user ID $userId - group: $isGroup");
         // Map the dynamic list to a list of ExpenseBoard instances
         return data.where((json) => json != null).map<ExpenseBoard>((json) {
           return ExpenseBoard.fromJson(json as Map<String, dynamic>);
         }).toList();
       } else {
-        print('Error: Data is null or not a list');
+        logger.e('Error: Data is null or not a list');
         return [];
       }
     } catch (error) {
       // If there's an error, log it and return an empty list
-      print('Error fetching expense boards - Group: $isGroup');
-      print('Error: $error');
+      logger.e('Error fetching expense boards - Group: $isGroup');
+      logger.e('Error: $error');
       return [];
     }
   }
@@ -63,9 +70,9 @@ class SupabaseService {
           await _addOwnerToBoard(response.first["id"].toString(), userId);
 
       if (addedOwner) {
-        print("Board created & owner added");
+        logger.d("Board created & owner added");
       } else {
-        print("Error adding owner to expense board - deleting board!");
+        logger.e("Error adding owner to expense board - deleting board!");
         await deleteExpenseBoard(response.first["id"].toString());
       }
     }
@@ -78,8 +85,10 @@ class SupabaseService {
         await supabase.from('expense_boards').delete().match({'id': boardId});
 
     if (resp != null) {
-      print("Error deleting expense board with ID $boardId");
+      logger.e("Error deleting expense board with ID $boardId");
       return false;
+    } else {
+      logger.d("Deleted expense board with ID $boardId");
     }
     return true;
   }
@@ -89,7 +98,7 @@ class SupabaseService {
       String boardId, Map<String, dynamic> updatedData) async {
     await supabase.from("expense_boards").update(updatedData).match({
       'id': boardId
-    }).onError((error, stackTrace) => print(
+    }).onError((error, stackTrace) => logger.e(
         "Error updating expense board with id $boardId\nError $error - $stackTrace"));
 
     final updatedBoardJson = (await supabase
@@ -101,7 +110,9 @@ class SupabaseService {
     ExpenseBoard newBoard = ExpenseBoard.fromJson(updatedData);
 
     if (!ExpenseBoard.fromJson(updatedBoardJson).equals(newBoard)) {
-      print("Error updating expense board with id $boardId");
+      logger.e("Error updating expense board with id $boardId");
+    } else {
+      logger.d("Updated expense board with id $boardId");
     }
     return newBoard;
   }
@@ -111,7 +122,7 @@ class SupabaseService {
         await supabase.from("expense_boards").select().match({"id": boardId});
 
     if (board == null) {
-      print("No board with matching id: $boardId");
+      logger.e("No board with matching id: $boardId");
     }
     board = ExpenseBoard.fromJson(board[0]);
     return board;
@@ -126,9 +137,12 @@ class SupabaseService {
         .firstOrNull;
 
     if (boardOwnerRecord == null) {
-      print("No board with matching id: $boardId");
+      logger.e("No board with matching id: $boardId");
       return false;
     }
+
+    logger
+        .d("Checing if current user is board owner of board with ID $boardId");
     return supabase.auth.currentUser!.id == boardOwnerRecord["user_id"];
   }
 
@@ -141,9 +155,11 @@ class SupabaseService {
         .firstOrNull;
 
     if (board == null) {
-      print("No board with matching id: $boardId");
+      logger.e("No board with matching id: $boardId");
       return false;
     }
+    logger.d("Checing if current user is an admin of board with ID $boardId");
+
     return board["role"] == "admin";
   }
 
@@ -156,12 +172,13 @@ class SupabaseService {
         as List<dynamic>;
 
     if (response.isEmpty) {
-      //TODO imrpvoe this
-      print(
+      logger.e(
           'Error deleting group member with id $userId from board with id $boardId');
       return false;
     }
 
+    logger.d(
+        "Successfully deleted user with ID $userId from board with ID $boardId");
     return true;
   }
 
@@ -171,15 +188,19 @@ class SupabaseService {
         {'role': newRole}).match({"board_id": boardId, "user_email": email});
 
     if (response != null) {
-      print("Error updating group (id: $boardId) member's role with id $email");
+      logger.e(
+          "Error updating group (board id: $boardId) member's role with email $email");
       return false;
     }
+    logger.d(
+        "Successfully updated group (board id: $boardId) member's role with email $email");
     return true;
   }
 
   Future<bool> isBoardGroup(String boardId) async {
     final jsonList =
         await supabase.from("expense_boards").select().eq("id", boardId);
+    logger.d("Checking if board with id $boardId is a group board");
     return jsonList[0]["is_group"];
   }
 
@@ -192,6 +213,11 @@ class SupabaseService {
         .order('date', ascending: true);
 
     List<Expense> expenses = [];
+    if (response.isEmpty) {
+      logger.w("No expenses in board with id $boardId fetched");
+    } else {
+      logger.d("Fetched expenses for board with id $boardId");
+    }
     for (var expenseJson in response) {
       var e = Expense.fromJson(expenseJson);
       e.setId(expenseJson["id"]);
@@ -214,6 +240,7 @@ class SupabaseService {
 
     // apply IDs filter
     if (userIDs.isNotEmpty) {
+      logger.d("Filtering expenses by creator IDs provided");
       query = invertIds
           ? query.not("creator_id", "in", userIDs)
           : query.filter("creator_id", "in", userIDs);
@@ -221,6 +248,7 @@ class SupabaseService {
 
     // apply categories filter
     if (categories.isNotEmpty) {
+      logger.d("Filtering expenses by categories provided");
       query = invertCategories
           ? query.not("category", "in", categories)
           : query.filter("category", "in", categories);
@@ -233,6 +261,7 @@ class SupabaseService {
 
     // date range
     if (filteringDates && startDate != endDate) {
+      logger.d("Filtering expenses by date span : $startDate - $endDate");
       if (!invertDates) {
         // if we are not inverting the dates, we just leave the query as is
         // and after getting results, we remove any that match the date / span
@@ -242,6 +271,7 @@ class SupabaseService {
     // single date
     else if (filteringDates) {
       // we simply search for that date
+      logger.d("Filterng expenses by specific date: $startDate");
       if (!invertDates) {
         query = query.eq("date", startDate);
       }
@@ -250,6 +280,7 @@ class SupabaseService {
     // at this stage, we have applied all neccessary filters. The only thing we
     // must account for is inverted dates.
     var expenseJsonList = await query.order('date', ascending: true);
+    logger.d("Converting filtered results to expense objects");
     if (filteringDates) {
       if (!invertDates) {
         for (var json in expenseJsonList) {
@@ -288,6 +319,8 @@ class SupabaseService {
         expenses.add(e);
       }
     }
+    logger
+        .d("Fetched expense objects matching user's filter for board $boardId");
     return expenses;
   }
 
@@ -296,7 +329,7 @@ class SupabaseService {
         await supabase.from('expenses').select().eq('id', expenseId);
 
     if (expenseExists != null) {
-      print("Found expense with id $expenseId");
+      logger.d("Found expense with id $expenseId");
       List<dynamic> expenseJson =
           await supabase.from('expenses').select().eq('id', expenseId);
 
@@ -307,7 +340,7 @@ class SupabaseService {
       return expense;
     }
 
-    print("Expense with id $expenseId doesn't exist");
+    logger.e("Expense with id $expenseId doesn't exist");
     return Expense.blank();
   }
 
@@ -356,7 +389,7 @@ class SupabaseService {
     Expense updatedExpense = Expense.fromJson(updatedJson);
 
     if (Expense.equals(expense, updatedExpense)) {
-      print("Error updating expense board with id $expenseId");
+      logger.e("Error updating expense board with id $expenseId");
     }
 
     return updatedExpense;
@@ -372,7 +405,8 @@ class SupabaseService {
 
     if (!(updatedExpense.first["receipt_image_url"] == addedReceiptUrl)) {
       await supabase.storage.from("receipts").remove([addedReceiptUrl]);
-      print("Failed to upload receipt URL to database - removed from storage");
+      logger
+          .e("Failed to upload receipt URL to database - removed from storage");
       return false;
     }
     return true;
@@ -385,12 +419,15 @@ class SupabaseService {
         .eq("id", expenseId) as List;
 
     if (json.isEmpty) {
-      throw Exception(
-          'Failed to get expense receipt $expenseId URL or no such expense exists.');
+      logger.e(
+          "Failed to get expense receipt $expenseId URL or no such expense exists.");
     }
 
     var receiptUrl = json.first["receipt_image_url"];
-    if (receiptUrl == null) return ""; //TODO - handling/logging
+    if (receiptUrl == null) {
+      logger.e("Failed to fetch image URL");
+      return "";
+    }
     var uri = Uri.parse(receiptUrl);
     String fileName = uri.pathSegments.last;
 
@@ -398,7 +435,9 @@ class SupabaseService {
     var signedUrlResponse =
         await supabase.storage.from("receipts").createSignedUrl(fileName, 90);
     if (signedUrlResponse.isEmpty) {
-      throw Exception("Failed to gemerate signed URL for receipt $expenseId");
+      logger.e("Failed to generate signed URL for receipt $expenseId");
+    } else {
+      logger.d("Signed receipt URL for receipt $expenseId has been generated");
     }
 
     return signedUrlResponse;
@@ -421,7 +460,7 @@ class SupabaseService {
         .eq("id", expenseId) as List;
 
     if (json.isEmpty) {
-      print(
+      logger.e(
           "Failed to get expense receipt $expenseId URL or no such expense exists.");
       return false;
     }
@@ -432,6 +471,7 @@ class SupabaseService {
     // We assume that the path segment immediately following 'object' in the URL
     // path is the bucket name, 'receipts'.
     // Then the rest is the path within the bucket.
+    logger.d("Fetching receipt URL path to delete from storage");
     List<String> pathSegments = uri.pathSegments;
     int objectIndex = pathSegments.indexOf('object');
     String key = pathSegments
@@ -442,7 +482,7 @@ class SupabaseService {
     final deleteResponse =
         await supabase.storage.from('receipts').remove([key]);
     if (deleteResponse.isEmpty) {
-      print('Error deleting receipt for expense $expenseId');
+      logger.e('Error deleting receipt for expense $expenseId');
       return false;
     } else {
       // Update the expenses table to remove the receipt URL.
@@ -451,7 +491,13 @@ class SupabaseService {
           .update({'receipt_image_url': null})
           .eq('id', expenseId)
           .select() as List;
-      return result.first["receipt_image_url"] == null;
+      if (result.first["receipt_image_url"] == null) {
+        logger.d("Receipt successfully deleted for expense $expenseId");
+        return true;
+      }
+      logger.e(
+          "Failed to delete receipt URL for expense $expenseId from expenses table");
+      return false;
       // TODO - a clean up method called when expenses are fetched that, if there isn't a file at the url, automatically updates it to null
     }
     // TODO - error handling, try catch etc
@@ -463,13 +509,15 @@ class SupabaseService {
 
     if (added == null) {
       // Handle error
-      print('Error adding expense from provided data: $expenseData');
+      logger.e('Error adding expense from provided data: $expenseData');
       return Expense.blank();
     }
     var insertedExpenseData = added as List<dynamic>;
     var id = insertedExpenseData.first['id'];
     var e = Expense.fromJson(expenseData);
     e.setId(id);
+    logger.d(
+        "Added expense with $id to board with id ${expenseData["board_id"]}");
     return e;
   }
 
@@ -482,11 +530,11 @@ class SupabaseService {
         await supabase.from('expenses').delete().match({'id': expenseId});
 
     if (response != null) {
-      print("Failed to delete expense with id $expenseId");
+      logger.e("Failed to delete expense with id $expenseId");
       return null;
     }
 
-    print("Deleted expense with id $expenseId");
+    logger.d("Deleted expense with id $expenseId");
     return expense;
   }
 
@@ -499,8 +547,9 @@ class SupabaseService {
           to: [email],
           subject: subject,
           text: msg);
+      logger.d("Invite email sent to $email");
     } catch (e) {
-      print(e);
+      logger.e(e);
     }
   }
 
@@ -517,14 +566,22 @@ class SupabaseService {
       'role': roleString
     }).select();
 
-    if (stored == null) return false;
+    if (stored == null) {
+      logger.e("Failed to store invite details for invite $token");
+      return false;
+    }
+    logger.d("Invite $token stored");
     return true;
   }
 
   Future<Invitation?> getInvite(String token) async {
     List<dynamic> inviteData =
         await supabase.from("invitations").select().eq("token", token);
-    if (inviteData.isNotEmpty) return Invitation.fromJson(inviteData.first);
+    if (inviteData.isNotEmpty) {
+      logger.d("Fetched invite $token");
+      return Invitation.fromJson(inviteData.first);
+    }
+    logger.e("Failed to fetch invite with token $token");
     return null;
   }
 
@@ -549,27 +606,27 @@ class SupabaseService {
           .first;
 
       if (updatedJson["status"] != "accepted") {
-        print("Error updating status of token");
+        logger.e("Error updating status of token");
         return null;
       }
 
       var invitation = Invitation.fromJson(updatedJson);
       bool added = await addMemberToBoard(invitation);
       if (added) {
-        print("Successfully accepted invite token $token");
+        logger.d("Successfully accepted invite token $token");
         return Invitation.fromJson(updatedJson);
       }
 
       // if not added, then change status back and return null
       updatedJson["status"] = "sent";
-      print("Failed to add user to board - invite status remains unchanged");
+      logger.e("Failed to add user to board - invite status remains unchanged");
       await supabase
           .from("invitations")
           .update(updatedJson)
           .match({'token': token});
       return null;
     } else {
-      print("Failed to fetch invite data for token $token");
+      logger.e("Failed to fetch invite data for token $token");
       return null;
     }
   }
@@ -593,13 +650,13 @@ class SupabaseService {
           .first;
 
       if (updatedJson["status"] != "declined") {
-        print("Error updating status of token");
+        logger.e("Error updating status of token");
         return null;
       }
-      print("Declined invite for token $token");
+      logger.d("Declined invite for token $token");
       return Invitation.fromJson(updatedJson);
     } else {
-      print("Failed to fetch invite data for token $token");
+      logger.e("Failed to fetch invite data for token $token");
       return null;
     }
   }
@@ -620,15 +677,16 @@ class SupabaseService {
           .insert(ownerJson)
           .select() as List;
       if (resp.isEmpty) {
-        print("Failed to add owner for new board");
+        logger.e("Failed to add owner for new board");
         return !added;
       }
       added = true;
     } catch (e) {
       //TOOD - handle exception
-      print("Failed to add owner for board $boardId");
+      logger.e("Failed to add owner for board $boardId");
       return !added;
     }
+    logger.d("Assigned user $userId as creator of $boardId");
     return added;
   }
 
@@ -647,18 +705,20 @@ class SupabaseService {
           await supabase.from("group_members").insert(groupMemberJson).select();
 
       if (resp == null) {
-        print(
+        logger.e(
             "Failed to add member ${invitation.invitedEmail} to board ${invitation.boardId}");
         return !added;
       }
 
-      print(
+      logger.d(
           "Added member ${invitation.invitedEmail} to board ${invitation.boardId}");
       return added;
     } catch (e) {
-      print("Error: $e\nFailed to add member to board");
+      logger.e("Error: $e\nFailed to add member to board");
     }
 
+    logger.e(
+        "Encountered an unknown error while attemtping to add ${invitation.invitedEmail} to board from invite ${invitation.token}");
     return !added;
   }
 
@@ -676,6 +736,7 @@ class SupabaseService {
     for (var inviteJson in response) {
       invites.add(Invitation.fromJson(inviteJson));
     }
+    logger.i("Fetching invites for $email");
     return invites;
   }
 
@@ -686,6 +747,7 @@ class SupabaseService {
 
 // if owner, view ALL but your own
     if (!isAdmin) {
+      logger.d("Fetching all group mmebers for board with id $boardId");
       List<dynamic> response = await supabase
           .from("group_members")
           .select()
@@ -696,6 +758,7 @@ class SupabaseService {
       }
     } else {
       // if admin, only view shareholders
+      logger.d("Fetching shareholder members for board with id $boardId");
       final response = (await supabase
           .from("group_members")
           .select()
@@ -708,6 +771,15 @@ class SupabaseService {
       }
     }
 
+    if (members.isEmpty) {
+      logger.w("No group members found for board with id $boardId");
+    } else {
+      logger.d("Successfully fetched members for board with id $boardId");
+    }
+
+    members.isEmpty
+        ? logger.w("No group members found for board with id $boardId")
+        : logger.d("Successfully fetched members for board with id $boardId");
     return members;
   }
 
@@ -719,7 +791,9 @@ class SupabaseService {
         .match({"board_id": boardId, "user_email": email});
 
     if (resp != null) {
-      print("Failed to remove $email from board $boardId");
+      logger.e("Failed to remove $email from board with id $boardId");
+    } else {
+      logger.d("Removed $email from board with id $boardId");
     }
     return resp == null;
   }
@@ -728,12 +802,16 @@ class SupabaseService {
     final resp =
         await supabase.from("expense_boards").select().eq("id", boardId);
 
-    if (resp == null) return false;
+    if (resp == null) {
+      logger.e("Failed to update board name for board with id $boardId");
+      return false;
+    }
 
     if (resp is List<dynamic>) {
       resp.first["name"] = newName;
       updateExpenseBoard(boardId, resp.first);
     }
+    logger.d("Updated board name for board with id $boardId to $newName");
     return true;
   }
 
@@ -758,7 +836,8 @@ class SupabaseService {
             .eq("role", "owner") as List<dynamic>)
         .first;
     if (currentOwner["user_id"] != userId) {
-      print("NOT PERMITTED");
+      logger.e(
+          "NOT PERMITTED - Current user is not the owner of board with id $boardId");
       return !transferred;
     }
 
@@ -770,7 +849,7 @@ class SupabaseService {
         .firstOrNull;
 
     if (newOwner == null || newOwner.isEmpty) {
-      print("MEMBER TO TRANSFER TO DOESN'T EXIST!");
+      logger.e("Failed to find member with $email for ownership transfer");
       return !transferred;
     }
 
@@ -788,9 +867,12 @@ class SupabaseService {
 
     if (changedToAdmin == null || changedToOwner == null) {
       // error handling
+      logger.e(
+          "Failed to perform ownership transfer to $email for board with id $boardId");
       return !transferred;
     }
 
+    logger.d("$email assigned as new owner of board with id $boardId");
     return transferred;
   }
 
@@ -805,11 +887,12 @@ class SupabaseService {
         .firstOrNull;
 
     if (memberRecord == null) {
-      print("Failed to fetch role in board $boardId for $email");
+      logger.e("Failed to fetch role in board $boardId for $email");
       return "";
       //TODO - proper error handling
     }
 
+    logger.d("Fetched current user's role for board with id $boardId");
     return memberRecord["role"];
   }
 
@@ -827,10 +910,11 @@ class SupabaseService {
 
 // TODO - proper error handling + logging
     if (memberRecordList.isEmpty) {
-      print("Failed to get members for board $boardId");
+      logger.e("Failed to get members for board $boardId");
       return [];
     }
 
+    logger.d("Fetched member emails for board with id $boardId");
     return memberRecordList
         .map((record) => record["user_email"] as String)
         .toList();
@@ -844,10 +928,11 @@ class SupabaseService {
 
     if (allCategoryRecords.isEmpty) {
       // TODO - proper handling
-      print("Failed to fetch categories for board $boardId");
+      logger.e("Failed to fetch categories for board $boardId");
       return List.empty();
     }
 
+    logger.d("Fetched categories for board with id $boardId");
     // Get all unique category instances and return as a list
     return allCategoryRecords
         .map((json) => json["category"] as String)
@@ -864,10 +949,11 @@ class SupabaseService {
 
     if (allMemberRecords.isEmpty) {
       //TODO - proper handling + logging
-      print("Failed to fetch member records for board $boardId");
+      logger.e("Failed to fetch member records for board $boardId");
       return List.empty();
     }
 
+    logger.d("Fetched member records for board with id $boardId");
     // specifified output of map for clarity - (userId, userEmail) records
     return allMemberRecords.map<(String userId, String userEmail)>((json) {
       return (json['user_id'] as String, json['user_email'] as String);

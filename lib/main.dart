@@ -3,9 +3,14 @@ import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/services/deeplink_service.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import "package:flutter_dotenv/flutter_dotenv.dart";
+
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +24,7 @@ void main() async {
       authFlowType: AuthFlowType.pkce,
     ).timeout(const Duration(seconds: 10));
   } catch (e) {
-    print("Failed to initialize supabase: $e");
+    logger.e("Failed to initialize supabase: $e");
   }
 
   runApp(const AppInitializer());

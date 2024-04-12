@@ -221,7 +221,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text("Select Date Range"),
+            title: const Text("Select Date Range"),
             content: CustomDateRangePicker(
                 onDateRangeSelected: (startDate, endDate, selectedDateText) {
               start = startDate;
@@ -229,13 +229,13 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
             }),
             actions: <Widget>[
               TextButton(
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
                 onPressed: () {
                   Navigator.of(context).pop(false); // User cancelled
                 },
               ),
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop(true); // User confirmed
                 },
@@ -275,7 +275,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
             await Provider.of<ExpenseProvider>(context, listen: false)
                 .getReceiptUrlForExpense(id);
         final bytes = await readBytes(Uri.parse(imgUrl));
-        final uniqueIdentifier = Uuid().v4();
+        final uniqueIdentifier = const Uuid().v4();
         final result = await ImageGallerySaver.saveImage(bytes,
             name: "receipt_${id}_$uniqueIdentifier");
 
@@ -289,9 +289,6 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
               return DefaultSuccessDialog(
                   successMessage: "All receipts saved successfully");
             });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('All receipts saved successfully!')),
-        );
       } else {
         // Show error dialog
         showDialog(

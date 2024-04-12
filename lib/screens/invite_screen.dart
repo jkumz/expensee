@@ -12,7 +12,7 @@ class InvitationScreen extends StatefulWidget {
       : super(key: key);
 
   @override
-  _InvitationScreenState createState() => _InvitationScreenState();
+  createState() => _InvitationScreenState();
 }
 
 class _InvitationScreenState extends State<InvitationScreen> {
@@ -56,9 +56,9 @@ class _InvitationScreenState extends State<InvitationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Board Invitation')),
+      appBar: AppBar(title: const Text('Board Invitation')),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : (_invitation?.token != null)
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -67,20 +67,20 @@ class _InvitationScreenState extends State<InvitationScreen> {
                     Text(
                         'You have been invited to join the board "${_invitation?.boardId}" by ${_invitation?.inviterId}.',
                         textAlign: TextAlign.center),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () => acceptInvitation(_invitation!.token),
-                      child: Text('Accept Invite'),
+                      child: const Text('Accept Invite'),
                     ),
                     ElevatedButton(
                       onPressed: declineInvitation,
-                      child: Text('Decline Invite'),
                       style:
                           ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: const Text('Decline Invite'),
                     ),
                   ],
                 )
-              : Center(
+              : const Center(
                   child: Text("No invite"),
                 ),
     );

@@ -81,7 +81,7 @@ class Expense {
       DateTime tempDate = DateTime.parse(date);
       this.date = DateTime(tempDate.year, tempDate.month, tempDate.day);
     } catch (unknownError) {
-      print(unknownError.toString());
+      logger.e(unknownError.toString());
     }
   }
 
@@ -89,7 +89,7 @@ class Expense {
     try {
       this.category = category;
     } catch (unknownError) {
-      print(unknownError.toString());
+      logger.e(unknownError.toString());
     }
   }
 
@@ -98,7 +98,7 @@ class Expense {
       this.amount = amount;
       _setBalance(balance, amount);
     } catch (unknownError) {
-      print(unknownError.toString());
+      logger.e(unknownError.toString());
     }
   }
 
@@ -114,7 +114,7 @@ class Expense {
     try {
       this.description = description;
     } catch (unknownError) {
-      print(unknownError.toString());
+      logger.e(unknownError.toString());
     }
   }
 
@@ -122,7 +122,7 @@ class Expense {
     try {
       receipts = receipt;
     } catch (e) {
-      print("Error: ${e.toString()}");
+      logger.e(e.toString());
     }
   }
 }

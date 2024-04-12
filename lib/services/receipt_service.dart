@@ -20,6 +20,7 @@ class ReceiptService {
 
     if (image == null) {
       // User canceled operation
+      logger.d("User cancelled adding receipt");
       return null;
     }
 
@@ -31,8 +32,8 @@ class ReceiptService {
         await supabase.storage.from('receipts').upload(fileName, file);
 
     if (response.isEmpty) {
-      // Error occurred while uploading // TODO
-      print('Error uploading image');
+      // Error occurred while uploading
+      logger.e('Error uploading image');
       return null;
     }
 
@@ -49,14 +50,14 @@ class ReceiptService {
             .select() as List<dynamic>)
         .firstOrNull;
 
-//TODO - error handling + logging
+//TODO - error handling
     if (updateResponse == null) {
-      print("Failed to upload receipt");
+      logger.e("Failed to upload receipt");
       return updateResponse;
     }
 
     // Success
-    print("Receipt uploaded");
+    logger.e("Receipt uploaded");
 
     return imageUrl;
   }

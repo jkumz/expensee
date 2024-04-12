@@ -6,11 +6,17 @@ import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/invites/invitation.dart';
 import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/main.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
 
 //TODO - View declined invites, probably dont need to view accepted.
 
@@ -72,6 +78,9 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
         final role = invite.role.toString().split(".").last;
         invitesWithBoardNames.add((inviteItem, boardName, role));
       }
+      logger.d("Rendering invites for $email");
+    } else {
+      logger.e("No invites to render for $email");
     }
     if (mounted) {
       setState(() {
@@ -98,12 +107,16 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
         final role = invite.role.toString().split(".").last;
         invitesWithBoardNames.add((inviteItem, boardName, role));
       }
-      if (mounted) {
-        setState(() {
-          invites = invitesWithBoardNames;
-        });
-      }
+    } else {
+      logger.e("Failed to fetch invites for $email");
     }
+    if (mounted) {
+      setState(() {
+        invites = invitesWithBoardNames;
+      });
+    }
+    logger.d("Fetched invites for $email");
+
     return invitesWithBoardNames;
   }
 
@@ -124,11 +137,14 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
         final role = invite.role.toString().split(".").last;
         invitesWithBoardNames.add((inviteItem, boardName, role));
       }
-      if (mounted) {
-        setState(() {
-          invites = invitesWithBoardNames;
-        });
-      }
+    } else {
+      logger.e("Failed to fetch invites for $email");
+    }
+    if (mounted) {
+      setState(() {
+        invites = invitesWithBoardNames;
+      });
+      logger.d("Fetched invites for $email");
     }
     return invitesWithBoardNames;
   }
@@ -256,7 +272,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
             break;
         }
       } catch (e) {
-        print("Error: $e\n Failed to load invites");
+        logger.e("Error: $e\n Failed to load invites");
       } finally {
         if (mounted) {
           setState(() {

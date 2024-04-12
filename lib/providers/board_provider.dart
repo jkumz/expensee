@@ -5,7 +5,7 @@ import 'package:expensee/models/expense_board/expense_board.dart';
 import "package:expensee/repositories/board_repo.dart";
 
 var logger = Logger(
-  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+  printer: PrettyPrinter(), // Use the Prettylogger.der for easy-to-read logging
 );
 
 // TODO - proper error handling + logging
@@ -24,10 +24,10 @@ class BoardProvider extends ChangeNotifier {
 
     try {
       _boards = await _repo.refreshExpenseBoards(isGroup);
-      print("Fetched boards: $_boards");
+      logger.d("Fetched ${_boards.length} boards");
       return _boards;
     } catch (error) {
-      print("Error fetching boards: $error");
+      logger.e("Error fetching boards: $error");
       return null;
     } finally {
       isLoading = false;
@@ -41,7 +41,7 @@ class BoardProvider extends ChangeNotifier {
     notifyListeners();
     var board = await _repo.addExpenseBoard(json);
 
-    print("Created board with name ${json['name']}");
+    logger.d("Created board with name ${json['name']}");
     _boards.add(board);
     notifyListeners();
     return true;
@@ -54,9 +54,11 @@ class BoardProvider extends ChangeNotifier {
     bool deleted = await _repo.removeExpenseBoard(boardId);
 
     if (deleted) {
-      print("Deleted board with id $boardId");
+      logger.d("Deleted board with id $boardId");
       _boards.removeWhere((board) => board.id.toString() == boardId);
       notifyListeners();
+    } else {
+      logger.e("Failed to delete board with id $boardId");
     }
     isLoading = false;
     return deleted;

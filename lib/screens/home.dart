@@ -113,12 +113,12 @@ class SignOutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
         onPressed: onTap,
-        child: child,
         style: ElevatedButton.styleFrom(
           foregroundColor: (textColour ?? Colors.white),
           backgroundColor:
               (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
           elevation: 1,
-        ));
+        ),
+        child: child);
   }
 }

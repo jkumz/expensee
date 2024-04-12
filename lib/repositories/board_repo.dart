@@ -4,6 +4,12 @@ import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/repositories/interfaces/board_repo_interface.dart';
 import 'package:expensee/services/email_service.dart';
 import 'package:expensee/services/supabase_service.dart';
+import 'package:logger/logger.dart';
+
+//TODO try catch / logs
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the Prettylogger.der for easy-to-read logging
+);
 
 // Repository for querying expense boards from Supabase via Service Layer
 class BoardRepository implements BoardRepositoryInterface {
@@ -26,7 +32,7 @@ class BoardRepository implements BoardRepositoryInterface {
       return board; // Assuming createExpenseBoard returns an ExpenseBoard object.
     } catch (e) {
       // Handle any errors here
-      print('Error adding expense board: $e');
+      logger.e('Error adding expense board: $e');
       throw Exception('Failed to add expense board: $e');
     }
   }

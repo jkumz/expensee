@@ -20,7 +20,7 @@ class ConditionalSnackbar extends SnackBar {
       content: Text(fullMessage!),
       backgroundColor:
           isSuccess ? Colors.green : Theme.of(context).colorScheme.error,
-      duration: Duration(seconds: 3),
+      duration: const Duration(seconds: 3),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
