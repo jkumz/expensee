@@ -15,7 +15,7 @@ class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
-  _HomeState createState() => _HomeState();
+  createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
@@ -48,8 +48,6 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _navigateToUserSettings() {}
-
   @override
   Widget build(BuildContext context) {
     return _buildHomePageOptions();
@@ -57,12 +55,8 @@ class _HomeState extends State<Home> {
 
   Widget _buildHomePageOptions() {
     return Scaffold(
-      appBar: HomeAppBar(
-        actions: [
-          // TODO
-        ],
-      ),
-      bottomNavigationBar: DefaultBottomAppBar(),
+      appBar: HomeAppBar(),
+      bottomNavigationBar: const DefaultBottomAppBar(),
       body: Stack(
         children: [
           Align(
@@ -75,7 +69,6 @@ class _HomeState extends State<Home> {
                   Center(
                     child: Text(
                       "Welcome ${supabase.auth.currentUser!.email}",
-                      style: TextStyle(/**TODO - Create this style */),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -119,14 +112,13 @@ class SignOutButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onTap,
-      child: child,
-      style: ElevatedButton.styleFrom(
+        onPressed: onTap,
+        child: child,
+        style: ElevatedButton.styleFrom(
           foregroundColor: (textColour ?? Colors.white),
           backgroundColor:
               (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
           elevation: 1,
-          textStyle: TextStyle(/*TODO make custom text styles*/)),
-    );
+        ));
   }
 }

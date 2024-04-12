@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/buttons/invite_management_buttons/accept_invite_btn.dart';
 import 'package:expensee/components/buttons/invite_management_buttons/decline_invite_btn.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/invites/invitation.dart';
 import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
@@ -208,7 +211,11 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     await _loadData();
     await Provider.of<GroupMemberProvider>(context, listen: false)
         .notifyUserAdded(invite.boardId, invite.invitedEmail);
-    //TODO - snackbar
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DefaultSuccessDialog(successMessage: "Invite accepted");
+        });
   }
 
 // decline an invite for current user
@@ -216,7 +223,11 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
     await Provider.of<GroupMemberProvider>(context, listen: false)
         .declineInvite(invite.token);
     await _loadData();
-    // TODO - snackbar
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DefaultSuccessDialog(successMessage: "Invite declined");
+        });
   }
 
 // method used to load in invites, initially and after accept/decline

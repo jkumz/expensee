@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:expensee/components/dialogs/confirmation_dialog.dart';
 import 'package:expensee/main.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,7 +26,7 @@ class ReceiptService {
 // Upload image to Supabase Storage
     final file = File(image.path);
     final fileExtension = p.extension(file.path);
-    final fileName = 'receipt_${expenseId}${fileExtension}';
+    final fileName = 'receipt_$expenseId$fileExtension';
     final response =
         await supabase.storage.from('receipts').upload(fileName, file);
 
@@ -41,17 +40,24 @@ class ReceiptService {
     final imageUrl = response;
 
     // Add reference to Supabase file path URL in expenses table
-    final updateResponse = await supabase.from('expenses').update(
-      {'receipt_image_url': imageUrl},
-    ).filter("id", "eq", expenseId);
+    final updateResponse = (await supabase
+            .from('expenses')
+            .update(
+              {'receipt_image_url': imageUrl},
+            )
+            .filter("id", "eq", expenseId)
+            .select() as List<dynamic>)
+        .firstOrNull;
 
-//TODO - error handling
+//TODO - error handling + logging
+    if (updateResponse == null) {
+      print("Failed to upload receipt");
+      return updateResponse;
+    }
 
     // Success
-    ConfirmationAlertDialog(
-      title: "Receipt uploaded",
-      content: "The receipt for expense ID $expenseId has been stored.",
-    );
+    print("Receipt uploaded");
+
     return imageUrl;
   }
 
@@ -88,6 +94,8 @@ class ReceiptService {
 
     if (source != null) {
       return await _handleImageSource(source, expenseId);
+    } else {
+      return null;
     }
   }
 }

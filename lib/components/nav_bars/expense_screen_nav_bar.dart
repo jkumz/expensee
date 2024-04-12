@@ -48,8 +48,7 @@ class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },
-              icon: const Icon(
-                  Icons.logout_rounded)), // TODO - dynamically provide role
+              icon: const Icon(Icons.logout_rounded)),
         ],
       ),
     );

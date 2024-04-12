@@ -13,10 +13,10 @@ class BoardRepository implements BoardRepositoryInterface {
 
   @override
   Future<List<ExpenseBoard>> refreshExpenseBoards(bool isGroup) async {
-    List<ExpenseBoard> _boardsInJson =
+    List<ExpenseBoard> boardsInJson =
         await _service.getExpenseBoards(_userId, isGroup);
 
-    return _boardsInJson;
+    return boardsInJson;
   }
 
   @override

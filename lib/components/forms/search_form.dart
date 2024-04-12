@@ -150,7 +150,7 @@ class _SearchFormState extends State<SearchForm> {
       context: context,
       builder: (context) {
         // copy already selected categories over
-        final _tempSelectedCategories = [...selectedCategories];
+        final tempSelectedCategories = [...selectedCategories];
         return AlertDialog(
           title: selectCategoriesPopupText,
           content: StatefulBuilder(
@@ -163,16 +163,16 @@ class _SearchFormState extends State<SearchForm> {
                       .map((category) => CheckboxListTile(
                             title: Text(category),
                             // tick the box if its alrdy in selected categories
-                            value: _tempSelectedCategories.contains(category),
+                            value: tempSelectedCategories.contains(category),
                             onChanged: (bool? selected) {
                               if (selected != null) {
                                 setState(() {
                                   // This is the StateSetter's setState - enables
                                   // auto-refresh for check boxes in real time
                                   if (selected) {
-                                    _tempSelectedCategories.add(category);
+                                    tempSelectedCategories.add(category);
                                   } else {
-                                    _tempSelectedCategories.remove(category);
+                                    tempSelectedCategories.remove(category);
                                   }
                                 });
                               }
@@ -195,7 +195,7 @@ class _SearchFormState extends State<SearchForm> {
               onPressed: () {
                 if (mounted) {
                   setState(() {
-                    selectedCategories = _tempSelectedCategories;
+                    selectedCategories = tempSelectedCategories;
                   });
                 }
                 Navigator.pop(context);

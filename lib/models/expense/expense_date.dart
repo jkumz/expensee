@@ -5,10 +5,10 @@ import 'package:intl/intl.dart';
 typedef ExpenseDate = DateTime;
 typedef ExpenseDates = HashMap<int, ExpenseDate>;
 
-const String ExpenseDateFormat = "yyyy-MM-dd"; // to match Supabase
+const String expaneDateFormat = "yyyy-MM-dd"; // to match Supabase
 
 String expenseDateToString(ExpenseDate date) {
-  return DateFormat(ExpenseDateFormat).format(date);
+  return DateFormat(expaneDateFormat).format(date);
 }
 
 ExpenseDate stringToExpenseDate(String value) {

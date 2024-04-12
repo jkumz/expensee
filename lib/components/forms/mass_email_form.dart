@@ -5,7 +5,6 @@ import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO - More rendering / options for group expenses
 class MassEmailForm extends StatefulWidget {
   String boardId;
 
@@ -143,6 +142,7 @@ class _MassEmailFormState extends State<MassEmailForm> {
       return;
     }
 
+    // ignore: use_build_context_synchronously
     if (await Provider.of<BoardProvider>(context, listen: false)
         .sendMassEmail(subject, body, mailingList)) {
       _showSuccessAlert(adminOnlyEmail);

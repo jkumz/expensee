@@ -1,3 +1,4 @@
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class UserDropdownMenu extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _UserDropdownMenuState createState() => _UserDropdownMenuState();
+  createState() => _UserDropdownMenuState();
 }
 
 class _UserDropdownMenuState extends State<UserDropdownMenu> {
@@ -42,8 +43,8 @@ class _UserDropdownMenuState extends State<UserDropdownMenu> {
         } else {
           final memberList = snapshot.data!;
           return DropdownButton<String>(
-            hint: Text(
-                "Select an email"), // Used when no item is selected (value is null)
+            hint: const Text(
+                selectUserText), // Used when no item is selected (value is null)
             value: selectedEmail, // Value is null until an item is selected
             items: memberList.map((GroupMember member) {
               return DropdownMenuItem<String>(

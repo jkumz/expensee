@@ -125,9 +125,9 @@ class BoardProvider extends ChangeNotifier {
     if (board != null) {
       // update board balance based on expenses
       var balanceAfterExpenses = board.initialBalance;
-      expenses.forEach((element) {
-        balanceAfterExpenses -= element.amount;
-      });
+      for (var expense in expenses) {
+        balanceAfterExpenses -= expense.amount;
+      }
 
       // then update individual expense balances
       balanceAfterExpenses =
@@ -207,14 +207,8 @@ class BoardProvider extends ChangeNotifier {
     return _repo.fetchMemberRecords(boardId);
   }
 
-// applys a filter on a a boards expenses - how exactly are we handling this?
-// it applies a filter on the expenses, then displays them... but we don't want
-// to update the datbaase with this filter, we just want to display a temp
-// clone of the board, with the filter applied...
-// so, where do we return this expense board? if the button calls this, then
-// the button itself will have to be custom, and return an expense board to
-// an exterior variable, which will then be used to load the filter in.
-// TODO - apply the filter in getting expenses
+// Method used to apply filter on results in expense board, returns a clone of
+// the original expense board with only expenses that meet the criteria
   Future<ExpenseBoard?> applyFilter(
       List<String> userIDs,
       List<String> categories,
@@ -242,9 +236,9 @@ class BoardProvider extends ChangeNotifier {
     if (board != null) {
       // update board balance based on expenses
       var balanceAfterExpenses = board.initialBalance;
-      expenses.forEach((element) {
+      for (var element in expenses) {
         balanceAfterExpenses -= element.amount;
-      });
+      }
 
       // then update individual expense balances
       balanceAfterExpenses =

@@ -27,12 +27,6 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
   }
 
   @override
-  Future<bool> changeUserRole(String boardId, String userEmail) {
-    // TODO: implement changeUserRole
-    throw UnimplementedError();
-  }
-
-  @override
   Future<bool> removeMemberFromBoard(String boardId, String removedEmail) {
     return _service.removeGroupMember(boardId, removedEmail);
   }
@@ -57,6 +51,7 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
     return await _service.getGroupMembers(boardId, isAdmin);
   }
 
+  @override
   Future<bool> updateRole(String boardId, String email, Roles role) async {
     return await _service.updateGroupMemberRole(
         boardId, email, role.toString().split(".").last);

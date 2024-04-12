@@ -14,7 +14,7 @@ class ExpenseDatesConverter
 
     if (json == null) return datesHash;
 
-    json.forEach((element) {
+    for (var element in json) {
       final dateMap = element as Map<String, dynamic>;
       if (dateMap.values.isNotEmpty) {
         final dateString = dateMap.values.first;
@@ -22,7 +22,7 @@ class ExpenseDatesConverter
 
         datesHash[date.hashCode] = date;
       }
-    });
+    }
 
     return datesHash;
   }

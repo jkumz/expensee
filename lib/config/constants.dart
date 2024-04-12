@@ -135,7 +135,6 @@ const modifyExpenseError =
     "Unless you're an Admin, you can only modify expenses you created.";
 const addReceiptError =
     "Unless you're an Admin, you can only add receipts to expenses you created.";
-String receiptDeleteFail(int id) => "Failed to delete receipt for expense $id";
 const noStoragePerms = "Storage permissions are needed to save this receipt";
 const askToDeleteReceipt =
     Text('Are you sure you want to delete this receipt?');
@@ -144,6 +143,7 @@ const boardNameTooLongError = Text('Name must be 30 characters or less.');
 const permsErrorTitle = "Permission Error";
 const selectCategoriesPopupText = Text('Select Categories');
 const selectDateRange = Text('Select Range');
+const receiptSaveFail = "Failed to save receipt";
 
 // PERMS TEXT
 const permsChangeSuccessTitle = "Permissions updated";
@@ -154,6 +154,9 @@ String failedToChangePermsMsg(String email) =>
 
 // GENERIC CONSTANTS
 const noMembers = Center(child: Text("No members to display"));
+const noExpenses = Center(
+  child: Text("No expenses to display"),
+);
 const saveText = Text('Save');
 const deleteText = Text('Delete');
 const okText = Text('OK');
@@ -165,6 +168,15 @@ const errorText = "Error";
 const failText = "Failed";
 const noEmailText = Text("No email selected");
 const selectUserText = "Select a user";
+const transferOwnershipText = Text("Transfer ownership");
+const selectOwnerText = Text(
+  "Select a new owner",
+  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+);
+const unAuthorizedAccessText = Text(
+  "UNAUTHORIZED ACCESS",
+  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+);
 
 // MASS EMAIL
 const adminEmailSentText =

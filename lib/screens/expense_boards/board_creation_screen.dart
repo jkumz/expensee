@@ -14,9 +14,9 @@ class BoardCreationScreen extends StatefulWidget {
 class _BoardCreationScreenState extends State<BoardCreationScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: CreateExpenseBoardForm(),
-      bottomNavigationBar: const DefaultBottomAppBar(),
+      bottomNavigationBar: DefaultBottomAppBar(),
     );
   }
 }

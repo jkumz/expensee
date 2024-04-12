@@ -1,21 +1,19 @@
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 var logger = Logger(printer: PrettyPrinter());
 
 class ExpenseProvider extends ChangeNotifier {
   final _repo = ExpenseRepository();
-  final boardId;
   bool isLoading = false;
   Expense _expense = Expense.blank();
   Expense get expense => _expense;
   List<Expense> _expenseList = [];
   List<Expense> get expenseList => _expenseList;
 
-  ExpenseProvider(this.boardId);
+  ExpenseProvider();
 
   Future<List<Expense>> refreshExpensesForBoard(String boardId) async {
     isLoading = true;
@@ -134,8 +132,7 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _expenseList =
-          await _repo.refreshExpensesForBoard(boardId) as List<Expense>;
+      List<Expense> expenseList = await _repo.refreshExpensesForBoard(boardId);
       logger.i("Fetched expense IDs for board $boardId");
 
       // Convert startDate and endDate strings to DateTime objects
@@ -144,14 +141,14 @@ class ExpenseProvider extends ChangeNotifier {
 
       if (start != null && end != null && start != end) {
         // Filter expenses that fall within the range
-        _expenseList = _expenseList
+        expenseList = expenseList
             .where((Expense e) =>
-                e.date.isAfter(start.subtract(Duration(days: 1))) &&
-                e.date.isBefore(end.add(Duration(days: 1))))
+                e.date.isAfter(start.subtract(const Duration(days: 1))) &&
+                e.date.isBefore(end.add(const Duration(days: 1))))
             .toList();
       } else if (start != null) {
         // If only start date is provided, filter expenses for that specific day
-        _expenseList = _expenseList
+        expenseList = expenseList
             .where((Expense e) => e.date.isAtSameMomentAs(start))
             .toList();
       }

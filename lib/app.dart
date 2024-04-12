@@ -18,11 +18,11 @@ class ExpenseeApp extends StatelessWidget {
     return MaterialApp(
       title: 'Expensee',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 122, 67, 45)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 122, 67, 45)),
         useMaterial3: true,
       ),
-      initialRoute: Splash.routeName, // TODO Splash.routeName
+      initialRoute: Splash.routeName,
       onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {
           case Splash.routeName:

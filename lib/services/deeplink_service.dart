@@ -4,6 +4,9 @@ import 'package:expensee/main.dart';
 import 'dart:async';
 
 // DeepLinkHandler class manages the listening and handling of deep links.
+// NOTE: Never got around to testing or using this as I thought an email notification
+// system would be quicker to implement, and given the time constraints of this
+// project I opted for it. However as a real product I would have both of course.
 class DeepLinkHandler {
   // Singleton pattern
   static final DeepLinkHandler _instance = DeepLinkHandler._internal();
@@ -21,9 +24,7 @@ class DeepLinkHandler {
       if (link != null) {
         _handleLink(link, context);
       }
-    }, onError: (err) {
-      // TODO - error handling
-    });
+    }, onError: (err) {});
   }
 
   // Private method to handle the link and execute logic based on the link received.

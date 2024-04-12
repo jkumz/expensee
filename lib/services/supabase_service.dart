@@ -84,22 +84,26 @@ class SupabaseService {
     return true;
   }
 
-  // Update an expense board - // TODO - test this + validation + error handling
+  // Update an expense board - // TODO - validation + error handling
   Future<ExpenseBoard?> updateExpenseBoard(
       String boardId, Map<String, dynamic> updatedData) async {
-    final response = await supabase
-        .from("expense_boards")
-        .update(updatedData)
-        .match({'id': boardId}).onError((error, stackTrace) => print(
-            "Error updating expense board with id $boardId\nError $error - $stackTrace"));
+    await supabase.from("expense_boards").update(updatedData).match({
+      'id': boardId
+    }).onError((error, stackTrace) => print(
+        "Error updating expense board with id $boardId\nError $error - $stackTrace"));
 
-    final updatedBoard =
-        await supabase.from("expense_boards").select().match({'id': boardId});
+    final updatedBoardJson = (await supabase
+            .from("expense_boards")
+            .select()
+            .match({'id': boardId}) as List<dynamic>)
+        .first;
 
-    if (response != null) {
+    ExpenseBoard newBoard = ExpenseBoard.fromJson(updatedData);
+
+    if (!ExpenseBoard.fromJson(updatedBoardJson).equals(newBoard)) {
       print("Error updating expense board with id $boardId");
     }
-    return ExpenseBoard.fromJson(updatedData);
+    return newBoard;
   }
 
   Future<ExpenseBoard?> getBoard(String boardId) async {
@@ -358,8 +362,6 @@ class SupabaseService {
     return updatedExpense;
   }
 
-// TODO - delete image frm bucket if receipt upload failed, notify user
-// TODO - if expense is deleted, delete its receipt too
   Future<bool> uploadReceiptUrl(int expenseId, String? addedReceiptUrl) async {
     if (addedReceiptUrl == null) return false;
     var updatedExpense = await supabase
@@ -369,6 +371,8 @@ class SupabaseService {
         .select() as List;
 
     if (!(updatedExpense.first["receipt_image_url"] == addedReceiptUrl)) {
+      await supabase.storage.from("receipts").remove([addedReceiptUrl]);
+      print("Failed to upload receipt URL to database - removed from storage");
       return false;
     }
     return true;
@@ -386,7 +390,7 @@ class SupabaseService {
     }
 
     var receiptUrl = json.first["receipt_image_url"];
-    if (receiptUrl == null) return ""; //TODO - handling
+    if (receiptUrl == null) return ""; //TODO - handling/logging
     var uri = Uri.parse(receiptUrl);
     String fileName = uri.pathSegments.last;
 
@@ -521,6 +525,7 @@ class SupabaseService {
     List<dynamic> inviteData =
         await supabase.from("invitations").select().eq("token", token);
     if (inviteData.isNotEmpty) return Invitation.fromJson(inviteData.first);
+    return null;
   }
 
 // Changes status of invite token, returns token.
@@ -635,10 +640,7 @@ class SupabaseService {
       final Map<String, dynamic> groupMemberJson = {
         "board_id": invitation.boardId,
         "user_id": invitation.invitedId,
-        "role": invitation.role
-            .toString()
-            .split(".")
-            .last, // default //TODO - RBAC. 3 diff role IDs, with diff perms
+        "role": invitation.role.toString().split(".").last,
         "user_email": invitation.invitedEmail
       };
       final resp =
@@ -779,8 +781,10 @@ class SupabaseService {
             {"board_id": boardId, "user_id": userId}).select();
 
     // 3 - Change other user to Owner in in Group Members
-    final changedToOwner = await supabase.from("group_members").update(
-        {"role": "owner"}).match({"board_id": boardId, "user_email": email});
+    final changedToOwner = await supabase
+        .from("group_members")
+        .update({"role": "owner"}).match(
+            {"board_id": boardId, "user_email": email}).select();
 
     if (changedToAdmin == null || changedToOwner == null) {
       // error handling

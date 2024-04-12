@@ -5,7 +5,7 @@ import 'package:expensee/enums/roles.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart' as Provider;
+import 'package:provider/provider.dart';
 
 class ManageUserPermsForm extends StatefulWidget {
   const ManageUserPermsForm({super.key, required this.boardId});
@@ -53,7 +53,7 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List>(
-      future: Provider.Provider.of<GroupMemberProvider>(context, listen: false)
+      future: Provider.of<GroupMemberProvider>(context, listen: false)
           .getGroupMembers(widget.boardId, false),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -92,8 +92,7 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
   }
 
   Future<bool> _changeUserRole(String email, Roles newRole) async {
-    return await Provider.Provider.of<GroupMemberProvider>(context,
-            listen: false)
+    return await Provider.of<GroupMemberProvider>(context, listen: false)
         .updateRole(widget.boardId, email, newRole);
   }
 

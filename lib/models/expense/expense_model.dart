@@ -6,10 +6,6 @@ import 'package:expensee/models/expense/receipt_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 //TODO - add proper error handling + validation
-// - positive balances only
-// - type validation
-// - length validation
-// - popups presenting error in user friendly manner
 
 //A model class for the expense data
 
@@ -57,7 +53,6 @@ class Expense {
       : description = description ?? "No description",
         creatorId = creatorId ?? supabase.auth.currentUser!.id;
 
-// TODO - Dyanmic balances
   factory Expense.blank() {
     return Expense(
         date: DateTime.now(),
@@ -109,7 +104,7 @@ class Expense {
 
   void _setBalance(double previousBalance, double expenseAmount) {
     try {
-      this.balance = previousBalance - expenseAmount;
+      balance = previousBalance - expenseAmount;
     } catch (unknownError) {
       // error handling
     }
@@ -125,7 +120,7 @@ class Expense {
 
   void uploadReceipt(List<Receipt> receipt) {
     try {
-      this.receipts = receipt;
+      receipts = receipt;
     } catch (e) {
       print("Error: ${e.toString()}");
     }

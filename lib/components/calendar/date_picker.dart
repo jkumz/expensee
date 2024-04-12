@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:intl/intl.dart';
 
 typedef DateRangeUpdateCallback = void Function(
     String startDate, String endDate, String selectedDateText);

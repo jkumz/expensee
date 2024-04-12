@@ -10,6 +10,7 @@ import 'package:expensee/components/buttons/board_settings/rename_board_button.d
 import 'package:expensee/components/buttons/board_settings/pass_ownership_button.dart';
 import 'package:expensee/components/calendar/date_picker.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/forms/invite_member_form.dart';
 import 'package:expensee/components/forms/manage_user_perms_form.dart';
 import 'package:expensee/components/forms/mass_email_form.dart';
@@ -35,7 +36,7 @@ class BoardSettingsScreen extends StatefulWidget {
   final bool isGroup;
 
   const BoardSettingsScreen(
-      {Key? key,
+      {super.key,
       required this.id,
       required this.role,
       required this.boardId,
@@ -54,7 +55,6 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       massEmail = false,
       filterExpenses = true;
 
-  // TODO - restrict what gets rendered in each form based on whether admin or owner
   @override
   Widget build(BuildContext context) {
     if (inviteUsers && widget.isGroup) {
@@ -98,6 +98,14 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
         child: RenameBoardButton(
           text: renameBoardText,
           onPressed: _navigateToNamingScreen,
+          isEnabled: _checkIfOwner(),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: DownloadReceiptsButton(
+          text: downloadReceiptsText,
+          onPressed: _downloadAllReceipts,
           isEnabled: _checkIfOwner(),
         ),
       ),
@@ -275,6 +283,12 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       }
       if (!failedToSave) {
         // Show success snackbar
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(
+                  successMessage: "All receipts saved successfully");
+            });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('All receipts saved successfully!')),
         );

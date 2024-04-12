@@ -2,9 +2,11 @@ import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import "package:flutter/material.dart";
 import "package:expensee/components/snackbars/conditional_snackbar.dart";
-import 'package:provider/provider.dart' as Provider;
+import 'package:provider/provider.dart';
 
 class CreateExpenseBoardForm extends StatefulWidget {
+  const CreateExpenseBoardForm({super.key});
+
   @override
   State<StatefulWidget> createState() => _CreateExpenseBoardFormState();
 }
@@ -22,8 +24,7 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // save current state of the form
 
-      var boardProvider =
-          Provider.Provider.of<BoardProvider>(context, listen: false);
+      var boardProvider = Provider.of<BoardProvider>(context, listen: false);
 
       // Use service layer to create an expense board
       bool created = await boardProvider.createBoard({

@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/buttons/expense_board_buttons/add_receipt_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/delete_receipt_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/save_expense_button.dart';
 import 'package:expensee/components/buttons/expense_board_buttons/view_receipt_button.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense/expense_date.dart';
@@ -280,14 +283,27 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
             await Provider.of<ExpenseProvider>(context, listen: false)
                 .uploadReceiptUrl(widget.expense.id!, addedReceiptUrl);
         if (addedToExpensesTable) {
-          //TODO - show snackbar to say success
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultSuccessDialog(
+                  successMessage: "Receipt added to expense",
+                );
+              });
           if (mounted) {
             setState(() {
               hasReceipt = true;
             });
           }
         } else {
-          // TODO - show error, db & bucket reversal done in service layer
+          // TODO - db & bucket reversal done in service layer
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultErrorDialog(
+                    errorMessage:
+                        "Couldn't add receipt to expense. Please try again.");
+              });
         }
       }
     }
@@ -299,7 +315,6 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     Image img = await Provider.of<ExpenseProvider>(context, listen: false)
         .getReceiptForExpense(widget.expense.id!);
 
-    // ignore: use_build_context_synchronously
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -348,19 +363,22 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   Future<void> _deleteReceipt() async {
     bool confirmed = await _confirmDeleteReceipt();
     if (confirmed) {
-      // ignore: use_build_context_synchronously
       bool deleted = await Provider.of<ExpenseProvider>(context, listen: false)
           .deleteReceipt(widget.expense.id!);
       if (!deleted) {
-        // ignore: use_build_context_synchronously
         showDialog(
             context: context,
             builder: (BuildContext context) {
               return DefaultErrorDialog(
-                  errorMessage: receiptDeleteFail(widget.expense.id!));
+                  errorMessage:
+                      "Failed to delete receipt for expense ${widget.expense.id}");
             });
       } else {
-        // TODO - show success snackbar
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(successMessage: "Receipt deleted");
+            });
         if (mounted) {
           setState(() {
             hasReceipt = false;
@@ -378,7 +396,6 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       ].request();
     }
     if (!await _checkStoragePerms()) {
-      // ignore: use_build_context_synchronously
       return showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -392,13 +409,17 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       final bytes = await readBytes(Uri.parse(imgUrl));
       final result = await ImageGallerySaver.saveImage(bytes);
       if (result["isSuccess"]) {
-        //TODO - success snakcbar
-      } else {
-        // ignore: use_build_context_synchronously
         showDialog(
             context: context,
             builder: (BuildContext context) {
-              return DefaultErrorDialog(errorMessage: "Failed to save receipt");
+              return DefaultSuccessDialog(
+                  successMessage: "Receipt saved to camera roll");
+            });
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(errorMessage: receiptSaveFail);
             });
       }
     } catch (e) {

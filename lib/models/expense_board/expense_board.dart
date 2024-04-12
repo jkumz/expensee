@@ -23,11 +23,7 @@ class ExpenseBoard {
   @JsonKey(name: "balance", required: true)
   double balance;
 
-  List<Expense> _expenses = [];
-  List<Expense> get expenses => _expenses;
-  set expenses(List<Expense> newExpenses) {
-    _expenses = newExpenses;
-  }
+  List<Expense> expenses = [];
 
   ExpenseBoard(
       {this.id,
@@ -41,4 +37,13 @@ class ExpenseBoard {
 
   factory ExpenseBoard.fromJson(Map<String, dynamic> json) =>
       _$ExpenseBoardFromJson(json);
+
+  bool equals(ExpenseBoard anotherBoard) {
+    return id == anotherBoard.id &&
+        creatorId == anotherBoard.creatorId &&
+        name == anotherBoard.name &&
+        isGroup == anotherBoard.isGroup &&
+        initialBalance == anotherBoard.initialBalance &&
+        balance == anotherBoard.balance;
+  }
 }

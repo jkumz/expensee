@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:expensee/components/appbars/board_settings_app_bar.dart';
@@ -25,8 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // TODO - error handling, validation, styling
-// TODO - restrict creation / display depending on user role
-// TODO - navigation between settings options should take you back to settings screen, not expense view
 class ExpenseBoardScreen extends StatefulWidget {
   static const routeName = "/expense-board";
   final String boardId;
@@ -147,7 +147,8 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
           ? IndividualExpenseBoardAppBar(
               title: Text(
                 boardName,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               actions: actionList,
             )
@@ -232,7 +233,9 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     return Column(
       children: [
         _renderProgressBar(context),
-        Expanded(child: _renderListView(context)),
+        Expanded(
+            child:
+                (expenses.isNotEmpty) ? _renderListView(context) : noExpenses),
         Padding(
             padding: const EdgeInsets.all(12.0),
             child: !filtersApplied
@@ -297,7 +300,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
             // Right to Left swipe
             if (direction == DismissDirection.endToStart) {
               if (!canEdit) {
-                // ignore: use_build_context_synchronously
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => DefaultErrorDialog(
@@ -308,7 +310,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
                 return false; // Prevent the dismiss if lacking perms
               } else {
                 // Proceed with delete
-                // ignore: use_build_context_synchronously
                 return showDialog(
                     context: context,
                     builder: (BuildContext context) =>
@@ -352,7 +353,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     return false;
   }
 
-// TODO - Styling + constants file
   Widget _renderExpenseView(Expense expense) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -414,6 +414,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
         .removeExpense(expense.id!);
     if (del != null) {
       // Remove from board database table then, expense list, then refresh
+      //TODO - better error handling
       expenses.removeWhere((element) => element.expense.id == expense.id);
       await _refreshExpenses();
       return true;
@@ -436,7 +437,6 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     final board = await Provider.of<BoardProvider>(context, listen: false)
         .fetchBoardExpenses(widget.boardId);
 
-// TODO - handle expenses being empty - render a message, or an empty icon?
     if (board != null) {
       if (board.expenses.isNotEmpty) {
         if (mounted) {

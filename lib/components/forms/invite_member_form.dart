@@ -5,7 +5,7 @@ import 'package:expensee/enums/roles.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart' as Provider;
+import 'package:provider/provider.dart';
 
 class InviteUserForm extends StatefulWidget {
   const InviteUserForm({super.key, required this.boardId, required this.role});
@@ -29,7 +29,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
       _formKey.currentState!.save(); // save current state of the form
 
       var gMemberProvider =
-          Provider.Provider.of<GroupMemberProvider>(context, listen: false);
+          Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Send mock email
       await gMemberProvider.sendInvite(
@@ -37,7 +37,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
 
       // Build context may have been removed from widget tree by the time async method
       // finishes. We check if its mounted before trying to use it to prevent a crash.
-      if (!mounted) return; // TODO - error alert
+      if (!mounted) return;
 
       showDialog(
           context: context,
@@ -52,7 +52,7 @@ class _InviteUserFormState extends State<InviteUserForm> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: Provider.Provider.of<BoardProvider>(context, listen: false)
+      future: Provider.of<BoardProvider>(context, listen: false)
           .checkIfOwner(widget.boardId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

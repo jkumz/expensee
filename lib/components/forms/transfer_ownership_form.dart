@@ -1,9 +1,12 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/dropdown/user_dropdown.dart';
+import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/util/dialog_helper.dart';
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart' as Provider;
+import 'package:provider/provider.dart';
 
 class TransferOwnershipForm extends StatefulWidget {
   const TransferOwnershipForm(
@@ -25,7 +28,7 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
       _formKey.currentState!.save(); // save current state of the form
 
       var gMemberProvider =
-          Provider.Provider.of<GroupMemberProvider>(context, listen: false);
+          Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Before transferring ownership, we get the user to confirm their decision.
       bool confirmed = await DialogHelper.showConfirmationDialog(
@@ -60,7 +63,7 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-      future: Provider.Provider.of<BoardProvider>(context, listen: false)
+      future: Provider.of<BoardProvider>(context, listen: false)
           .checkIfOwner(widget.boardId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -80,7 +83,6 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
     );
   }
 
-// TODO - text styling, consts moved to const file
   Widget buildForm(BuildContext context, bool isOwner) {
     if (!isOwner) {
       return Form(
@@ -90,9 +92,8 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
           child: Column(
             children: [
               Center(
-                child: Text(
-                  "UNAUTHORIZED ACCESS",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                child: Center(
+                  child: unAuthorizedAccessText,
                 ),
               )
             ],
@@ -106,19 +107,13 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            const Center(
-              child: Text(
-                "Select a new owner",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-            ),
+            const Center(child: selectOwnerText),
             UserDropdownMenu(
               onUserSelected: (String user) => selectedEmail = user,
               isAdmin: !isOwner,
               boardId: widget.boardId,
             ), // Use conditional if isOwner
-            ElevatedButton(
-                onPressed: _submit, child: const Text("Transfer ownership"))
+            ElevatedButton(onPressed: _submit, child: transferOwnershipText)
           ],
         ),
       ),

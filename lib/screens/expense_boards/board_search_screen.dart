@@ -1,5 +1,4 @@
 import 'package:expensee/components/forms/search_form.dart';
-import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +9,7 @@ class BoardSearchScreen extends StatefulWidget {
   final Function(ExpenseBoard) onApplyFilter;
 
   const BoardSearchScreen(
-      {Key? key,
+      {super.key,
       required this.boardId,
       required this.isGroup,
       required this.onApplyFilter});

@@ -1,6 +1,5 @@
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/screens/home.dart';
-import 'package:expensee/screens/login.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseBoardNavBar extends StatefulWidget {

@@ -21,8 +21,7 @@ class CustomCallbackButton extends StatelessWidget {
           foregroundColor: (textColour ?? Colors.white),
           backgroundColor:
               (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
-          elevation: 1,
-          textStyle: const TextStyle(/*TODO make custom text styles*/)),
+          elevation: 1),
       child: child,
     );
   }

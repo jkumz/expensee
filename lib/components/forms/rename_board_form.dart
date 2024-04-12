@@ -1,11 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO - More rendering / options for group expenses
 class RenameBoardForm extends StatefulWidget {
   String boardId;
 
@@ -105,6 +107,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
     );
   }
 
+//TODO force board refresh to show new name, use void callback in constructor
   Future<void> _renameBoard(String newName) async {
     bool renamed = await Provider.of<BoardProvider>(context, listen: false)
         .updateBoardName(widget.boardId, newName);
@@ -121,8 +124,12 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
     }
 
     if (renamed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Successfully renamed boardd to $newName")));
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultSuccessDialog(
+                successMessage: "Successfully renamed boardd to $newName");
+          });
     }
   }
 }

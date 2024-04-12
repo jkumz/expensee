@@ -1,10 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/dropdown/user_dropdown.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart' as Provider;
+import 'package:provider/provider.dart';
 
 class RemoveUserForm extends StatefulWidget {
   const RemoveUserForm({super.key, required this.boardId, required this.role});
@@ -32,7 +35,7 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
       }
 
       var gMemberProvider =
-          Provider.Provider.of<GroupMemberProvider>(context, listen: false);
+          Provider.of<GroupMemberProvider>(context, listen: false);
 
       // Send mock email
       bool removed = await gMemberProvider.removeGroupMember(
@@ -45,19 +48,23 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
             errorMessage: "Failed to remove $selectedEmail from the board");
         return;
       }
-      await Provider.Provider.of<GroupMemberProvider>(context, listen: false)
+      await Provider.of<GroupMemberProvider>(context, listen: false)
           .notifyUserRemoval(widget.boardId, selectedEmail);
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("$selectedEmail has been removed from the expense board"),
-      ));
+      showDialog(
+          context: context,
+          builder: (BuildContext c) {
+            return DefaultSuccessDialog(
+                successMessage:
+                    "$selectedEmail has been removed from the expense board");
+          });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: fetchData(), // Call the combined data fetching method
+      future: _fetchData(), // Call the combined data fetching method
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator(); // Show loading indicator
@@ -70,15 +77,14 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
           if (members.isEmpty) {
             return noMembers;
           } else {
-            return buildForm(context, isAdmin, members);
+            return _buildForm(context, isAdmin, members);
           }
         }
       },
     );
   }
 
-// TODO - text styling, consts moved to const file
-  Widget buildForm(BuildContext context, bool isAdmin, List members) {
+  Widget _buildForm(BuildContext context, bool isAdmin, List members) {
     return Form(
       key: _formKey,
       child: Padding(
@@ -110,12 +116,11 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
     );
   }
 
-  Future<Map<String, dynamic>> fetchData() async {
-    final isAdmin =
-        await Provider.Provider.of<BoardProvider>(context, listen: false)
-            .checkIfAdmin(widget.boardId);
+  Future<Map<String, dynamic>> _fetchData() async {
+    final isAdmin = await Provider.of<BoardProvider>(context, listen: false)
+        .checkIfAdmin(widget.boardId);
     final members =
-        await Provider.Provider.of<GroupMemberProvider>(context, listen: false)
+        await Provider.of<GroupMemberProvider>(context, listen: false)
             .getGroupMembers(widget.boardId, false);
 
     return {

@@ -11,7 +11,6 @@ class ViewInvitesButton extends StatelessWidget {
       required this.imagePath,
       required this.onPressed});
 
-// TODO - text styling
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(

@@ -17,7 +17,7 @@ class DefaultErrorDialog extends StatelessWidget {
           style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
       content: Text(errorMessage,
           style: const TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
-      backgroundColor: Color.fromARGB(255, 189, 29, 17),
+      backgroundColor: const Color.fromARGB(255, 189, 29, 17),
       actions: <Widget>[
         TextButton(
           child: const Text('OK',

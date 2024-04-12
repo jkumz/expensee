@@ -6,7 +6,8 @@ class ConditionalSnackbar extends SnackBar {
   late bool success;
 
   ConditionalSnackbar(
-      {required super.content,
+      {super.key,
+      required super.content,
       String? message,
       String? errMsg,
       required bool success});

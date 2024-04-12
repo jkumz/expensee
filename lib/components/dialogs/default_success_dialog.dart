@@ -13,11 +13,11 @@ class DefaultSuccessDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title, style: TextStyle(color: Colors.white)),
-      backgroundColor: Color.fromARGB(255, 71, 109, 72),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      backgroundColor: const Color.fromARGB(255, 71, 109, 72),
       content: Text(
         successMessage,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       ),
       actions: <Widget>[
         TextButton(

@@ -31,7 +31,7 @@ class AppInitializer extends StatefulWidget {
   const AppInitializer({Key? key}) : super(key: key);
 
   @override
-  _AppInitializerState createState() => _AppInitializerState();
+  createState() => _AppInitializerState();
 }
 
 class _AppInitializerState extends State<AppInitializer> {

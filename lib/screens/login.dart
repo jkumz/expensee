@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:expensee/components/buttons/authentication_buttons/magic_link_button.dart';
@@ -20,7 +22,7 @@ class Login extends StatefulWidget {
   String? followUpRoute;
 
   @override
-  _LoginState createState() => _LoginState();
+  createState() => _LoginState();
 
   static Future<void> signOut() async {
     await supabase.auth.signOut();

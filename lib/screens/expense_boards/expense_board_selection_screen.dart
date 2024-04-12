@@ -8,7 +8,6 @@ import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/expense_provider.dart';
-import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/screens/expense_boards/board_creation_screen.dart';
 import 'package:expensee/screens/expense_boards/expense_board_screen.dart';
 import 'package:flutter/material.dart';
@@ -53,11 +52,7 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: ViewBoardsAppBar(
-          actions: [
-            //TODO - Add expense board button
-          ],
-        ),
+        appBar: ViewBoardsAppBar(),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -89,7 +84,7 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider(
-          create: (_) => ExpenseProvider(boardId),
+          create: (_) => ExpenseProvider(),
           child: ExpenseBoardScreen(boardId: boardId),
         ),
       ),
@@ -100,9 +95,14 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
     return Dismissible(
       key: Key(board.id.toString()),
       background: Container(color: Colors.red),
-      child: ListTile(
-        title: Center(child: Text(board.name)),
-        onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+          child: ListTile(
+            title: Center(child: Text(board.name)),
+            onTap: () => _navigateToExpenseBoard(context, board.id.toString()),
+          ),
+        ),
       ),
       confirmDismiss: (direction) {
         return _promptLeavingBoard(board.id!.toString());
@@ -119,6 +119,10 @@ class _SelectExpenseBoardsScreenState extends State<SelectExpenseBoardsScreen> {
                 }
               }
             })
+          }
+        else
+          {
+            // Do nothing
           }
       },
     );

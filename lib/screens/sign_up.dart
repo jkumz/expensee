@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:expensee/components/buttons/custom_callback_button.dart';
@@ -13,7 +15,7 @@ class SignUp extends StatefulWidget {
   const SignUp({super.key});
 
   @override
-  _SignUpState createState() => _SignUpState();
+  createState() => _SignUpState();
 
   static Future<void> signOut() async {
     await supabase.auth.signOut();
