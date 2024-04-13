@@ -27,7 +27,7 @@ import 'package:expensee/screens/expense_boards/expense_creation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO - error handling, validation, styling
+// TODO - error handling, validation
 class ExpenseBoardScreen extends StatefulWidget {
   static const routeName = "/expense-board";
   final String boardId;

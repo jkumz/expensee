@@ -21,8 +21,7 @@ class _ExpenseItemState extends State<ExpenseItem> {
         children: [
           Expanded(
               flex: expenseItemFlex,
-              child:
-                  Text(widget.expense.date.toString())), //TODO - fix formatting
+              child: Text(widget.expense.date.toString())),
           Expanded(flex: expenseItemFlex, child: Text(widget.expense.category)),
           Expanded(
               flex: expenseItemFlex,

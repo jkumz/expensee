@@ -16,10 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-// TODO - better validation
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
+
 class CreateExpenseForm extends ExpenseItem {
   @override
   final Expense expense;
@@ -55,8 +59,9 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         TextEditingController(text: widget.expense.description);
     _amountController =
         TextEditingController(text: widget.expense.amount.toStringAsFixed(2));
-    _dateController =
-        TextEditingController(text: expenseDateToString(widget.expense.date));
+    _dateController = TextEditingController(
+      text: expenseDateToString(widget.expense.date),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkReceipt();
     });
@@ -71,10 +76,9 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         .hasReceipt(widget.expense.id!);
   }
 
-// TODO - make this better... --> error shown on submit, rather than every time
   void _validateForm() {
     // Regex - Check it's start of line, then match digit between 1 to 7 times
-    // (up to a millions), then match the decimal, then match exactly 2 digits.
+    // (up to millions), then match the decimal, then match exactly 2 digits.
     bool isAmountValid =
         RegExp(r'^\d{1,7}\.\d{2}$').hasMatch(_amountController.text);
 
@@ -85,9 +89,12 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
 
     if (!isAmountValid) {
       _showInvalidValueMessage();
+      _amountController.text = "0.00";
+      return;
     }
     if (!isDateValid) {
       _showInvalidDateMessage();
+      return;
     }
 
     if (mounted) {
@@ -125,7 +132,6 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      //margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: _renderButtons(),
@@ -160,7 +166,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
         TextField(
           controller: _dateController,
           decoration: const InputDecoration(labelText: editableDateLabelText),
-          readOnly: false,
+          readOnly: true,
           onTap: () => {_selectDate(context)},
         ),
         const SizedBox(
@@ -250,17 +256,22 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
 
 // Method for modifying the JSON of the new expense and updating it in the database.
   Future<Expense> _modifyExpense() async {
-    var json = widget.expense.toJson();
-    json["category"] = _categoryController.value.text;
-    json["description"] = _descriptionController.value.text;
-    json["amount"] = _amountController.value.text;
-    json["date"] = DateTime.tryParse(_dateController.text);
-    if (mounted) {
-      return await Provider.of<ExpenseProvider>(context, listen: false)
-          .updateExpense(json, widget.expense.id.toString());
-    } else {
-      return widget.expense;
+    try {
+      var json = widget.expense.toJson();
+      json["category"] = _categoryController.value.text;
+      json["description"] = _descriptionController.value.text;
+      json["amount"] = _amountController.value.text;
+      json["date"] = DateTime.tryParse(_dateController.text);
+      if (mounted) {
+        return await Provider.of<ExpenseProvider>(context, listen: false)
+            .updateExpense(json, widget.expense.id.toString());
+      } else {
+        return widget.expense;
+      }
+    } catch (e) {
+      logger.e("Failed to modify expense: $e");
     }
+    return Expense.blank(); // return this on failure
   }
 
   Future<void> _saveExpense() async {
@@ -271,96 +282,118 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   void _addReceipt() async {
     // prompt user to take a photo
     // store the photo in supabase storage
-    // cache it using CDN
+    // cache it using CDN --> lacked time to finish this part
     // add reference to supabase file path url in expenses table
     // separate method for viewing receipt
-    if (widget.exists) {
-      if (widget.expense.id != null) {
-        var addedReceiptUrl =
-            await Provider.of<ExpenseProvider>(context, listen: false)
-                .addReceipt(context, widget.expense.id!);
-        bool addedToExpensesTable =
-            await Provider.of<ExpenseProvider>(context, listen: false)
-                .uploadReceiptUrl(widget.expense.id!, addedReceiptUrl);
-        if (addedToExpensesTable) {
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return DefaultSuccessDialog(
-                  successMessage: "Receipt added to expense",
-                );
+    try {
+      if (widget.exists) {
+        if (widget.expense.id != null) {
+          var addedReceiptUrl =
+              await Provider.of<ExpenseProvider>(context, listen: false)
+                  .addReceipt(context, widget.expense.id!);
+          bool addedToExpensesTable =
+              await Provider.of<ExpenseProvider>(context, listen: false)
+                  .uploadReceiptUrl(widget.expense.id!, addedReceiptUrl);
+          if (addedToExpensesTable) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DefaultSuccessDialog(
+                    successMessage: "Receipt added to expense",
+                  );
+                });
+            if (mounted) {
+              setState(() {
+                hasReceipt = true;
               });
-          if (mounted) {
-            setState(() {
-              hasReceipt = true;
-            });
+            }
+          } else {
+            // TODO - db & bucket reversal done in service layer
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return DefaultErrorDialog(
+                      errorMessage:
+                          "Couldn't add receipt to expense. Please try again.");
+                });
           }
-        } else {
-          // TODO - db & bucket reversal done in service layer
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return DefaultErrorDialog(
-                    errorMessage:
-                        "Couldn't add receipt to expense. Please try again.");
-              });
         }
+      } else {
+        // do nothing - can't add receipt to a non existant expense
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(
+                  errorMessage:
+                      "The expense needs to be saved in the database to add a receipt");
+            });
+        return;
       }
+    } catch (e) {
+      logger.e(
+          "Failed to add receipt to expense with ID ${widget.expense.id} (in form screen): $e");
     }
-    // if we are only just creating the expense, and not modifying it
-    else {}
   }
 
   void _viewReceipt() async {
-    Image img = await Provider.of<ExpenseProvider>(context, listen: false)
-        .getReceiptForExpense(widget.expense.id!);
+    try {
+      Image img = await Provider.of<ExpenseProvider>(context, listen: false)
+          .getReceiptForExpense(widget.expense.id!);
 
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            insetPadding: const EdgeInsets.all(10),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    width: double
-                        .infinity, // Ensures the container fills the width
-                    child: img,
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              insetPadding: const EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      width: double
+                          .infinity, // Ensures the container fills the width
+                      child: img,
+                    ),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TextButton(
-                      onPressed: () async {
-                        await _saveReceiptToCameraRoll();
-                        Navigator.of(context).pop(); // Save functionality
-                      },
-                      child: saveText,
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        // Delete functionality with confirmation
-                        await _deleteReceipt();
-                        Navigator.of(context).pop();
-                      },
-                      child: deleteText,
-                    ),
-                    TextButton(
-                      onPressed: () =>
-                          Navigator.of(context).pop(), // Close dialog
-                      child: closeText,
-                    ),
-                  ],
-                )
-              ],
-            ),
-          );
-        });
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          await _saveReceiptToCameraRoll();
+                          Navigator.of(context).pop(); // Save functionality
+                        },
+                        child: saveText,
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          // Delete functionality with confirmation
+                          await _deleteReceipt();
+                          Navigator.of(context).pop();
+                        },
+                        child: deleteText,
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.of(context).pop(), // Close dialog
+                        child: closeText,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            );
+          });
+    } catch (e) {
+      logger.e(
+          "Failed to view receipt for expense with ID ${widget.expense.id}: $e");
+    }
   }
 
   Future<void> _deleteReceipt() async {
+    try {} catch (e) {
+      logger.e(
+          "Failed to delete receipt for expense with ID ${widget.expense.id}: $e");
+    }
     bool confirmed = await _confirmDeleteReceipt();
     if (confirmed) {
       bool deleted = await Provider.of<ExpenseProvider>(context, listen: false)
@@ -423,7 +456,8 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
             });
       }
     } catch (e) {
-//TODO - error handling
+      logger.e("Failed to save image");
+      logger.e("$e");
     }
   }
 

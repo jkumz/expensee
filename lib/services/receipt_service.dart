@@ -58,7 +58,6 @@ class ReceiptService {
               .select() as List<dynamic>)
           .firstOrNull;
 
-//TODO - error handling
       if (updateResponse == null) {
         logger.e("Failed to upload receipt");
         return updateResponse;

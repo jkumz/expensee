@@ -13,9 +13,7 @@ import 'package:logger/logger.dart';
 
 import 'package:resend/resend.dart';
 
-//TODO - proper error handling
 //TODO - validation - if member part of board, if already removed, if board exists etc. Go over every method.
-//TODO - convert JSON to required format when fetching, may do in classes
 
 var logger = Logger(
   printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
@@ -101,7 +99,7 @@ class SupabaseService {
     return true;
   }
 
-  // Update an expense board - // TODO - validation + error handling
+  // Update an expense board
   Future<ExpenseBoard?> updateExpenseBoard(
       String boardId, Map<String, dynamic> updatedData) async {
     try {
@@ -1000,8 +998,6 @@ class SupabaseService {
 // previous state.
 
 // We also want to make sure that the current user is in fact the owner.
-  //TODO - proper handling / logging / validation
-
   Future<bool> transferBoardOwnership(String boardId, String email) async {
     try {
       bool transferred = true;
@@ -1074,7 +1070,6 @@ class SupabaseService {
       if (memberRecord == null) {
         logger.e("Failed to fetch role in board $boardId for $email");
         return "";
-        //TODO - proper error handling
       }
 
       logger.d("Fetched current user's role for board with id $boardId");
@@ -1099,7 +1094,6 @@ class SupabaseService {
               .select()
               .eq("board_id", boardId)) as List<dynamic>;
 
-// TODO - proper error handling + logging
       if (memberRecordList.isEmpty) {
         logger.e("Failed to get members for board $boardId");
         return [];
@@ -1125,7 +1119,6 @@ class SupabaseService {
           .eq("board_id", boardId) as List<dynamic>;
 
       if (allCategoryRecords.isEmpty) {
-        // TODO - proper handling
         logger.e("Failed to fetch categories for board $boardId");
         return List.empty();
       }
@@ -1152,7 +1145,6 @@ class SupabaseService {
           .eq("board_id", boardId) as List<dynamic>;
 
       if (allMemberRecords.isEmpty) {
-        //TODO - proper handling + logging
         logger.e("Failed to fetch member records for board $boardId");
         return List.empty();
       }
