@@ -68,7 +68,10 @@ class _HomeState extends State<Home> {
                 children: [
                   Center(
                     child: Text(
-                      "Welcome ${supabase.auth.currentUser!.email}",
+                      supabase.auth.currentUser != null
+                          ? "Welcome ${supabase.auth.currentUser!.email}"
+                          : "Welcome",
+                      style: const TextStyle(fontSize: 20),
                     ),
                   ),
                   const SizedBox(height: 12),

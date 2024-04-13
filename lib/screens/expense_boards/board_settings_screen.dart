@@ -287,10 +287,10 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
             });
       }
 
-      bool usingDateSpan = ((start != null && end != null) || start != null);
+      bool pickedDates = ((start != null && end != null) || start != null);
 
       // If we got to this point, proceed with fetching expense IDs and downloading
-      List<int> ids = ((start != null && end != null) || start != null)
+      List<int> ids = pickedDates
           ? await Provider.of<ExpenseProvider>(context, listen: false)
               .getExpenseIdsForBoardWithDate(widget.boardId, start, end)
           : await Provider.of<ExpenseProvider>(context, listen: false)

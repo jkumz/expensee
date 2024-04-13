@@ -1,3 +1,4 @@
+import 'package:expensee/styles.dart';
 import 'package:flutter/material.dart';
 
 class CustomCallbackButton extends StatelessWidget {
@@ -17,11 +18,7 @@ class CustomCallbackButton extends StatelessWidget {
               onTap!(); // ! operator basically says its guaranteed to not be null
             }
           : null,
-      style: ElevatedButton.styleFrom(
-          foregroundColor: (textColour ?? Colors.white),
-          backgroundColor:
-              (backgroundColour ?? const Color.fromARGB(255, 170, 76, 175)),
-          elevation: 1),
+      style: standardMenuOptionStyle,
       child: child,
     );
   }

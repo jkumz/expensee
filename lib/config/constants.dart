@@ -7,9 +7,9 @@ const homePageRoute = "/home";
 // LOG IN PAGE CONSTANTS
 
 // LOG IN PAGE - Button text
-const signInWithGoogleButtonText = "Sign in with Google";
-const signInWithPasswordButtonText = "Sign in";
-const signInWithMagicLinkButtonText = "Sign in with Magic Link";
+const signInWithGoogleButtonText = "Google Login";
+const signInWithPasswordButtonText = "Login";
+const signInWithMagicLinkButtonText = "Magic Link Login";
 const signUpButtonText = "Sign Up";
 const loadingText = "Loading...";
 
