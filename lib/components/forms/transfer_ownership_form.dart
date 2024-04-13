@@ -1,12 +1,17 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/dropdown/user_dropdown.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import 'package:expensee/util/dialog_helper.dart';
 import "package:flutter/material.dart";
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+var logger = Logger(printer: PrettyPrinter());
 
 class TransferOwnershipForm extends StatefulWidget {
   const TransferOwnershipForm(
@@ -36,8 +41,13 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
           "Are you sure you wish to transfer your owner ship of this expense board to $selectedEmail?" +
               "\n\nOnce you do this, the only way to get your ownership back is if the other user gives it back!");
       if (confirmed) {
-        bool removed = await gMemberProvider.transferOwnership(
-            widget.boardId, selectedEmail);
+        bool removed = await gMemberProvider
+            .transferOwnership(widget.boardId, selectedEmail)
+            .onError((error, stackTrace) {
+          logger.e(
+              "Failed to transfer ownership to $selectedEmail\nStacktrace:$stackTrace\nError:$error");
+          return false;
+        });
         // Build context may have been removed from widget tree by the time async method
         // finishes. We check if its mounted before trying to use it to prevent a crash.
         if (!mounted) return;
@@ -48,14 +58,20 @@ class _TransferOwnershipFormState extends State<TransferOwnershipForm> {
           Navigator.pop(context);
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("$selectedEmail has been granted ownership!"),
-        ));
-
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(
+                  successMessage: "$selectedEmail has been granted ownership!");
+            });
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Ownership transfer cancelled!")));
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(
+                  errorMessage: "Ownership transfer cancelled!");
+            });
       }
     }
   }

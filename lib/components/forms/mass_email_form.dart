@@ -1,4 +1,5 @@
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/repositories/expense_repo.dart';
@@ -28,8 +29,6 @@ class _MassEmailFormState extends State<MassEmailForm> {
     super.initState();
     subjectController = TextEditingController(text: emailSubjectText);
     bodyController = TextEditingController(text: emailBodyText);
-
-    // TODO - validation
   }
 
   void _showFailAlert(bool adminOnly) {
@@ -57,7 +56,8 @@ class _MassEmailFormState extends State<MassEmailForm> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DefaultErrorDialog(title: successText, errorMessage: message);
+        return DefaultSuccessDialog(
+            title: successText, successMessage: message);
       },
     );
   }
@@ -134,20 +134,26 @@ class _MassEmailFormState extends State<MassEmailForm> {
   }
 
   Future<void> _sendEmails(String subject, String body) async {
-    final mailingList = await Provider.of<BoardProvider>(context, listen: false)
-        .getMemberEmails(widget.boardId, adminOnlyEmail);
+    try {
+      final mailingList =
+          await Provider.of<BoardProvider>(context, listen: false)
+              .getMemberEmails(widget.boardId, adminOnlyEmail);
 
-    if (mailingList.isEmpty) {
-      _showEmptyMailingListError();
-      return;
-    }
+      if (mailingList.isEmpty) {
+        _showEmptyMailingListError();
+        return;
+      }
 
-    // ignore: use_build_context_synchronously
-    if (await Provider.of<BoardProvider>(context, listen: false)
-        .sendMassEmail(subject, body, mailingList)) {
-      _showSuccessAlert(adminOnlyEmail);
-    } else {
-      _showFailAlert(adminOnlyEmail);
+      // ignore: use_build_context_synchronously
+      if (await Provider.of<BoardProvider>(context, listen: false)
+          .sendMassEmail(subject, body, mailingList)) {
+        _showSuccessAlert(adminOnlyEmail);
+      } else {
+        _showFailAlert(adminOnlyEmail);
+      }
+    } catch (e) {
+      logger.e(
+          "Failed to send email '$subject' to your selected mailing list:\n$e");
     }
   }
 }

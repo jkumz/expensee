@@ -79,4 +79,8 @@ class GroupMemberRepository implements GroupMemberRepositoryInterface {
     String boardName = (await _service.getBoard(boardId) as ExpenseBoard).name;
     await _emailService.sendAddedUserEmail(mailingList, addedEmail, boardName);
   }
+
+  Future<bool> isGroupMember(String boardId, String email) async {
+    return _service.isGroupMember(boardId, email);
+  }
 }

@@ -7,7 +7,12 @@ import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
 
 class RemoveUserForm extends StatefulWidget {
   const RemoveUserForm({super.key, required this.boardId, required this.role});
@@ -24,39 +29,58 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
 
   // handle form submission
   void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // save current state of the form
+    try {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save(); // save current state of the form
 
-      if (selectedEmail == "@") {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: noEmailText,
-        ));
-        return;
+        if (selectedEmail == "@") {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: noEmailText,
+          ));
+          return;
+        }
+
+        var gMemberProvider =
+            Provider.of<GroupMemberProvider>(context, listen: false);
+
+        // Send mock email
+        bool removed = await gMemberProvider.removeGroupMember(
+            widget.boardId, selectedEmail);
+        // Build context may have been removed from widget tree by the time async method
+        // finishes. We check if its mounted before trying to use it to prevent a crash.
+        if (!mounted) return;
+        if (!removed) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultErrorDialog(
+                    errorMessage:
+                        "Failed to remove $selectedEmail from the board");
+              });
+
+          return;
+        }
+        await Provider.of<GroupMemberProvider>(context, listen: false)
+            .notifyUserRemoval(widget.boardId, selectedEmail);
+
+        showDialog(
+            context: context,
+            builder: (BuildContext c) {
+              return DefaultSuccessDialog(
+                  successMessage:
+                      "$selectedEmail has been removed from the expense board");
+            });
+        setState(() {
+          // force refresh
+        });
       }
-
-      var gMemberProvider =
-          Provider.of<GroupMemberProvider>(context, listen: false);
-
-      // Send mock email
-      bool removed = await gMemberProvider.removeGroupMember(
-          widget.boardId, selectedEmail);
-      // Build context may have been removed from widget tree by the time async method
-      // finishes. We check if its mounted before trying to use it to prevent a crash.
-      if (!mounted) return;
-      if (!removed) {
-        DefaultErrorDialog(
-            errorMessage: "Failed to remove $selectedEmail from the board");
-        return;
-      }
-      await Provider.of<GroupMemberProvider>(context, listen: false)
-          .notifyUserRemoval(widget.boardId, selectedEmail);
-
+    } catch (e) {
+      logger.e("Failed to submit user removal form: $e");
       showDialog(
           context: context,
-          builder: (BuildContext c) {
-            return DefaultSuccessDialog(
-                successMessage:
-                    "$selectedEmail has been removed from the expense board");
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage: "Failed to remove $selectedEmail from the board");
           });
     }
   }
@@ -117,15 +141,28 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
   }
 
   Future<Map<String, dynamic>> _fetchData() async {
-    final isAdmin = await Provider.of<BoardProvider>(context, listen: false)
-        .checkIfAdmin(widget.boardId);
-    final members =
-        await Provider.of<GroupMemberProvider>(context, listen: false)
-            .getGroupMembers(widget.boardId, false);
+    try {
+      final isAdmin = await Provider.of<BoardProvider>(context, listen: false)
+          .checkIfAdmin(widget.boardId);
+      final members =
+          await Provider.of<GroupMemberProvider>(context, listen: false)
+              .getGroupMembers(widget.boardId, false);
 
-    return {
-      'isAdmin': isAdmin,
-      'members': members,
-    };
+      return {
+        'isAdmin': isAdmin,
+        'members': members,
+      };
+    } catch (e) {
+      logger.e("Failed to check if user is admin or owner of board:\n$e");
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage:
+                    "Failed to check permissions to access user removal form - please try again");
+          });
+      Navigator.pop(context);
+    }
+    return Map(); // If for some reason that fails, return an empty map to prevent error
   }
 }

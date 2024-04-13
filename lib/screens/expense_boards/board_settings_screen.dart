@@ -24,9 +24,14 @@ import 'package:expensee/util/dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
 
 class BoardSettingsScreen extends StatefulWidget {
   static const routeName = "/board-settings";
@@ -202,7 +207,13 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
     if (deleteConfirmed) {
       if (!mounted) return;
       bool deleted = await Provider.of<BoardProvider>(context, listen: false)
-          .deletedBoard(widget.boardId);
+          .deletedBoard(widget.boardId)
+          .onError((error, stackTrace) {
+        logger.e(
+            "Failed to delete board with ID ${widget.boardId}\nError:$error\nStacktrace:$stackTrace");
+        return false;
+      });
+
       if (deleted) {
         showDialog(
             context: context,
@@ -227,99 +238,119 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
 
   // we need to get a list of all expnese IDs in the board, then for eahc of those save it to camera roll
   Future<void> _downloadAllReceipts() async {
-    String? start;
-    String? end;
-
-    // First, show the date picker dialog to let the user select a date range
-    bool dateSelected = await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Select Date Range"),
-            content: CustomDateRangePicker(
-                onDateRangeSelected: (startDate, endDate, selectedDateText) {
-              start = startDate;
-              end = endDate;
-            }),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false); // User cancelled
-                },
-              ),
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(true); // User confirmed
-                },
-              ),
-            ],
-          );
-        });
-
-    if (!dateSelected) return; // User cancelled the date selection
-
-    // Check storage permissions
-    if (!await _checkStoragePerms()) {
-      await [Permission.photos, Permission.videos].request();
-    }
-
-    if (!await _checkStoragePerms()) {
-      return showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return DefaultErrorDialog(
-                errorMessage:
-                    "Storage permissions are needed to save receipts.");
-          });
-    }
-
-    // If we got to this point, proceed with fetching expense IDs and downloading
-    List<int> ids = await Provider.of<ExpenseProvider>(context, listen: false)
-        .getExpenseIdsForBoard(widget.boardId, start, end);
-
     try {
-      bool failedToSave = false;
-      for (int id in ids) {
-        if (!await Provider.of<ExpenseProvider>(context, listen: false)
-            .hasReceipt(id)) continue;
+      String? start;
+      String? end;
 
-        String imgUrl =
-            await Provider.of<ExpenseProvider>(context, listen: false)
-                .getReceiptUrlForExpense(id);
-        final bytes = await readBytes(Uri.parse(imgUrl));
-        final uniqueIdentifier = const Uuid().v4();
-        final result = await ImageGallerySaver.saveImage(bytes,
-            name: "receipt_${id}_$uniqueIdentifier");
+      // First, show the date picker dialog to let the user select a date range
+      bool dateSelected = await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Select Date Range"),
+              content: CustomDateRangePicker(
+                  onDateRangeSelected: (startDate, endDate, selectedDateText) {
+                start = startDate;
+                end = endDate;
+              }),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // User cancelled
+                  },
+                ),
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // User confirmed
+                  },
+                ),
+              ],
+            );
+          });
 
-        failedToSave = !result["isSuccess"];
+      if (!dateSelected) return; // User cancelled the date selection
+
+      // Check storage permissions
+      if (!await _checkStoragePerms()) {
+        await [Permission.photos, Permission.videos].request();
       }
-      if (!failedToSave) {
-        // Show success snackbar
-        showDialog(
+
+      if (!await _checkStoragePerms()) {
+        return showDialog(
             context: context,
             builder: (BuildContext context) {
-              return DefaultSuccessDialog(
-                  successMessage: "All receipts saved successfully");
+              return DefaultErrorDialog(
+                  errorMessage:
+                      "Storage permissions are needed to save receipts.");
             });
-      } else {
-        // Show error dialog
+      }
+
+      bool usingDateSpan = ((start != null && end != null) || start != null);
+
+      // If we got to this point, proceed with fetching expense IDs and downloading
+      List<int> ids = ((start != null && end != null) || start != null)
+          ? await Provider.of<ExpenseProvider>(context, listen: false)
+              .getExpenseIdsForBoardWithDate(widget.boardId, start, end)
+          : await Provider.of<ExpenseProvider>(context, listen: false)
+              .getExpenseIdsForBoard(widget.boardId);
+
+      if (ids.isEmpty) {
+        showDialog(
+            context: context,
+            builder: (BuildContext) {
+              return DefaultErrorDialog(
+                  errorMessage:
+                      "Failed to get expense IDs to download receipts - please try again");
+            });
+        Navigator.pop(context);
+      }
+
+      try {
+        bool failedToSave = false;
+        for (int id in ids) {
+          if (!await Provider.of<ExpenseProvider>(context, listen: false)
+              .hasReceipt(id)) continue; // skip if no receipt
+
+          String imgUrl =
+              await Provider.of<ExpenseProvider>(context, listen: false)
+                  .getReceiptUrlForExpense(id);
+          final bytes = await readBytes(Uri.parse(imgUrl));
+          final uniqueIdentifier = const Uuid().v4();
+          final result = await ImageGallerySaver.saveImage(bytes,
+              name: "receipt_${id}_$uniqueIdentifier");
+
+          failedToSave = !result["isSuccess"];
+        }
+        if (!failedToSave) {
+          // Show success snackbar
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultSuccessDialog(
+                    successMessage: "All receipts saved successfully");
+              });
+        } else {
+          // Show error dialog
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultErrorDialog(
+                    errorMessage: "Failed to save one or more receipts.");
+              });
+        }
+      } catch (e) {
+        // Handle errors
         showDialog(
             context: context,
             builder: (BuildContext context) {
               return DefaultErrorDialog(
-                  errorMessage: "Failed to save one or more receipts.");
+                  errorMessage: "An error occurred while saving receipts.");
             });
       }
     } catch (e) {
-      // Handle errors
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return DefaultErrorDialog(
-                errorMessage: "An error occurred while saving receipts.");
-          });
+      logger.e("Failed to download all receipts: $e");
     }
   }
 

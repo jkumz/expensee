@@ -109,26 +109,37 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
 
 //TODO force board refresh to show new name, use void callback in constructor
   Future<void> _renameBoard(String newName) async {
-    bool renamed = await Provider.of<BoardProvider>(context, listen: false)
-        .updateBoardName(widget.boardId, newName);
+    try {
+      bool renamed = await Provider.of<BoardProvider>(context, listen: false)
+          .updateBoardName(widget.boardId, newName);
 
-    if (!renamed) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DefaultErrorDialog(
-              title: permsErrorTitle,
-              errorMessage: "Failed to rename board to $newName");
-        },
-      );
-    }
+      if (!renamed) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                title: permsErrorTitle,
+                errorMessage: "Failed to rename board to $newName");
+          },
+        );
+      }
 
-    if (renamed) {
+      if (renamed) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(
+                  successMessage: "Successfully renamed board to $newName");
+            });
+      }
+    } catch (e) {
+      logger
+          .e("Failed rename board with ID ${widget.boardId} to $newName:\n$e");
       showDialog(
           context: context,
           builder: (BuildContext context) {
-            return DefaultSuccessDialog(
-                successMessage: "Successfully renamed boardd to $newName");
+            return DefaultErrorDialog(
+                errorMessage: "Failed to rename board - please try again");
           });
     }
   }

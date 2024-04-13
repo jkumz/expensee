@@ -60,4 +60,8 @@ class GroupMemberProvider extends ChangeNotifier {
   Future<void> notifyUserAdded(String boardId, String selectedEmail) async {
     await _repo.notifyAdminsOfAddedUser(boardId, selectedEmail);
   }
+
+  Future<bool> isGroupMember(String boardId, String email) async {
+    return _repo.isGroupMember(boardId, email);
+  }
 }

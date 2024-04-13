@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/dropdown/roles_dropdown.dart';
 import 'package:expensee/config/constants.dart';
@@ -5,7 +8,12 @@ import 'package:expensee/enums/roles.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
 import "package:flutter/material.dart";
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
+);
 
 class InviteUserForm extends StatefulWidget {
   const InviteUserForm({super.key, required this.boardId, required this.role});
@@ -25,27 +33,52 @@ class _InviteUserFormState extends State<InviteUserForm> {
 
   // handle form submission
   void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // save current state of the form
+    try {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save(); // save current state of the form
 
-      var gMemberProvider =
-          Provider.of<GroupMemberProvider>(context, listen: false);
+        var gMemberProvider =
+            Provider.of<GroupMemberProvider>(context, listen: false);
 
-      // Send mock email
-      await gMemberProvider.sendInvite(
-          _userEmail, widget.boardId, _selectedRole);
+        // Check if a user is a member of the group first
+        bool isInGroup =
+            await gMemberProvider.isGroupMember(widget.boardId, _userEmail);
+        if (isInGroup) {
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultErrorDialog(
+                    errorMessage:
+                        "This user is already a member of this expense board");
+              });
+          return;
+        }
 
-      // Build context may have been removed from widget tree by the time async method
-      // finishes. We check if its mounted before trying to use it to prevent a crash.
-      if (!mounted) return;
+        // Send mock email
+        await gMemberProvider.sendInvite(
+            _userEmail, widget.boardId, _selectedRole);
 
-      showDialog(
+        // Build context may have been removed from widget tree by the time async method
+        // finishes. We check if its mounted before trying to use it to prevent a crash.
+        if (!mounted) return;
+
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(
+                  successMessage: inviteSentText(_userEmail));
+            });
+        setState(() {});
+      }
+    } catch (e) {
+      logger.e("Failed to submit invite form: $e");
+      await showDialog(
           context: context,
-          builder: (BuildContext context) {
-            return DefaultSuccessDialog(
-                successMessage: inviteSentText(_userEmail));
+          builder: (BuildContext) {
+            return DefaultErrorDialog(
+                errorMessage:
+                    "Failed to sumit invite form. Please try again later");
           });
-      setState(() {});
     }
   }
 

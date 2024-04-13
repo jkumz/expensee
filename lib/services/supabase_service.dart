@@ -13,8 +13,6 @@ import 'package:logger/logger.dart';
 
 import 'package:resend/resend.dart';
 
-//TODO - validation - if member part of board, if already removed, if board exists etc. Go over every method.
-
 var logger = Logger(
   printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
 );
@@ -1109,6 +1107,21 @@ class SupabaseService {
       logger.e("$e");
     }
     return List.empty();
+  }
+
+  Future<bool> isGroupMember(String boardId, String email) async {
+    try {
+      var memberRecord = await supabase
+          .from("group_members")
+          .select()
+          .eq("board_id", boardId)
+          .eq("user_email", email) as List<dynamic>;
+      return memberRecord.isNotEmpty; // return true if they are a member
+    } catch (e) {
+      logger.e(
+          "Failed to check if $email is a member of board with ID $boardId\n:$e");
+    }
+    return false; // Default to this if it fails
   }
 
   Future<List<String>> fetchCategories(String boardId) async {

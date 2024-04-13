@@ -22,30 +22,41 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
 
   // handle form submission
   void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // save current state of the form
+    try {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save(); // save current state of the form
 
-      bool removed = await _changeUserRole(_selectedEmail, _selectedRole);
-      // Build context may have been removed from widget tree by the time async method
-      // finishes. We check if its mounted before trying to use it to prevent a crash.
-      if (!mounted) return;
-      if (!removed) {
+        bool removed = await _changeUserRole(_selectedEmail, _selectedRole);
+        // Build context may have been removed from widget tree by the time async method
+        // finishes. We check if its mounted before trying to use it to prevent a crash.
+        if (!mounted) return;
+        if (!removed) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DefaultErrorDialog(
+                  errorMessage: failedToChangePermsMsg(_selectedEmail),
+                );
+              });
+        }
+
         showDialog(
             context: context,
             builder: (BuildContext context) {
-              return DefaultErrorDialog(
-                errorMessage: failedToChangePermsMsg(_selectedEmail),
-              );
+              return DefaultSuccessDialog(
+                  title: permsChangeSuccessTitle,
+                  successMessage: permsChangedMessage(
+                      _selectedEmail, _selectedRole.toFormattedString()));
             });
       }
-
+    } catch (e) {
+      logger.e("Failed to submit user permission form: $e");
       showDialog(
           context: context,
           builder: (BuildContext context) {
-            return DefaultSuccessDialog(
-                title: permsChangeSuccessTitle,
-                successMessage: permsChangedMessage(
-                    _selectedEmail, _selectedRole.toFormattedString()));
+            return DefaultErrorDialog(
+              errorMessage: failedToChangePermsMsg(_selectedEmail),
+            );
           });
     }
   }
@@ -58,7 +69,7 @@ class _ManageUserPermsFormState extends State<ManageUserPermsForm> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Show a loading indicator while waiting for the future to complete
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // Handle the error case
           return Text('Error: ${snapshot.error}');

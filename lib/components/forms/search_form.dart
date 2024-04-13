@@ -4,7 +4,10 @@ import 'package:expensee/config/constants.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+
+var logger = Logger(printer: PrettyPrinter());
 
 // ignore: must_be_immutable
 class SearchForm extends StatefulWidget {
@@ -543,12 +546,22 @@ class _SearchFormState extends State<SearchForm> {
   Future<void> _fetchGroupMembers(String boardId) async {
     userIdToEmailRecords =
         await Provider.of<BoardProvider>(context, listen: false)
-            .fetchMemberRecords(widget.boardId);
+            .fetchMemberRecords(widget.boardId)
+            .onError((error, stackTrace) {
+      logger.e(
+          "Failed to fetch group member records\nStack trace:$stackTrace\nError:$error");
+      return List.empty();
+    });
   }
 
   Future<void> _fetchCategories(String boardId) async {
     boardCategories = await Provider.of<BoardProvider>(context, listen: false)
-        .fetchCategories(widget.boardId);
+        .fetchCategories(widget.boardId)
+        .onError((error, stackTrace) {
+      logger.e(
+          "Failed to fetch categories for board with ID $boardId\nStackrace:$stackTrace\nError:$error");
+      return List.empty();
+    });
   }
 
   // Passes necessary params to filter to provider, which interacts with repository
@@ -557,7 +570,11 @@ class _SearchFormState extends State<SearchForm> {
       String startDate, String endDate) async {
     var filteredBoard = await Provider.of<BoardProvider>(context, listen: false)
         .applyFilter(userIDs, categories, startDate, endDate, widget.boardId,
-            invertDates, invertCategories, invertUsers);
+            invertDates, invertCategories, invertUsers)
+        .onError((error, stackTrace) {
+      logger.e(
+          "Failed to filter expenses for board with ID ${widget.boardId}\nStacktrace:$stackTrace\nError:$error");
+    });
     if (filteredBoard != null) {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
