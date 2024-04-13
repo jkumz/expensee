@@ -201,8 +201,22 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
 
     if (deleteConfirmed) {
       if (!mounted) return;
-      await Provider.of<BoardProvider>(context, listen: false)
+      bool deleted = await Provider.of<BoardProvider>(context, listen: false)
           .deletedBoard(widget.boardId);
+      if (deleted) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(
+                  successMessage: "Expense board deleted");
+            });
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(errorMessage: "Failed to delete board");
+            });
+      }
 
       if (!mounted) return;
       Navigator.of(context).pop();

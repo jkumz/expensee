@@ -20,9 +20,6 @@ class _InvitationItemState extends State<InvitationItem> {
         .getBoardName(widget.invitation.boardId);
   }
 
-  Future<void> _acceptInvite() async {}
-  Future<void> _declineInvite() async {}
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,21 +46,7 @@ class _InvitationItemState extends State<InvitationItem> {
                 }
               },
             ),
-          ),
-          Expanded(
-              flex: expenseItemFlex,
-              child: AcceptInviteButton(
-                text: acceptBtnText,
-                onPressed: _acceptInvite,
-                imagePath: acceptInviteImagePath,
-              )),
-          Expanded(
-              flex: expenseItemFlex,
-              child: AcceptInviteButton(
-                text: declineBtnText,
-                onPressed: _declineInvite,
-                imagePath: declineInviteImagePath,
-              ))
+          )
         ],
       ),
     );

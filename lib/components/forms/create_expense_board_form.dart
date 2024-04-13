@@ -1,7 +1,8 @@
+import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/config/constants.dart';
 import 'package:expensee/providers/board_provider.dart';
 import "package:flutter/material.dart";
-import "package:expensee/components/snackbars/conditional_snackbar.dart";
 import 'package:provider/provider.dart';
 
 class CreateExpenseBoardForm extends StatefulWidget {
@@ -38,13 +39,21 @@ class _CreateExpenseBoardFormState extends State<CreateExpenseBoardForm> {
       // finishes. We check if its mounted before trying to use it to prevent a crash.
       if (!mounted) return;
 
-      ConditionalSnackbar.show(context,
-          isSuccess: created,
-          message: boardCreationSuccessMessage,
-          errMsg: boardCreationFailureMessage);
-
       if (created) {
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultSuccessDialog(
+                  successMessage: boardCreationSuccessMessage);
+            });
         Navigator.pop(context);
+      } else {
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return DefaultErrorDialog(
+                  errorMessage: boardCreationFailureMessage);
+            });
       }
     }
   }
