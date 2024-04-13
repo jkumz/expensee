@@ -6,6 +6,7 @@ import 'package:expensee/components/appbars/board_settings_app_bar.dart';
 import 'package:expensee/components/appbars/individual_expense_board_app_bar.dart';
 import 'package:expensee/components/dialogs/confirmation_dialog.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
+import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
 import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
@@ -417,6 +418,11 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
       //TODO - better error handling
       expenses.removeWhere((element) => element.expense.id == expense.id);
       await _refreshExpenses();
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultSuccessDialog(successMessage: "Expense deleted");
+          });
       return true;
     }
     return false;
