@@ -44,7 +44,7 @@ class _ExpenseScreenNavBarState extends State<ExpenseScreenNavBar> {
           // Sign out button
           IconButton(
               onPressed: () => {
-                    Login.signOut(),
+                    Login.signOut(context),
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },

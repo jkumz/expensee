@@ -34,7 +34,7 @@ class _ExpBoardSettingsNavBarState extends State<ExpBoardSettingsNavBar> {
           // Sign out button
           IconButton(
               onPressed: () => {
-                    Login.signOut(),
+                    Login.signOut(context),
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },

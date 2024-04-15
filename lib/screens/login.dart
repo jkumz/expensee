@@ -24,8 +24,12 @@ class Login extends StatefulWidget {
   @override
   createState() => _LoginState();
 
-  static Future<void> signOut() async {
+  static Future<void> signOut(BuildContext context) async {
     await supabase.auth.signOut();
+
+    // Clear the entire navigation stack and push the '/login' route
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
   }
 }
 

@@ -33,7 +33,7 @@ class _DefaultBottomAppBarState extends State<DefaultBottomAppBar> {
           // Sign out button
           IconButton(
               onPressed: () => {
-                    Login.signOut(),
+                    Login.signOut(context),
                     Navigator.of(context).pushReplacementNamed(loginRoute),
                     _updateState()
                   },
