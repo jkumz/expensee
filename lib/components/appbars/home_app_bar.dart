@@ -4,7 +4,7 @@ import "package:flutter/material.dart";
 class HomeAppBar extends AppBar {
   HomeAppBar({
     Key? key,
-    Widget title = const Text("Home"),
+    Widget title = const Center(child: Text("Home")),
     List<Widget>? actions,
   }) : super(
             key: key,

@@ -124,12 +124,12 @@ class _RemoveUserFormState extends State<RemoveUserForm> {
             isAdmin
                 ? UserDropdownMenu(
                     onUserSelected: (String user) => selectedEmail = user,
-                    isAdmin: isAdmin,
+                    isAdmin: true,
                     boardId: widget.boardId,
                   )
                 : UserDropdownMenu(
                     onUserSelected: (String user) => selectedEmail = user,
-                    isAdmin: !isAdmin,
+                    isAdmin: false,
                     boardId: widget.boardId,
                   ), // Use conditional if isOwner
             ElevatedButton(

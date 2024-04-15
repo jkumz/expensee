@@ -76,6 +76,7 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 12),
                   ViewExpenseBoardsButton(
+                    key: const ValueKey("soloExpenseBoardsButton"),
                     text: viewSoloExpenseBoardsBtnText,
                     imagePath: singleBoardImagePath,
                     onPressed: _navigateToSoloBoards,

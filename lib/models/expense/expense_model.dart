@@ -2,7 +2,6 @@ import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/date_time_converter.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_dates_converter.dart';
-import 'package:expensee/models/expense/receipt_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 //TODO - add proper error handling + validation
@@ -35,8 +34,6 @@ class Expense {
 
   @JsonKey(name: "description", required: false)
   String? description;
-
-  List<Receipt>? receipts;
 
   void setId(int id) {
     this.id = id;
@@ -115,14 +112,6 @@ class Expense {
       this.description = description;
     } catch (unknownError) {
       logger.e(unknownError.toString());
-    }
-  }
-
-  void uploadReceipt(List<Receipt> receipt) {
-    try {
-      receipts = receipt;
-    } catch (e) {
-      logger.e(e.toString());
     }
   }
 }

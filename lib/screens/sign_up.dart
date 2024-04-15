@@ -4,10 +4,9 @@ import 'dart:async';
 
 import 'package:expensee/components/buttons/custom_callback_button.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:expensee/main.dart';
 
 class SignUp extends StatefulWidget {
   static const String routeName = "/sign-up";

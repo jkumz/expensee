@@ -1,0 +1,1145 @@
+@startuml
+class ExpenseeApp {
+---
+build(): Widget
+}
+StatelessWidget <|-- ExpenseeApp
+class ViewExpenseBoardArguments {
+isGroupBoard: bool
+---
+}
+class ExpenseBoardScreenArguments {
+id: String
+isGroup: bool
+---
+}
+class BoardSettingsScreenArguments {
+id: String
+---
+}
+class ExpenseCreationSreenArguments {
+expense: Expense
+exists: bool
+---
+}
+ExpenseCreationSreenArguments ..> Expense
+class LoginScreenArguments {
+followUpToken: String?
+followUpRoute: String?
+---
+}
+class BoardSettingsAppBar {
+---
+}
+AppBar <|-- BoardSettingsAppBar
+class CreateExpenseAppBar {
+---
+}
+AppBar <|-- CreateExpenseAppBar
+class HomeAppBar {
+---
+}
+AppBar <|-- HomeAppBar
+class IndividualExpenseBoardAppBar {
+---
+}
+AppBar <|-- IndividualExpenseBoardAppBar
+class ViewBoardsAppBar {
+---
+}
+AppBar <|-- ViewBoardsAppBar
+class MagicLinkButton {
+child: Widget
+onTap: GestureTapCallback?
+textColour: Color?
+backgroundColour: Color?
+---
+build(): Widget
+}
+StatelessWidget <|-- MagicLinkButton
+MagicLinkButton ..> Widget
+MagicLinkButton ..> GestureTapCallback
+MagicLinkButton ..> Color
+class SignInWithAppleButton {
+---
+}
+CustomCallbackButton <|-- SignInWithAppleButton
+class SignInWithGoogleButton {
+---
+}
+CustomCallbackButton <|-- SignInWithGoogleButton
+class SignInWithPasswordButton {
+---
+}
+CustomCallbackButton <|-- SignInWithPasswordButton
+class AddUserButton {
+---
+}
+ImageCallbackButton <|-- AddUserButton
+class DeleteBoardButton {
+---
+}
+ImageCallbackButton <|-- DeleteBoardButton
+class DownloadReceiptsButton {
+---
+}
+ImageCallbackButton <|-- DownloadReceiptsButton
+class ManageRolesButton {
+---
+}
+ImageCallbackButton <|-- ManageRolesButton
+class MassEmailButton {
+---
+}
+ImageCallbackButton <|-- MassEmailButton
+class PassOwnershipButton {
+---
+}
+ImageCallbackButton <|-- PassOwnershipButton
+class RemoveUserButton {
+---
+}
+ImageCallbackButton <|-- RemoveUserButton
+class RenameBoardButton {
+---
+}
+ImageCallbackButton <|-- RenameBoardButton
+class SearchButton {
+---
+}
+ImageCallbackButton <|-- SearchButton
+class CustomCallbackButton {
+child: Widget
+onTap: GestureTapCallback?
+textColour: Color?
+backgroundColour: Color?
+---
+build(): Widget
+}
+StatelessWidget <|-- CustomCallbackButton
+CustomCallbackButton ..> Widget
+CustomCallbackButton ..> GestureTapCallback
+CustomCallbackButton ..> Color
+class ImageCallbackButton {
+text: String
+imagePath: String
+onPressed: VoidCallback
+isEnabled: bool
+width: double?
+contentAlignment: AlignmentGeometry?
+---
+build(): Widget
+}
+StatelessWidget <|-- ImageCallbackButton
+ImageCallbackButton ..> VoidCallback
+ImageCallbackButton ..> AlignmentGeometry
+class AddReceiptButton {
+---
+}
+ImageCallbackButton <|-- AddReceiptButton
+class DeleteReceiptButton {
+---
+}
+ImageCallbackButton <|-- DeleteReceiptButton
+class SaveExpenseButton {
+---
+}
+ImageCallbackButton <|-- SaveExpenseButton
+class ViewReceiptButton {
+---
+}
+ImageCallbackButton <|-- ViewReceiptButton
+class CreateExpenseBoardButton {
+---
+}
+CustomCallbackButton <|-- CreateExpenseBoardButton
+class ViewExpenseBoardsButton {
+text: String
+imagePath: String
+onPressed: VoidCallback
+---
+build(): Widget
+}
+StatelessWidget <|-- ViewExpenseBoardsButton
+ViewExpenseBoardsButton ..> VoidCallback
+class ViewInvitesButton {
+text: String
+imagePath: String
+onPressed: VoidCallback
+---
+build(): Widget
+}
+StatelessWidget <|-- ViewInvitesButton
+ViewInvitesButton ..> VoidCallback
+class AcceptInviteButton {
+text: String
+imagePath: String
+onPressed: VoidCallback
+---
+build(): Widget
+}
+StatelessWidget <|-- AcceptInviteButton
+AcceptInviteButton ..> VoidCallback
+class DeclineInviteButton {
+text: String
+imagePath: String
+onPressed: VoidCallback
+---
+build(): Widget
+}
+StatelessWidget <|-- DeclineInviteButton
+DeclineInviteButton ..> VoidCallback
+class CustomDateRangePicker {
+onDateRangeSelected: DateRangeUpdateCallback
+---
+-_onSelectionChanged(): void
+build(): Widget
+}
+StatelessWidget <|-- CustomDateRangePicker
+CustomDateRangePicker ..> DateRangeUpdateCallback
+class ConfirmationAlertDialog {
+title: String
+content: String
+---
+build(): Widget
+}
+StatelessWidget <|-- ConfirmationAlertDialog
+class DefaultErrorDialog {
+errorMessage: String
+title: String
+---
+build(): Widget
+}
+StatelessWidget <|-- DefaultErrorDialog
+class DefaultSuccessDialog {
+successMessage: String
+title: String
+---
+build(): Widget
+}
+StatelessWidget <|-- DefaultSuccessDialog
+class RolesDropdownMenu {
+onRoleChanged:  Function(Roles)
+---
+createState(): void
+}
+StatefulWidget <|-- RolesDropdownMenu
+class _RolesDropdownMenuState {
+rolesList: List<Roles>
+selectedRole: Roles
+---
+build(): Widget
+}
+State <|-- _RolesDropdownMenuState
+_RolesDropdownMenuState ..> Roles
+class UserDropdownMenu {
+onUserSelected:  Function(String)
+isAdmin: bool
+boardId: String
+---
+createState(): void
+}
+StatefulWidget <|-- UserDropdownMenu
+class _UserDropdownMenuState {
+-_memberListFuture: Future<List<GroupMember>>
+selectedEmail: String?
+---
+initState(): void
+build(): Widget
+}
+State <|-- _UserDropdownMenuState
+_UserDropdownMenuState ..> Future
+class ExpenseItem {
+expense: Expense
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- ExpenseItem
+ExpenseItem ..> Expense
+class _ExpenseItemState {
+---
+build(): Widget
+}
+State <|-- _ExpenseItemState
+class CreateExpenseBoardForm {
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- CreateExpenseBoardForm
+class _CreateExpenseBoardFormState {
+-_formKey: null
+-_boardName: String
+-_isGroup: bool
+-_balance: String
+---
+-_submit(): void
+build(): Widget
+}
+State <|-- _CreateExpenseBoardFormState
+class CreateExpenseForm {
+expense: Expense
+exists: bool
+onClose: VoidCallback
+---
+createState(): void
+}
+ExpenseItem <|-- CreateExpenseForm
+CreateExpenseForm ..> Expense
+CreateExpenseForm ..> VoidCallback
+class _CreateExpenseFormState {
+-_categoryController: TextEditingController
+-_descriptionController: TextEditingController
+-_amountController: TextEditingController
+-_dateController: TextEditingController
+hasReceipt: bool
+repo: null
+isSubmitted: bool
+-_isFormValid: bool
+---
+initState(): void
+-_checkReceipt(): Future<void>
+-_validateForm(): void
+-_showInvalidValueMessage(): void
+-_showInvalidDateMessage(): void
+dispose(): void
+build(): Widget
+-_renderButtons(): Widget
+-_selectDate(): Future<void>
+-_modifyExpense(): Future<Expense>
+-_saveExpense(): Future<void>
+-_addReceipt(): void
+-_viewReceipt(): void
+-_deleteReceipt(): Future<void>
+-_saveReceiptToCameraRoll(): Future<void>
+-_checkStoragePerms(): Future<bool>
+-_confirmDeleteReceipt(): Future<bool>
+}
+State <|-- _CreateExpenseFormState
+_CreateExpenseFormState ..> TextEditingController
+class InviteUserForm {
+boardId: String
+role: String
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- InviteUserForm
+class _InviteUserFormState {
+-_formKey: null
+-_selectedRole: Roles
+-_userEmail: String
+---
+-_submit(): void
+build(): Widget
+buildForm(): Widget
+}
+State <|-- _InviteUserFormState
+_InviteUserFormState ..> Roles
+class ManageUserPermsForm {
+boardId: String
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- ManageUserPermsForm
+class _ManageUserPermsFormState {
+-_formKey: null
+-_selectedEmail: String
+-_selectedRole: Roles
+---
+-_submit(): void
+build(): Widget
+-_buildForm(): Widget
+-_changeUserRole(): Future<bool>
+-_generateTableColumns(): List<DataColumn>
+-_generateTableRows(): List<DataRow>
+-_rolesItemBuilder(): List<PopupMenuEntry<Roles>>
+-_tableRow(): Row
+}
+State <|-- _ManageUserPermsFormState
+_ManageUserPermsFormState ..> Roles
+class MassEmailForm {
+boardId: String
+---
+createState(): void
+}
+StatefulWidget <|-- MassEmailForm
+class _MassEmailFormState {
+subjectController: TextEditingController
+bodyController: TextEditingController
+repo: null
+isSubmitted: bool
+isNameValid: bool
+adminOnlyEmail: bool
+---
+initState(): void
+-_showFailAlert(): void
+-_showEmptyMailingListError(): void
+-_showSuccessAlert(): void
+dispose(): void
+build(): Widget
+-_sendEmails(): Future<void>
+}
+State <|-- _MassEmailFormState
+_MassEmailFormState ..> TextEditingController
+class RemoveUserForm {
+boardId: String
+role: String
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- RemoveUserForm
+class _RemoveUserFormState {
+-_formKey: null
+selectedEmail: String
+---
+-_submit(): void
+build(): Widget
+-_buildForm(): Widget
+-_fetchData(): Future<Map<String, dynamic>>
+}
+State <|-- _RemoveUserFormState
+class RenameBoardForm {
+boardId: String
+---
+createState(): void
+}
+StatefulWidget <|-- RenameBoardForm
+class _RenameBoardFormState {
+-_nameController: TextEditingController
+repo: null
+isSubmitted: bool
+-_isNameValid: bool
+---
+initState(): void
+-_validateForm(): void
+-_showErrorDialog(): void
+dispose(): void
+build(): Widget
+-_renameBoard(): Future<void>
+}
+State <|-- _RenameBoardFormState
+_RenameBoardFormState ..> TextEditingController
+class SearchForm {
+boardId: String
+onApplyFilter:  Function(ExpenseBoard)
+---
+createState(): void
+}
+StatefulWidget <|-- SearchForm
+class _SearchFormState {
+invertDates: bool
+startDate: String
+selectedDateText: String
+boardCategories: List<String>
+selectedCategories: List<String>
+userIdToEmailRecords: List<(String userId, String userEmail)>
+selectedUserIDs: List<String>
+---
+initState(): void
+dispose(): void
+-_loadData(): Future<void>
+-_updateDateRange(): void
+-_showDatePickerDialog(): void
+-_buildTitle(): Widget
+-_buildDateSelectionRow(): Widget
+-_showCategoryPickerDialog(): void
+-_buildCategorySelectionRow(): Widget
+-_buildSearchButton(): Widget
+-_getSelectedUserEmails(): List<String>
+-_buildUserSelectionRow(): Widget
+-_showUserPickerDialog(): void
+-_buildInversionText(): String
+-_buildInversionSelectionRow(): Widget
+-_showInversionSelectionDialog(): void
+-_fetchGroupMembers(): Future<void>
+-_fetchCategories(): Future<void>
+-_filterExpenses(): Future<void>
+build(): Widget
+}
+State <|-- _SearchFormState
+class TransferOwnershipForm {
+boardId: String
+role: String
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- TransferOwnershipForm
+class _TransferOwnershipFormState {
+-_formKey: null
+selectedEmail: String
+---
+-_submit(): void
+build(): Widget
+buildForm(): Widget
+}
+State <|-- _TransferOwnershipFormState
+class InvitationItem {
+invitation: Invitation
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- InvitationItem
+InvitationItem ..> Invitation
+class _InvitationItemState {
+---
+-_getBoardName(): Future<String>
+build(): Widget
+}
+State <|-- _InvitationItemState
+class ExpenseBoardNavBar {
+boardId: String
+settings: VoidCallback
+search: VoidCallback
+role: String
+---
+createState(): void
+}
+StatefulWidget <|-- ExpenseBoardNavBar
+ExpenseBoardNavBar ..> VoidCallback
+class _ExpenseBoardNavBarState {
+---
+build(): Widget
+-_updateState(): void
+-_canAccessSettings(): bool
+}
+State <|-- _ExpenseBoardNavBarState
+class ExpBoardSettingsNavBar {
+boardId: String
+exit: VoidCallback
+---
+createState(): void
+}
+StatefulWidget <|-- ExpBoardSettingsNavBar
+ExpBoardSettingsNavBar ..> VoidCallback
+class _ExpBoardSettingsNavBarState {
+---
+build(): Widget
+-_updateState(): void
+}
+State <|-- _ExpBoardSettingsNavBarState
+class DefaultBottomAppBar {
+---
+createState(): void
+}
+StatefulWidget <|-- DefaultBottomAppBar
+class _DefaultBottomAppBarState {
+---
+build(): Widget
+-_updateState(): void
+}
+State <|-- _DefaultBottomAppBarState
+class ExpenseScreenNavBar {
+boardId: String
+exit: VoidCallback
+---
+createState(): void
+}
+StatefulWidget <|-- ExpenseScreenNavBar
+ExpenseScreenNavBar ..> VoidCallback
+class _ExpenseScreenNavBarState {
+---
+build(): Widget
+-_updateState(): void
+}
+State <|-- _ExpenseScreenNavBarState
+class AppInitializer {
+---
+createState(): void
+}
+StatefulWidget <|-- AppInitializer
+class _AppInitializerState {
+---
+initState(): void
+build(): Widget
+}
+State <|-- _AppInitializerState
+class DateTimeConverter {
+---
+fromJson(): DateTime
+toJson(): String
+}
+DateTimeConverter ..|> JsonConverter
+class ExpenseDatesConverter {
+---
+fromJson(): HashMap<int, DateTime>
+toJson(): List
+}
+ExpenseDatesConverter ..|> JsonConverter
+class Expense {
+id: int?
+creatorId: String?
+date: ExpenseDate
+category: String
+amount: double
+balance: double
+description: String?
+receipts: List<Receipt>?
+---
+setId(): void
+toJson(): Map<String, dynamic>
+equals(): bool
+setData(): void
+setCategory(): void
+setAmount(): void
+-_setBalance(): void
+setDescription(): void
+uploadReceipt(): void
+}
+Expense ..> ExpenseDate
+class Receipt {
+expenseId: String
+filePath: String
+uploadDate: String
+---
+toJson(): Map<String, dynamic>
+}
+class ExpenseBoard {
+id: int?
+creatorId: null
+name: String
+isGroup: bool
+initialBalance: double
+balance: double
+expenses: List<Expense>
+---
+toJson(): Map<String, dynamic>
+equals(): bool
+}
+class GroupMember {
+userId: String
+boardId: String
+role: Roles
+email: String
+---
+toJson(): Map<String, dynamic>
+-_roleFromJson(): Roles
+-_roleToJson(): String
+}
+GroupMember ..> Roles
+class Invitation {
+invitationId: String
+inviterId: String
+invitedId: String
+boardId: String
+invitedEmail: String
+status: String
+token: String
+role: Roles
+---
+toJson(): Map<String, dynamic>
+}
+Invitation ..> Roles
+class User {
+id: int?
+name: String
+email: String
+---
+toJson(): Map<String, dynamic>
+}
+class BoardProvider {
+-_boards: List<ExpenseBoard>
+-_repo: null
+isLoading: bool
+---
+boards(): List<ExpenseBoard>
+refreshBoards(): Future<List<ExpenseBoard>?>
+createBoard(): Future<bool>
+deletedBoard(): Future<bool>
+leaveBoard(): Future<bool>
+updateBoard(): Future<bool>
+updateBoardWithExpense(): Future<ExpenseBoard?>
+fetchBoardExpenses(): Future<ExpenseBoard?>
+getBoardWithId(): Future<ExpenseBoard?>
+refreshBoardBalance(): Future<ExpenseBoard?>
+getBoardName(): Future<String>
+getBoardBalance(): Future<double>
+checkIfOwner(): Future<bool>
+checkIfAdmin(): Future<bool>
+updateBoardName(): Future<bool>
+getMemberEmails(): Future<List<String>>
+sendMassEmail(): Future<bool>
+fetchCategories(): Future<List<String>>
+fetchMemberRecords(): Future<List<(String userId, String userEmail)>>
+applyFilter(): Future<ExpenseBoard?>
+}
+ChangeNotifier <|-- BoardProvider
+class ExpenseProvider {
+-_repo: null
+isLoading: bool
+-_expense: Expense
+-_expenseList: List<Expense>
+---
+expense(): Expense
+expenseList(): List<Expense>
+refreshExpensesForBoard(): Future<List<Expense>>
+refreshExpense(): Future<Expense>
+addExpense(): Future<Expense>
+removeExpense(): Future<Expense>
+updateExpense(): Future<Expense>
+isPartOfGroupBoard(): Future<bool>
+addReceipt(): Future<String?>
+uploadReceiptUrl(): Future<bool>
+getReceiptForExpense(): Future<Image>
+getReceiptUrlForExpense(): Future<String>
+hasReceipt(): Future<bool>
+deleteReceipt(): Future<bool>
+getExpenseIdsForBoardWithDate(): Future<List<int>>
+getExpenseIdsForBoard(): Future<List<int>>
+}
+ChangeNotifier <|-- ExpenseProvider
+ExpenseProvider ..> Expense
+class GroupMemberProvider {
+-_repo: null
+isLoading: bool
+---
+sendInvite(): Future<void>
+getInvite(): Future<Invitation?>
+acceptInvite(): Future<Invitation?>
+declineInvite(): Future<Invitation?>
+getInvites(): Future<List<Invitation>>
+removeGroupMember(): Future<bool>
+getGroupMembers(): Future<List<GroupMember>>
+updateRole(): Future<bool>
+transferOwnership(): Future<bool>
+getMemberRole(): Future<String>
+notifyUserRemoval(): Future<void>
+notifyUserAdded(): Future<void>
+isGroupMember(): Future<bool>
+}
+ChangeNotifier <|-- GroupMemberProvider
+class BoardRepository {
+-_userId: null
+-_service: null
+-_emailService: null
+---
+refreshExpenseBoards(): Future<List<ExpenseBoard>>
+addExpenseBoard(): Future<ExpenseBoard>
+removeExpenseBoard(): Future<bool>
+updateExpenseBoard(): Future<ExpenseBoard?>
+leaveBoard(): Future<bool>
+getBoard(): Future<ExpenseBoard?>
+getExpense(): Future<Expense?>
+getExpenses(): Future<List<Expense>>
+isOwner(): Future<bool>
+isAdmin(): Future<bool>
+updateName(): Future<bool>
+getMemberEmails(): Future<List<String>>
+sendMassEmail(): Future<bool>
+fetchCategories(): Future<List<String>>
+fetchMemberRecords(): Future<List<(String userId, String userEmail)>>
+getExpensesWithFilter(): Future<List<Expense>>
+}
+BoardRepository ..|> BoardRepositoryInterface
+class ExpenseRepository {
+-_service: null
+-_receiptService: null
+---
+refreshExpense(): Future<Expense>
+addExpense(): Future<Expense>
+removeExpense(): Future<Expense?>
+updateExpense(): Future<Expense>
+refreshExpensesForBoard(): Future<List<Expense>>
+isPartOfGroup(): Future<bool>
+addReceipt(): Future<String?>
+uploadReceiptUrl(): Future<bool>
+getReceiptForExpense(): Future<String>
+hasReceipt(): Future<bool>
+deleteReceipt(): Future<bool>
+}
+ExpenseRepository ..|> ExpenseRepositoryInterface
+class GroupMemberRepository {
+-_service: null
+-_emailService: null
+---
+inviteMemberToBoard(): Future<bool>
+removeMemberFromBoard(): Future<bool>
+getInvitationDetails(): Future<Invitation?>
+acceptInvite(): Future<Invitation?>
+declineInvite(): Future<Invitation?>
+getInvites(): Future<List<Invitation>>
+getMembers(): Future<List<GroupMember>>
+updateRole(): Future<bool>
+transferOwnership(): Future<bool>
+getMemberRole(): Future<String>
+notifyAdminsOfRemovedUser(): Future<void>
+notifyAdminsOfAddedUser(): Future<void>
+isGroupMember(): Future<bool>
+}
+GroupMemberRepository ..|> GroupMemberRepositoryInterface
+abstract class BoardRepositoryInterface {
+---
+refreshExpenseBoards(): Future<List<ExpenseBoard>>
+addExpenseBoard(): Future<ExpenseBoard>
+removeExpenseBoard(): Future<bool>
+updateExpenseBoard(): Future<ExpenseBoard?>
+}
+abstract class ExpenseRepositoryInterface {
+---
+refreshExpense(): Future<Expense>
+updateExpense(): Future<Expense>
+addExpense(): Future<Expense>
+removeExpense(): Future<Expense?>
+refreshExpensesForBoard(): Future<List<Expense>>
+isPartOfGroup(): Future<bool>
+}
+abstract class GroupMemberRepositoryInterface {
+---
+inviteMemberToBoard(): Future<void>
+removeMemberFromBoard(): Future<bool>
+updateRole(): Future<bool>
+}
+class BoardCreationScreen {
+routeName: null
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- BoardCreationScreen
+class _BoardCreationScreenState {
+---
+build(): Widget
+}
+State <|-- _BoardCreationScreenState
+class BoardSearchScreen {
+routeName: null
+boardId: String
+isGroup: bool
+onApplyFilter:  Function(ExpenseBoard)
+---
+createState(): void
+}
+StatefulWidget <|-- BoardSearchScreen
+class _BoardSearchScreenState {
+---
+build(): Widget
+}
+State <|-- _BoardSearchScreenState
+class BoardSettingsScreen {
+routeName: null
+id: String
+role: String
+boardId: String
+isGroup: bool
+---
+createState(): void
+}
+StatefulWidget <|-- BoardSettingsScreen
+class _BoardSettingsScreenState {
+inviteUsers: bool
+---
+build(): Widget
+-_buildSoloButtonList(): List<Widget>
+-_buildGroupButtonList(): List<Widget>
+-_navigateToInviteUserScreen(): void
+-_navigateToRemoveUserScreen(): void
+-_navigateToRoleManagementScreen(): void
+-_navigateToNamingScreen(): void
+-_navigateToOwnershipTransfer(): void
+-_navigateToMassEmailScreen(): void
+-_confirmAndDeleteBoard(): Future<void>
+-_checkIfOwner(): bool
+-_downloadAllReceipts(): Future<void>
+-_checkStoragePerms(): Future<bool>
+}
+State <|-- _BoardSettingsScreenState
+class ExpenseBoardScreen {
+routeName: null
+boardId: String
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- ExpenseBoardScreen
+class _ExpenseBoardScreenState {
+expenses: List<ExpenseItem>
+-_refreshIndicatorKey: GlobalKey<RefreshIndicatorState>
+loading: bool
+repo: null
+isGroupBoard: bool
+boardName: String
+actionList: List<Widget>
+memberRole: String
+displayBoard: bool
+editingExpense: Expense?
+displaySettings: bool
+displaySearchFilters: bool
+filtersApplied: bool
+---
+initState(): void
+onFinishEditing(): void
+onExitExpenseView(): void
+-_onOpenSettings(): void
+-_onOpenSearch(): void
+-_onApplySearchFilter(): void
+-_onExitSettings(): void
+-_setDefaultSettings(): void
+updateExpenses(): void
+build(): Widget
+-_buildAppBar(): AppBar
+-_buildNavBar(): Widget
+-_buildExpenseCreationScreen(): Widget
+-_buildExpenseSearchScreen(): Widget
+-_buildAlternativeContent(): Widget
+-_buildMainContent(): Widget
+dispose(): void
+-_renderProgressBar(): Widget
+-_isPartOfGroup(): Future<bool>
+-_renderListView(): Widget
+-_listViewItemBuilder(): Widget
+-_canEditExpense(): Future<bool>
+-_renderExpenseView(): Widget
+-_deleteExpenseFromBoard(): Future<bool>
+-_fetchMemberRole(): Future<void>
+-_fetchExpenses(): Future<void>
+-_refreshExpenses(): Future<void>
+-_loadData(): Future<void>
+-_generateBlankExpense(): Future<Expense>
+-_navigateToEditAndRefresh(): Future<void>
+-_navigateToCreationAndRefresh(): Future<void>
+-_getBoardName(): Future<void>
+-_getAppbarActions(): Future<void>
+}
+State <|-- _ExpenseBoardScreenState
+_ExpenseBoardScreenState ..> GlobalKey
+_ExpenseBoardScreenState ..> Expense
+class SelectExpenseBoardsScreen {
+routeName: null
+isGroupBoardScreen: bool
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- SelectExpenseBoardsScreen
+class _SelectExpenseBoardsScreenState {
+boards: List<ExpenseBoard>
+---
+initState(): void
+-_fetchBoards(): void
+build(): Widget
+-_navigateToExpenseBoard(): void
+-_buildBoardItem(): Widget
+-_buildBoardListView(): Widget
+-_navigateToCreationAndRefresh(): Future<void>
+-_leaveExpenseBoard(): Future<bool>
+-_promptLeavingBoard(): Future<bool>
+}
+State <|-- _SelectExpenseBoardsScreenState
+class ExpenseCreationScreen {
+routeName: null
+expense: Expense
+boardId: int
+exists: bool
+onClose: VoidCallback
+---
+createState(): void
+}
+StatefulWidget <|-- ExpenseCreationScreen
+ExpenseCreationScreen ..> Expense
+ExpenseCreationScreen ..> VoidCallback
+class _ExpenseCreationScreenState {
+---
+build(): Widget
+}
+State <|-- _ExpenseCreationScreenState
+class Home {
+routeName: null
+---
+createState(): void
+}
+StatefulWidget <|-- Home
+class _HomeState {
+-_usernameController: null
+-_websiteController: null
+---
+dispose(): void
+-_navigateToSoloBoards(): void
+-_navigateToGroupBoards(): void
+-_navigateToInviteManagement(): void
+build(): Widget
+-_buildHomePageOptions(): Widget
+}
+State <|-- _HomeState
+class SignOutButton {
+child: Widget
+onTap: Future<void> Function()?
+textColour: Color?
+backgroundColour: Color?
+---
+build(): Widget
+}
+StatelessWidget <|-- SignOutButton
+SignOutButton ..> Widget
+SignOutButton ..> Color
+class InviteManagementScreen {
+routeName: null
+email: String
+status: String
+---
+createState(): State<StatefulWidget>
+}
+StatefulWidget <|-- InviteManagementScreen
+class _InviteManagementScreenState {
+invites: List<(InvitationItem invite, String boardName, String role)>
+loading: bool
+---
+initState(): void
+dispose(): void
+build(): Widget
+-_fetchPendingInvites(): Future<List<(InvitationItem invitation, String boardName, String role)>>
+-_fetchDeclinedInvites(): Future<List<(InvitationItem invitation, String boardName, String role)>>
+-_fetchAcceptedInvites(): Future<List<(InvitationItem invitation, String boardName, String role)>>
+-_renderProgressBar(): Widget
+-_buildInvitesScreen(): Widget
+-_renderListView(): Widget
+-_listViewItemBuilder(): Widget
+-_renderInviteView(): Widget
+-_acceptInvite(): Future<void>
+-_declineInvite(): Future<void>
+-_loadData(): Future<void>
+}
+State <|-- _InviteManagementScreenState
+class InvitationScreen {
+invitationToken: String
+---
+createState(): void
+}
+StatefulWidget <|-- InvitationScreen
+class _InvitationScreenState {
+-_invitation: Invitation?
+-_isLoading: bool
+---
+initState(): void
+fetchInvitationDetails(): Future<void>
+acceptInvitation(): void
+declineInvitation(): void
+build(): Widget
+}
+State <|-- _InvitationScreenState
+_InvitationScreenState ..> Invitation
+class Login {
+routeName: String
+followUpToken: String?
+followUpRoute: String?
+---
+createState(): void
+signOut(): Future<void>
+}
+StatefulWidget <|-- Login
+class _LoginState {
+-_isLoading: bool
+-_redirecting: bool
+-_appBarTitle: null
+authCallback: null
+-_emailController: TextEditingController
+-_passwordController: TextEditingController
+-_authStateSubscription: StreamSubscription<AuthState>
+---
+-_signInWithMagicLink(): Future<void>
+-_signInWithPassword(): Future<void>
+-_signInWithGoogle(): Future<void>
+-_navigateToSignUp(): Future<void>
+initState(): void
+dispose(): void
+displaySignInSuccess(): void
+build(): Widget
+}
+State <|-- _LoginState
+_LoginState ..> TextEditingController
+class SignUp {
+routeName: String
+---
+createState(): void
+signOut(): Future<void>
+}
+StatefulWidget <|-- SignUp
+class _SignUpState {
+-_appBarTitle: null
+authCallback: null
+-_emailController: TextEditingController
+-_passwordController: TextEditingController
+---
+-_emailSignUp(): Future<void>
+initState(): void
+dispose(): void
+build(): Widget
+}
+State <|-- _SignUpState
+_SignUpState ..> TextEditingController
+class Splash {
+routeName: String
+---
+createState(): void
+}
+StatefulWidget <|-- Splash
+class _SplashState {
+---
+initState(): void
+-_redirect(): Future<void>
+build(): Widget
+}
+State <|-- _SplashState
+class DeepLinkHandler {
+-_instance: DeepLinkHandler
+-_sub: StreamSubscription?
+---
+initDeepLinkListener(): void
+-_handleLink(): void
+dispose(): void
+}
+DeepLinkHandler ..> DeepLinkHandler
+class EmailService {
+-_endpointUrl: null
+---
+sendRemovedUserEmail(): Future<bool>
+sendAddedUserEmail(): Future<bool>
+sendEmailNotification(): Future<bool>
+inviteText(): String
+sendInviteEmail(): Future<void>
+}
+class ReceiptService {
+---
+addReceipt(): Future<String?>
+-_handleImageSource(): Future<String?>
+-_showImageSourceDialog(): Future<String?>
+}
+class SupabaseService {
+---
+getExpenseBoards(): Future<List<ExpenseBoard>>
+createExpenseBoard(): Future<ExpenseBoard>
+deleteExpenseBoard(): Future<bool>
+updateExpenseBoard(): Future<ExpenseBoard?>
+getBoard(): Future<ExpenseBoard?>
+isBoardOwner(): Future<bool>
+isAdmin(): Future<bool>
+deleteGroupMember(): Future<bool>
+updateGroupMemberRole(): Future<bool>
+isBoardGroup(): Future<bool>
+getExpensesForBoard(): Future<List<Expense>>
+getExpensesWithFilter(): Future<List<Expense>>
+getExpense(): Future<Expense>
+updateExpense(): Future<Expense>
+uploadReceiptUrl(): Future<bool>
+generateSignedReceiptUrl(): Future<String>
+hasReceipt(): Future<bool>
+deleteReceipt(): Future<bool>
+addExpense(): Future<Expense>
+removeExpense(): Future<Expense?>
+sendInvite(): Future<void>
+storeSentInviteDetails(): Future<bool>
+getInvite(): Future<Invitation?>
+acceptInvite(): Future<Invitation?>
+declineInvite(): Future<Invitation?>
+-_addOwnerToBoard(): Future<bool>
+addMemberToBoard(): Future<bool>
+getInvitesForMember(): Future<List<Invitation>>
+getGroupMembers(): Future<List<GroupMember>>
+removeGroupMember(): Future<bool>
+updateBoardName(): Future<bool>
+transferBoardOwnership(): Future<bool>
+getMemberRole(): Future<String>
+getMemberEmails(): Future<List<String>>
+isGroupMember(): Future<bool>
+fetchCategories(): Future<List<String>>
+fetchMemberRecords(): Future<List<(String userId, String userEmail)>>
+}
+class DialogHelper {
+---
+showConfirmationDialog(): Future<bool>
+}
+@enduml

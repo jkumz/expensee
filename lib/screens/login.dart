@@ -7,12 +7,12 @@ import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_
 import 'package:expensee/components/buttons/authentication_buttons/sign_in_with_password_button.dart';
 import 'package:expensee/components/buttons/custom_callback_button.dart';
 import 'package:expensee/config/constants.dart';
+import 'package:expensee/main.dart';
 import 'package:expensee/screens/sign_up.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:expensee/main.dart';
 
 class Login extends StatefulWidget {
   static const String routeName = "/login";
@@ -53,7 +53,9 @@ class _LoginState extends State<Login> {
         emailRedirectTo: kIsWeb ? null : authCallback,
       );
       if (mounted) {
-        displaySignInSuccess();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(magicLinkPopupText)),
+        );
       }
     } on AuthException catch (error) {
       SnackBar(
@@ -174,7 +176,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: _appBarTitle),
+      appBar: AppBar(title: Center(child: _appBarTitle)),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [

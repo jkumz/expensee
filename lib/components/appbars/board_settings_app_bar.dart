@@ -4,7 +4,7 @@ import "package:flutter/material.dart";
 class BoardSettingsAppBar extends AppBar {
   BoardSettingsAppBar(
       {Key? key,
-      Widget title = const Text("Board Settings"),
+      Widget title = const Center(child: Text("Board Settings")),
       List<Widget>? actions,
       required BuildContext context,
       VoidCallback? onBack})

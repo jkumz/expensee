@@ -8,8 +8,8 @@ import 'package:expensee/components/dialogs/confirmation_dialog.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/expenses/expense.dart';
-import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/forms/create_expense_form.dart';
+import 'package:expensee/components/nav_bars/board_nav_bar.dart';
 import 'package:expensee/components/nav_bars/board_settings_nav_bar.dart';
 import 'package:expensee/components/nav_bars/expense_screen_nav_bar.dart';
 import 'package:expensee/config/constants.dart';
@@ -543,7 +543,7 @@ class _ExpenseBoardScreenState extends State<ExpenseBoardScreen> {
     actionList = [
       Padding(
         padding: const EdgeInsets.only(right: 16.0),
-        child: Text("£$boardBalance"),
+        child: Text("£${boardBalance.toStringAsFixed(2)}"),
       )
     ];
   }

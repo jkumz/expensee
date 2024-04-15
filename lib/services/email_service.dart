@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:expensee/enums/roles.dart';
 import 'package:expensee/main.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import "package:logger/logger.dart";
 
 var logger = Logger();
@@ -60,7 +61,7 @@ class EmailService {
             'Authorization': 'Bearer $jwtToken'
           },
           body: jsonEncode(
-              {"to": recipientList, "subject": subject, "text": body}));
+              {"to": recipientList, "subject": subject, "textCenter": body}));
       if (emailResp.statusCode == 200) {
         logger.i("Email '$subject' sent successfully to $recipientList");
         return true;
@@ -106,7 +107,7 @@ class EmailService {
   String inviteText(String url) =>
       "You've been invited to an expense board! Click here to join:\n$url";
 
-// TODO - validate board id exists
+// TODO - validate board id exists, despite only being possible to access from a boards invite form
 // TODO - reformat email to include board name, inviter email, and role given
   Future<void> sendInviteEmail(String email, String boardId, Roles role) async {
     try {

@@ -22,7 +22,7 @@ const magicLinkPopupText =
     "We've sent you a passwordless login link to your email!";
 const signInSuccessText = "Signed in!";
 const confirmationEmailPopUpText =
-    Text("Please sign up your confirmation in your email.");
+    Text("We've sent you an email to confirm your sign up...");
 const unexpectedErrorText = Text("Unexpected error occured...");
 
 // LOG IN PAGE - Explanatory text
@@ -114,7 +114,7 @@ const categoryLength = 17;
 const expenseDescLength = 46;
 const invalidDateText = "Date must be in YYYY-MM-DD format";
 const invalidValueText =
-    "Invalid format. Please enter a balance in X.XX format";
+    "The expense value must be great than 0.01 and have a maximum of 2 decimal places.";
 const blankValueText = "Please enter a balance in X.XX format";
 
 // INVITE MANAGEMENT CONSTANTS

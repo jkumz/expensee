@@ -50,8 +50,9 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
 
     _expense = await _repo.addExpense(json);
-    logger.i("Added expense with id ${json['id']}");
-    logger.e("Failed to add new expense with id ${json['id']}");
+    _expense.id != null
+        ? logger.i("Added expense with id ${json['id']}")
+        : logger.e("Failed to add new expense with id ${json['id']}");
 
     isLoading = false;
     notifyListeners();

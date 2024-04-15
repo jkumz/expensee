@@ -1,8 +1,8 @@
 import 'package:expensee/models/expense/expense_model.dart';
-import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
 import "package:expensee/repositories/board_repo.dart";
+import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 var logger = Logger(
   printer: PrettyPrinter(), // Use the Prettylogger.der for easy-to-read logging
@@ -41,10 +41,14 @@ class BoardProvider extends ChangeNotifier {
     notifyListeners();
     var board = await _repo.addExpenseBoard(json);
 
-    logger.d("Created board with name ${json['name']}");
-    _boards.add(board);
-    notifyListeners();
-    return true;
+    if (board.id != null) {
+      logger.d("Created board with name ${json['name']}");
+      _boards.add(board);
+      notifyListeners();
+      return true;
+    }
+    logger.e("Failed to create board with name ${json['name']}");
+    return false;
   }
 
 // delete a board

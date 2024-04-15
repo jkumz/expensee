@@ -3,11 +3,11 @@
 import 'package:expensee/components/buttons/board_settings/add_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/delete_board_button.dart';
 import 'package:expensee/components/buttons/board_settings/download_receipts_button.dart';
-import 'package:expensee/components/buttons/board_settings/mass_email_button.dart';
-import 'package:expensee/components/buttons/board_settings/remove_user_button.dart';
 import 'package:expensee/components/buttons/board_settings/manage_users_button.dart';
-import 'package:expensee/components/buttons/board_settings/rename_board_button.dart';
+import 'package:expensee/components/buttons/board_settings/mass_email_button.dart';
 import 'package:expensee/components/buttons/board_settings/pass_ownership_button.dart';
+import 'package:expensee/components/buttons/board_settings/remove_user_button.dart';
+import 'package:expensee/components/buttons/board_settings/rename_board_button.dart';
 import 'package:expensee/components/calendar/date_picker.dart';
 import 'package:expensee/components/dialogs/default_error_dialog.dart';
 import 'package:expensee/components/dialogs/default_success_dialog.dart';
@@ -100,6 +100,29 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
   List<Widget> _buildSoloButtonList() {
     return [
       Expanded(
+        child: AddUserButton(
+          text: addUserText,
+          onPressed: _navigateToInviteUserScreen,
+          isEnabled: false,
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: RemoveUserButton(
+          text: removeUserText,
+          onPressed: _navigateToRemoveUserScreen,
+          isEnabled: false,
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: ManageRolesButton(
+            text: manageUserRolesText,
+            isEnabled: false,
+            onPressed: _navigateToRoleManagementScreen),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
         child: RenameBoardButton(
           text: renameBoardText,
           onPressed: _navigateToNamingScreen,
@@ -108,10 +131,25 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       ),
       const SizedBox(height: 12),
       Expanded(
+        child: PassOwnershipButton(
+          text: passOwnershipText,
+          onPressed: _navigateToOwnershipTransfer,
+          isEnabled: false,
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: MassEmailButton(
+          text: massEmailText,
+          onPressed: _navigateToMassEmailScreen,
+          isEnabled: false,
+        ),
+      ),
+      const SizedBox(height: 12),
+      Expanded(
         child: DownloadReceiptsButton(
           text: downloadReceiptsText,
           onPressed: _downloadAllReceipts,
-          isEnabled: _checkIfOwner(),
         ),
       ),
       const SizedBox(height: 12),
@@ -140,6 +178,7 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
       Expanded(
         child: ManageRolesButton(
             text: manageUserRolesText,
+            isEnabled: _checkIfOwner(),
             onPressed: _navigateToRoleManagementScreen),
       ),
       const SizedBox(height: 12),
@@ -163,7 +202,6 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
         child: MassEmailButton(
           text: massEmailText,
           onPressed: _navigateToMassEmailScreen,
-          isEnabled: _checkIfOwner(),
         ),
       ),
       const SizedBox(height: 12),
@@ -171,7 +209,6 @@ class _BoardSettingsScreenState extends State<BoardSettingsScreen> {
         child: DownloadReceiptsButton(
           text: downloadReceiptsText,
           onPressed: _downloadAllReceipts,
-          isEnabled: _checkIfOwner(),
         ),
       ),
       const SizedBox(height: 12),

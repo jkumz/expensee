@@ -50,6 +50,8 @@ dependencies:
   path: ^1.8.3
   permission_handler: ^11.3.1
   image_gallery_saver: ^2.0.3
+  mockito: ^5.4.4
+  code_uml: ^0.0.1
 
 
 dev_dependencies:

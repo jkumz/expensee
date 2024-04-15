@@ -2,16 +2,13 @@
 // May need split into multiple service layer classes if too big - readability
 
 import 'package:expensee/enums/roles.dart';
+import 'package:expensee/main.dart';
 import 'package:expensee/models/expense/expense_date.dart';
 import 'package:expensee/models/expense/expense_model.dart';
 import 'package:expensee/models/expense_board/expense_board.dart';
-import 'package:expensee/main.dart';
 import 'package:expensee/models/group_member/group_member.dart';
 import 'package:expensee/models/invitation_model.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
-
-import 'package:resend/resend.dart';
 
 var logger = Logger(
   printer: PrettyPrinter(), // Use the PrettyPrinter for easy-to-read logging
@@ -68,6 +65,7 @@ class SupabaseService {
 
         if (addedOwner) {
           logger.d("Board created & owner added");
+          return ExpenseBoard.fromJson(response.first);
         } else {
           logger.e("Error adding owner to expense board - deleting board!");
           await deleteExpenseBoard(response.first["id"].toString());
@@ -442,6 +440,8 @@ class SupabaseService {
         }
       });
 
+      // Apply update then check if it worked.
+
       await supabase
           .from("expenses")
           .update(expenseData)
@@ -645,22 +645,6 @@ class SupabaseService {
       logger.e("$e");
     }
     return null;
-  }
-
-  Future<void> sendInvite(String email, String msg, String subject) async {
-    var resend = Resend(apiKey: "${dotenv.env['RESEND_API_KEY']}");
-    resend = Resend.instance; // check if api key is correct
-    try {
-      resend.sendEmail(
-          from: "onboarding@resend.dev",
-          to: [email],
-          subject: subject,
-          text: msg);
-      logger.d("Invite email sent to $email");
-    } catch (e) {
-      logger.e("Failed to send invite email to $email");
-      logger.e(e);
-    }
   }
 
   // Store invite token in supabase
@@ -932,10 +916,6 @@ class SupabaseService {
       } else {
         logger.d("Successfully fetched members for board with id $boardId");
       }
-
-      members.isEmpty
-          ? logger.w("No group members found for board with id $boardId")
-          : logger.d("Successfully fetched members for board with id $boardId");
       return members;
     } catch (e) {
       logger.e("Failed to fetch group members for board with ID $boardId");

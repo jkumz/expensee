@@ -50,6 +50,9 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   final repo = ExpenseRepository();
   bool isSubmitted = false;
   bool _isFormValid = true;
+  bool isAmountEnteredValid = true;
+  bool isDateEnteredValid = true;
+  bool isDescriptionPresent = false;
 
   @override
   void initState() {
@@ -62,6 +65,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     _dateController = TextEditingController(
       text: expenseDateToString(widget.expense.date),
     );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkReceipt();
     });
@@ -69,6 +73,7 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
     // Add validation to controllers
     _amountController.addListener(() => _validateForm());
     _dateController.addListener(() => _validateForm());
+    _descriptionController.addListener(() => _validateForm());
   }
 
   Future<void> _checkReceipt() async {
@@ -77,25 +82,35 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   }
 
   void _validateForm() {
-    // Regex - Check it's start of line, then match digit between 1 to 7 times
-    // (up to millions), then match the decimal, then match exactly 2 digits.
+    // Regex - Check it's start of line, then match digits between 1 to 9 times,
+// optionally followed by a decimal point and 2 more digits.
     bool isAmountValid =
-        RegExp(r'^\d{1,7}\.\d{2}$').hasMatch(_amountController.text);
+        RegExp(r'^\d{1,9}(\.\d{1,2})?$').hasMatch(_amountController.text);
 
     // Regex - Check start of line, then match exactly 4 digits for year, then
     // match exactly 2 digits for MM, then 2 for DD. Match '-' inbetween.
     bool isDateValid =
         RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(_dateController.text);
 
+    bool isDescriptionProvided = _descriptionController.text.isNotEmpty;
+
     if (!isAmountValid) {
-      _showInvalidValueMessage();
-      _amountController.text = "0.00";
-      return;
+      setState(() {
+        isAmountEnteredValid = isAmountValid;
+      });
+    } else {
+      isAmountEnteredValid = true;
     }
+
     if (!isDateValid) {
-      _showInvalidDateMessage();
-      return;
+      setState(() {
+        isDateEnteredValid = isDateValid;
+      });
+    } else {
+      isDateEnteredValid = true;
     }
+
+    isDescriptionPresent = isDescriptionProvided ? true : false;
 
     if (mounted) {
       setState(() {
@@ -140,99 +155,102 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   }
 
   Widget _renderButtons() {
-    return Column(
-      children: [
-        TextField(
-          controller: _categoryController,
-          readOnly: false,
-          decoration: const InputDecoration(
-              labelText: editableExpenseCategoryLabelText),
-          inputFormatters: [LengthLimitingTextInputFormatter(categoryLength)],
-        ),
-        TextField(
-          controller: _descriptionController,
-          readOnly: false,
-          decoration:
-              const InputDecoration(labelText: editableDescriptionLabelText),
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(expenseDescLength)
-          ],
-        ),
-        TextField(
-          controller: _amountController,
-          decoration: const InputDecoration(labelText: editableAmountLabelText),
-          readOnly: false,
-        ),
-        TextField(
-          controller: _dateController,
-          decoration: const InputDecoration(labelText: editableDateLabelText),
-          readOnly: true,
-          onTap: () => {_selectDate(context)},
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            Expanded(
-                child: AddReceiptButton(
-              text: "Add Receipt",
-              onPressed: _addReceipt,
-              height: 60,
-              width: 40,
-              contentAlignment: Alignment.center,
-              isEnabled: !hasReceipt,
-            )),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            Expanded(
-                child: ViewReceiptButton(
-              text: "View Receipt",
-              onPressed: _viewReceipt,
-              height: 60,
-              width: 40,
-              contentAlignment: Alignment.center,
-              isEnabled: hasReceipt,
-            )),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            Expanded(
-                child: DeleteReceiptButton(
-              text: "Delete Receipt",
-              onPressed: _deleteReceipt,
-              height: 60,
-              width: 40,
-              contentAlignment: Alignment.center,
-              isEnabled: hasReceipt,
-            )),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            Expanded(
-                child: SaveExpenseButton(
-              text: "Save",
-              onPressed: _saveExpense,
-              height: 60,
-              width: 40,
-              contentAlignment: Alignment.center,
-            )),
-          ],
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          TextField(
+            controller: _categoryController,
+            readOnly: false,
+            decoration: const InputDecoration(
+                labelText: editableExpenseCategoryLabelText),
+            inputFormatters: [LengthLimitingTextInputFormatter(categoryLength)],
+          ),
+          TextField(
+            controller: _descriptionController,
+            readOnly: false,
+            decoration:
+                const InputDecoration(labelText: editableDescriptionLabelText),
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(expenseDescLength)
+            ],
+          ),
+          TextField(
+            controller: _amountController,
+            decoration:
+                const InputDecoration(labelText: editableAmountLabelText),
+            readOnly: false,
+          ),
+          TextField(
+            controller: _dateController,
+            decoration: const InputDecoration(labelText: editableDateLabelText),
+            readOnly: true,
+            onTap: () => {_selectDate(context)},
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              Expanded(
+                  child: AddReceiptButton(
+                text: "Add Receipt",
+                onPressed: _addReceipt,
+                height: 60,
+                width: 40,
+                contentAlignment: Alignment.center,
+                isEnabled: !hasReceipt,
+              )),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              Expanded(
+                  child: ViewReceiptButton(
+                text: "View Receipt",
+                onPressed: _viewReceipt,
+                height: 60,
+                width: 40,
+                contentAlignment: Alignment.center,
+                isEnabled: hasReceipt,
+              )),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              Expanded(
+                  child: DeleteReceiptButton(
+                text: "Delete Receipt",
+                onPressed: _deleteReceipt,
+                height: 60,
+                width: 40,
+                contentAlignment: Alignment.center,
+                isEnabled: hasReceipt,
+              )),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              Expanded(
+                  child: SaveExpenseButton(
+                text: "Save",
+                onPressed: _saveExpense,
+                height: 60,
+                width: 40,
+                contentAlignment: Alignment.center,
+              )),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -275,6 +293,39 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
   }
 
   Future<void> _saveExpense() async {
+    if (!isDateEnteredValid) {
+      _showInvalidDateMessage();
+      _dateController.text = expenseDateToString(widget.expense.date);
+      return;
+    } else if (!isAmountEnteredValid) {
+      _showInvalidValueMessage();
+      _amountController.text = "0.00";
+      return;
+    } else if (_amountController.text == "0.00") {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DefaultErrorDialog(
+                errorMessage: "An expense can't have a value of 0.00");
+          });
+      return;
+    }
+
+    if (!isDescriptionPresent) {
+      showDialog(
+          context: context,
+          builder: (BuildContext) {
+            return DefaultErrorDialog(
+                errorMessage: "A description must be provided");
+          });
+      return;
+    }
+
+    // Regex - Check if _amountController.text ends with .xx where x is a digit between 0 and 9 inclusive
+    bool endsWithDecimal = RegExp(r'\.\d{2}$').hasMatch(_amountController.text);
+    if (!endsWithDecimal) {
+      _amountController.text += ".00";
+    }
     await _modifyExpense();
     widget.onClose();
   }
@@ -442,14 +493,14 @@ class _CreateExpenseFormState extends State<CreateExpenseForm> {
       final bytes = await readBytes(Uri.parse(imgUrl));
       final result = await ImageGallerySaver.saveImage(bytes);
       if (result["isSuccess"]) {
-        showDialog(
+        await showDialog(
             context: context,
             builder: (BuildContext context) {
               return DefaultSuccessDialog(
                   successMessage: "Receipt saved to camera roll");
             });
       } else {
-        showDialog(
+        await showDialog(
             context: context,
             builder: (BuildContext context) {
               return DefaultErrorDialog(errorMessage: receiptSaveFail);

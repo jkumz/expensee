@@ -6,7 +6,6 @@ import 'package:expensee/components/dialogs/default_success_dialog.dart';
 import 'package:expensee/components/invites/invitation.dart';
 import 'package:expensee/components/nav_bars/default_bottom_bar.dart';
 import 'package:expensee/config/constants.dart';
-import 'package:expensee/main.dart';
 import 'package:expensee/models/invitation_model.dart';
 import 'package:expensee/providers/board_provider.dart';
 import 'package:expensee/providers/g_member_provider.dart';
@@ -204,7 +203,7 @@ class _InviteManagementScreenState extends State<InviteManagementScreen> {
                 child: Text(
                     "Board: $boardName")), // Directly display the board name
             Expanded(
-              child: Text("Role: ${role.toUpperCase()}}"),
+              child: Text("Role: ${role.toUpperCase()}"),
             ),
             AcceptInviteButton(
                 text: acceptBtnText,

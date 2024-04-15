@@ -114,7 +114,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
           .updateBoardName(widget.boardId, newName);
 
       if (!renamed) {
-        showDialog(
+        await showDialog(
           context: context,
           builder: (BuildContext context) {
             return DefaultErrorDialog(
@@ -125,7 +125,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
       }
 
       if (renamed) {
-        showDialog(
+        await showDialog(
             context: context,
             builder: (BuildContext context) {
               return DefaultSuccessDialog(
@@ -135,7 +135,7 @@ class _RenameBoardFormState extends State<RenameBoardForm> {
     } catch (e) {
       logger
           .e("Failed rename board with ID ${widget.boardId} to $newName:\n$e");
-      showDialog(
+      await showDialog(
           context: context,
           builder: (BuildContext context) {
             return DefaultErrorDialog(
