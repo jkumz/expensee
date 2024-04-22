@@ -48,7 +48,7 @@ Testing was mostly done as the project was developed, utilising Flutter's Hot Re
 
 # Technologies Used
 - Dart/Flutter for frontend + client functionality
-- Supabase for backend, database functions, edge functions and Row Level Security
+- Supabase for backend, PostgreSQL database, database functions, edge functions and Row Level Security
 - TypeScript for Email edge function
 - Resend for the Email Service
 - Jira for tracking progress
